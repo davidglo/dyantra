@@ -62,7 +62,7 @@ void ofApp::draw() {
 
     // Draw the potential field if the flag is set
     if (showPotentialField) {
-        ofSetColor(255); 
+        ofSetColor(255);
         potentialField.draw(0, 0, ofGetWidth(), ofGetHeight()); // Upscale when drawing
     }
 

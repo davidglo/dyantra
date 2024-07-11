@@ -2,9 +2,9 @@
 
 #include "ofMain.h"
 
-class Attractor {
+class attractor {
 public:
-    Attractor(const ofPoint& center, float radius, float amplitude = 1.0f);
+    attractor(const ofPoint& center, float radius, float amplitude = 1.0f);
 
     void draw() const;
     bool isPointNear(const ofPoint& point, float tolerance) const;

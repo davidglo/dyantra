@@ -1,10 +1,10 @@
 #include "attractor.h"
 
-Attractor::Attractor(const ofPoint& center, float radius, float amplitude)
+attractor::attractor(const ofPoint& center, float radius, float amplitude)
     : center(center), radius(radius), amplitude(amplitude) {
 }
 
-void Attractor::draw() const {
+void attractor::draw() const {
     ofNoFill();
     ofSetColor(255); // White color for attractor edges
     int numSegments = 100; // Increase the number of segments for smoother circles
@@ -22,34 +22,34 @@ void Attractor::draw() const {
     ofDrawCircle(center, 2);
 }
 
-bool Attractor::isPointNear(const ofPoint& point, float tolerance) const {
+bool attractor::isPointNear(const ofPoint& point, float tolerance) const {
     return center.distance(point) <= tolerance;
 }
 
-bool Attractor::isPointNearEdge(const ofPoint& point, float tolerance) const {
+bool attractor::isPointNearEdge(const ofPoint& point, float tolerance) const {
     return fabs(center.distance(point) - radius) <= tolerance;
 }
 
-const ofPoint& Attractor::getCenter() const {
+const ofPoint& attractor::getCenter() const {
     return center;
 }
 
-void Attractor::setCenter(const ofPoint& center) {
+void attractor::setCenter(const ofPoint& center) {
     this->center = center;
 }
 
-float Attractor::getRadius() const {
+float attractor::getRadius() const {
     return radius;
 }
 
-void Attractor::setRadius(float radius) {
+void attractor::setRadius(float radius) {
     this->radius = radius;
 }
 
-float Attractor::getAmplitude() const {
+float attractor::getAmplitude() const {
     return amplitude;
 }
 
-void Attractor::setAmplitude(float amplitude) {
+void attractor::setAmplitude(float amplitude) {
     this->amplitude = amplitude;
 }

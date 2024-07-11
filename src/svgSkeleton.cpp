@@ -1,12 +1,12 @@
-#include "SvgSkeleton.h"
+#include "svgSkeleton.h"
 
-void SvgSkeleton::loadSvg(const std::string& filename) {
+void svgSkeleton::loadSvg(const std::string& filename) {
     svg.load(filename);
     generateEquidistantPoints(10000); // Default number of points
     calculateSvgCentroid();
 }
 
-void SvgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
+void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     float totalPathLength = 0;
 
     std::vector<std::pair<ofPolyline, float>> polylinesWithLengths;
@@ -48,7 +48,7 @@ void SvgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     calculateSvgCentroid();
 }
 
-void SvgSkeleton::calculateSvgCentroid() {
+void svgSkeleton::calculateSvgCentroid() {
     if (equidistantPoints.empty()) return;
 
     ofPoint sum(0, 0);
@@ -58,20 +58,20 @@ void SvgSkeleton::calculateSvgCentroid() {
     svgCentroid = sum / equidistantPoints.size();
 }
 
-void SvgSkeleton::translateSvg(const ofPoint& offset) {
+void svgSkeleton::translateSvg(const ofPoint& offset) {
     for (auto& point : equidistantPoints) {
         point += offset;
     }
     svgCentroid += offset;
 }
 
-void SvgSkeleton::resizeSvg(float scale) {
+void svgSkeleton::resizeSvg(float scale) {
     for (auto& point : equidistantPoints) {
         point = svgCentroid + (point - svgCentroid) * scale;
     }
 }
 
-void SvgSkeleton::draw() const {
+void svgSkeleton::draw() const {
     ofSetColor(255); // White color for points
     for (const auto& point : equidistantPoints) {
         ofDrawCircle(point, 1); // Draw small circles at each point
@@ -81,10 +81,10 @@ void SvgSkeleton::draw() const {
     ofDrawCircle(svgCentroid, 5); // Draw a small circle at the centroid
 }
 
-const std::vector<glm::vec3>& SvgSkeleton::getEquidistantPoints() const {
+const std::vector<glm::vec3>& svgSkeleton::getEquidistantPoints() const {
     return equidistantPoints;
 }
 
-const ofPoint& SvgSkeleton::getSvgCentroid() const {
+const ofPoint& svgSkeleton::getSvgCentroid() const {
     return svgCentroid;
 }

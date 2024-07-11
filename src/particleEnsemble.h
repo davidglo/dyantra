@@ -2,9 +2,9 @@
 
 #include "ofMain.h"
 
-class ParticleEnsemble {
+class particleEnsemble {
 public:
-    ParticleEnsemble(); // Constructor
+    particleEnsemble(); // Constructor
 
     void draw() const;
     void initialize(const std::vector<glm::vec3>& initialPositions); // Initialization function
@@ -22,7 +22,7 @@ public:
     std::vector<float> masses;
 };
 
-inline void ParticleEnsemble::ZeroForces() {
+inline void particleEnsemble::ZeroForces() {
     for (auto& force : f) {
         force = glm::vec3(0, 0, 0);
     }

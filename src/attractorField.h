@@ -4,9 +4,9 @@
 #include "attractor.h"
 #include "glm/vec3.hpp"
 
-class AttractorField {
+class attractorField {
 public:
-    void addAttractor(const Attractor& attractor);
+    void addAttractor(const attractor& attractor);
     void removeAttractorAt(int index);
     void draw() const;
     void drawContours() const;
@@ -21,11 +21,11 @@ public:
     void setAttractorCenter(int index, const ofPoint& center);
     void setAttractorRadius(int index, float radius);
 
-    const std::vector<Attractor>& getAttractors() const;
+    const std::vector<attractor>& getAttractors() const;
 
     glm::vec3 calculateForceOnParticle(const glm::vec3& particlePosition) const; // New method
 
 private:
-    std::vector<Attractor> attractors;
+    std::vector<attractor> attractors;
     std::vector<ofPoint> contourPoints;
 };

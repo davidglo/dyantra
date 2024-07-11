@@ -20,8 +20,8 @@ public:
     void keyPressed(int key); // Declare the keyPressed method
 
 private:
-    SvgSkeleton svgSkeleton; // Use the new SvgSkeleton class
-    ParticleEnsemble particleEnsemble; // Use the new ParticleEnsemble class
+    svgSkeleton svgSkeleton; // Use the new svgSkeleton class
+    particleEnsemble particleEnsemble; // Use the new particleEnsemble class
 
     void updateContours();  // Declare the updateContours method
 
@@ -29,8 +29,8 @@ private:
     ofPoint getNearestSvgVertex(const ofPoint& point, float& minDistance);
 
     // Variables to handle attractor drawing and editing
-    AttractorField attractorField; // Use the new AttractorField class
-    Attractor tempAttractor = Attractor(ofPoint(0, 0), 0);
+    attractorField attractorField; // Use the new attractorField class
+    attractor tempAttractor = attractor(ofPoint(0, 0), 0);
     bool drawingAttractor;
 
     // Editing state for attractors

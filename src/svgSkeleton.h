@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxSVG.h"
 
-class SvgSkeleton {
+class svgSkeleton {
 public:
     void loadSvg(const std::string& filename);
     void generateEquidistantPoints(int numDesiredPoints);

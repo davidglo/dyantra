@@ -126,7 +126,7 @@ void ofApp::mousePressed(int x, int y, int button) {
         }
 
         // Otherwise, we are drawing a new attractor
-        tempAttractor = Attractor(mousePos, 0);
+        tempAttractor = attractor(mousePos, 0);
         drawingAttractor = true;
     } else if (button == OF_MOUSE_BUTTON_RIGHT) {
         // Check if we are right-clicking near an attractor's center to delete it

@@ -1,10 +1,10 @@
 #include "particleEnsemble.h"
 
-ParticleEnsemble::ParticleEnsemble() {
+particleEnsemble::particleEnsemble() {
     // Default constructor
 }
 
-void ParticleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions) {
+void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions) {
     positions = initialPositions;
     last_positions = initialPositions;
     v.resize(positions.size(), glm::vec3(0, 0, 0));
@@ -14,19 +14,19 @@ void ParticleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
     masses.resize(positions.size(), 1.0f); // Example mass initialization
 }
 
-void ParticleEnsemble::translate(const ofPoint& offset) {
+void particleEnsemble::translate(const ofPoint& offset) {
     for (auto& position : positions) {
         position += offset;
     }
 }
 
-void ParticleEnsemble::resize(float scale, const ofPoint& centroid) {
+void particleEnsemble::resize(float scale, const ofPoint& centroid) {
     for (auto& position : positions) {
         position = centroid + (position - centroid) * scale;
     }
 }
 
-void ParticleEnsemble::draw() const {
+void particleEnsemble::draw() const {
     ofFill();
     for (size_t i = 0; i < positions.size(); ++i) {
         ofDrawCircle(positions[i], radii[i]);

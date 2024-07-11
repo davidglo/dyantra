@@ -2,31 +2,31 @@
 #include <cmath>
 #include <algorithm>
 
-void AttractorField::addAttractor(const Attractor& attractor) {
+void attractorField::addAttractor(const attractor& attractor) {
     attractors.push_back(attractor);
 }
 
-void AttractorField::removeAttractorAt(int index) {
+void attractorField::removeAttractorAt(int index) {
     if (index >= 0 && index < attractors.size()) {
         attractors.erase(attractors.begin() + index);
     }
 }
 
-void AttractorField::draw() const {
+void attractorField::draw() const {
     ofNoFill();
     for (const auto& attractor : attractors) {
         attractor.draw();
     }
 }
 
-void AttractorField::drawContours() const {
+void attractorField::drawContours() const {
     ofSetColor(255, 0, 0); // Red color for contour lines
     for (const auto& point : contourPoints) {
         ofDrawCircle(point.x, point.y, 0.5); // Smaller size for higher resolution
     }
 }
 
-void AttractorField::updateContours(float downscaleFactor, int width, int height, const std::vector<glm::vec3>& equidistantPoints) {
+void attractorField::updateContours(float downscaleFactor, int width, int height, const std::vector<glm::vec3>& equidistantPoints) {
     contourPoints.clear();
     float contourThreshold = 0.5; // Threshold for contour lines
 
@@ -46,7 +46,7 @@ void AttractorField::updateContours(float downscaleFactor, int width, int height
     }
 }
 
-void AttractorField::calculatePotentialField(ofImage& potentialField, float downscaleFactor, int width, int height) {
+void attractorField::calculatePotentialField(ofImage& potentialField, float downscaleFactor, int width, int height) {
     float maxPotential = 0;
     float minPotential = FLT_MAX;
 
@@ -78,7 +78,7 @@ void AttractorField::calculatePotentialField(ofImage& potentialField, float down
     potentialField.update();
 }
 
-float AttractorField::computePotentialAtPoint(float x, float y) const {
+float attractorField::computePotentialAtPoint(float x, float y) const {
     float totalPotential = 0;
     for (const auto& attractor : attractors) {
         float dx = x - attractor.getCenter().x;
@@ -92,7 +92,7 @@ float AttractorField::computePotentialAtPoint(float x, float y) const {
     return totalPotential;
 }
 
-void AttractorField::computeForces(std::vector<ofPoint>& forces, const std::vector<glm::vec3>& positions, float amplitude, float sigma) {
+void attractorField::computeForces(std::vector<ofPoint>& forces, const std::vector<glm::vec3>& positions, float amplitude, float sigma) {
     forces.resize(positions.size(), ofPoint(0, 0));
 
     for (size_t i = 0; i < positions.size(); ++i) {
@@ -110,31 +110,31 @@ void AttractorField::computeForces(std::vector<ofPoint>& forces, const std::vect
     }
 }
 
-void AttractorField::setContourPoints(const std::vector<ofPoint>& points) {
+void attractorField::setContourPoints(const std::vector<ofPoint>& points) {
     contourPoints = points;
 }
 
-const std::vector<ofPoint>& AttractorField::getContourPoints() const {
+const std::vector<ofPoint>& attractorField::getContourPoints() const {
     return contourPoints;
 }
 
-void AttractorField::setAttractorCenter(int index, const ofPoint& center) {
+void attractorField::setAttractorCenter(int index, const ofPoint& center) {
     if (index >= 0 && index < attractors.size()) {
         attractors[index].setCenter(center);
     }
 }
 
-void AttractorField::setAttractorRadius(int index, float radius) {
+void attractorField::setAttractorRadius(int index, float radius) {
     if (index >= 0 && index < attractors.size()) {
         attractors[index].setRadius(radius);
     }
 }
 
-const std::vector<Attractor>& AttractorField::getAttractors() const {
+const std::vector<attractor>& attractorField::getAttractors() const {
     return attractors;
 }
 
-glm::vec3 AttractorField::calculateForceOnParticle(const glm::vec3& particlePosition) const {
+glm::vec3 attractorField::calculateForceOnParticle(const glm::vec3& particlePosition) const {
     glm::vec3 forceVector(0.0f, 0.0f, 0.0f);
 
     for (const auto& attractor : attractors) {

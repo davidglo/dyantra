@@ -18,9 +18,9 @@
 		92E445692C3C676500662FFC /* libsvgtiny.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92E445602C3C676400662FFC /* libsvgtiny.a */; };
 		92E4456A2C3C676500662FFC /* ofxSvg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92E445632C3C676400662FFC /* ofxSvg.cpp */; };
 		92E4456D2C3D72BE00662FFC /* attractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92E4456B2C3D72BE00662FFC /* attractor.cpp */; };
-		92E445702C3EB9C800662FFC /* AttractorField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92E4456E2C3EB9C800662FFC /* AttractorField.cpp */; };
-		92E445732C3EC37800662FFC /* ParticleEnsemble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92E445712C3EC37800662FFC /* ParticleEnsemble.cpp */; };
-		92E445762C3ECA0400662FFC /* SvgSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92E445742C3ECA0400662FFC /* SvgSkeleton.cpp */; };
+		92E445702C3EB9C800662FFC /* attractorField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92E4456E2C3EB9C800662FFC /* attractorField.cpp */; };
+		92E445732C3EC37800662FFC /* particleEnsemble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92E445712C3EC37800662FFC /* particleEnsemble.cpp */; };
+		92E445762C3ECA0400662FFC /* svgSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92E445742C3ECA0400662FFC /* svgSkeleton.cpp */; };
 		E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B69E1D0A3A1BDC003C02F2 /* main.cpp */; };
 		E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */; };
 /* End PBXBuildFile section */
@@ -107,12 +107,12 @@
 		92E445642C3C676400662FFC /* ofxSvg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxSvg.h; sourceTree = "<group>"; };
 		92E4456B2C3D72BE00662FFC /* attractor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = attractor.cpp; sourceTree = "<group>"; };
 		92E4456C2C3D72BE00662FFC /* attractor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = attractor.h; sourceTree = "<group>"; };
-		92E4456E2C3EB9C800662FFC /* AttractorField.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AttractorField.cpp; sourceTree = "<group>"; };
-		92E4456F2C3EB9C800662FFC /* AttractorField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AttractorField.h; sourceTree = "<group>"; };
-		92E445712C3EC37800662FFC /* ParticleEnsemble.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleEnsemble.cpp; sourceTree = "<group>"; };
-		92E445722C3EC37800662FFC /* ParticleEnsemble.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParticleEnsemble.h; sourceTree = "<group>"; };
-		92E445742C3ECA0400662FFC /* SvgSkeleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SvgSkeleton.cpp; sourceTree = "<group>"; };
-		92E445752C3ECA0400662FFC /* SvgSkeleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SvgSkeleton.h; sourceTree = "<group>"; };
+		92E4456E2C3EB9C800662FFC /* attractorField.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = attractorField.cpp; sourceTree = "<group>"; };
+		92E4456F2C3EB9C800662FFC /* attractorField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = attractorField.h; sourceTree = "<group>"; };
+		92E445712C3EC37800662FFC /* particleEnsemble.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = particleEnsemble.cpp; sourceTree = "<group>"; };
+		92E445722C3EC37800662FFC /* particleEnsemble.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = particleEnsemble.h; sourceTree = "<group>"; };
+		92E445742C3ECA0400662FFC /* svgSkeleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = svgSkeleton.cpp; sourceTree = "<group>"; };
+		92E445752C3ECA0400662FFC /* svgSkeleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = svgSkeleton.h; sourceTree = "<group>"; };
 		E42962AC2163EDD300A6A9E2 /* ofCamera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ofCamera.cpp; path = ../../../libs/openFrameworks/3d/ofCamera.cpp; sourceTree = SOURCE_ROOT; };
 		E42962AD2163EDD300A6A9E2 /* ofMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ofMesh.h; path = ../../../libs/openFrameworks/3d/ofMesh.h; sourceTree = SOURCE_ROOT; };
 		E42962AE2163EDD300A6A9E2 /* ofNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ofNode.h; path = ../../../libs/openFrameworks/3d/ofNode.h; sourceTree = SOURCE_ROOT; };
@@ -844,16 +844,16 @@
 			isa = PBXGroup;
 			children = (
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
-				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
-				92E4456B2C3D72BE00662FFC /* attractor.cpp */,
+				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				92E4456C2C3D72BE00662FFC /* attractor.h */,
-				92E4456E2C3EB9C800662FFC /* AttractorField.cpp */,
-				92E4456F2C3EB9C800662FFC /* AttractorField.h */,
-				92E445712C3EC37800662FFC /* ParticleEnsemble.cpp */,
-				92E445722C3EC37800662FFC /* ParticleEnsemble.h */,
-				92E445742C3ECA0400662FFC /* SvgSkeleton.cpp */,
-				92E445752C3ECA0400662FFC /* SvgSkeleton.h */,
+				92E4456B2C3D72BE00662FFC /* attractor.cpp */,
+				92E4456F2C3EB9C800662FFC /* attractorField.h */,
+				92E4456E2C3EB9C800662FFC /* attractorField.cpp */,
+				92E445722C3EC37800662FFC /* particleEnsemble.h */,
+				92E445712C3EC37800662FFC /* particleEnsemble.cpp */,
+				92E445752C3ECA0400662FFC /* svgSkeleton.h */,
+				92E445742C3ECA0400662FFC /* svgSkeleton.cpp */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -959,12 +959,12 @@
 				92E4456D2C3D72BE00662FFC /* attractor.cpp in Sources */,
 				92E4456A2C3C676500662FFC /* ofxSvg.cpp in Sources */,
 				92E445172C3B3E7500662FFC /* ofxXmlSettings.cpp in Sources */,
-				92E445702C3EB9C800662FFC /* AttractorField.cpp in Sources */,
+				92E445702C3EB9C800662FFC /* attractorField.cpp in Sources */,
 				92E445152C3B3E7500662FFC /* tinyxmlerror.cpp in Sources */,
-				92E445762C3ECA0400662FFC /* SvgSkeleton.cpp in Sources */,
+				92E445762C3ECA0400662FFC /* svgSkeleton.cpp in Sources */,
 				92E445162C3B3E7500662FFC /* tinyxml.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
-				92E445732C3EC37800662FFC /* ParticleEnsemble.cpp in Sources */,
+				92E445732C3EC37800662FFC /* particleEnsemble.cpp in Sources */,
 				92E445142C3B3E7500662FFC /* tinyxmlparser.cpp in Sources */,
 				92E445652C3C676400662FFC /* Makefile in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,

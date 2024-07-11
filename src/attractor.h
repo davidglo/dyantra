@@ -4,19 +4,23 @@
 
 class Attractor {
 public:
-    Attractor(const ofPoint& center, float radius);
+    Attractor(const ofPoint& center, float radius, float amplitude = 1.0f);
 
     void draw() const;
     bool isPointNear(const ofPoint& point, float tolerance) const;
     bool isPointNearEdge(const ofPoint& point, float tolerance) const;
 
-    void setCenter(const ofPoint& center);
     const ofPoint& getCenter() const;
+    void setCenter(const ofPoint& center);
 
-    void setRadius(float radius);
     float getRadius() const;
+    void setRadius(float radius);
+
+    float getAmplitude() const;
+    void setAmplitude(float amplitude);
 
 private:
     ofPoint center;
     float radius;
+    float amplitude;
 };

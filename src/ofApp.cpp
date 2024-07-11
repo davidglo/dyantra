@@ -39,6 +39,8 @@ void ofApp::setup() {
     potentialFieldUpdated = true;
     showPotentialField = true; // Initialize the flag to show the potential field
     contourLinesUpdated = true; // Initialize the flag to update contour lines
+
+    particleEnsemble.initialize(svgSkeleton.getEquidistantPoints());
 }
 
 void ofApp::update() {
@@ -51,6 +53,8 @@ void ofApp::update() {
         updateContours();
         contourLinesUpdated = false;
     }
+
+    // In the future, we'll add the particle update code here.
 }
 
 void ofApp::draw() {
@@ -58,6 +62,7 @@ void ofApp::draw() {
 
     // Draw the potential field if the flag is set
     if (showPotentialField) {
+        ofSetColor(255); 
         potentialField.draw(0, 0, ofGetWidth(), ofGetHeight()); // Upscale when drawing
     }
 
@@ -69,6 +74,9 @@ void ofApp::draw() {
     // Draw the SVG skeleton
     svgSkeleton.draw();
 
+    // Draw the particles
+    particleEnsemble.draw();
+
     // Draw established attractors
     attractorField.draw();
 
@@ -76,12 +84,6 @@ void ofApp::draw() {
     if (drawingAttractor) {
         tempAttractor.draw();
     }
-
-    // Draw the centroid of the SVG paths
-    ofFill();
-    ofDrawCircle(svgSkeleton.getSvgCentroid(), 5); // Draw a small circle at the centroid
-
-    ofFill();  // Restore fill state
 }
 
 void ofApp::mousePressed(int x, int y, int button) {
@@ -158,12 +160,14 @@ void ofApp::mouseDragged(int x, int y, int button) {
     } else if (translatingSvg) {
         ofPoint offset(x - initialMousePos.x, y - initialMousePos.y);
         svgSkeleton.translateSvg(offset);
+        particleEnsemble.translate(offset); // Translate the particle ensemble as well
         initialMousePos.set(x, y);  // Update for continuous translation
     } else if (resizingSvg) {
         float initialDistance = initialMousePos.distance(svgSkeleton.getSvgCentroid());
         float currentDistance = ofPoint(x, y).distance(svgSkeleton.getSvgCentroid());
         float scaleFactor = currentDistance / initialDistance;
         svgSkeleton.resizeSvg(scaleFactor);
+        particleEnsemble.resize(scaleFactor, svgSkeleton.getSvgCentroid()); // Resize the particle ensemble as well
         initialMousePos.set(x, y);  // Update initialMousePos for continuous scaling
     }
     potentialFieldUpdated = true;
@@ -203,4 +207,3 @@ void ofApp::keyPressed(int key) {
         showPotentialField = !showPotentialField; // Toggle the flag
     }
 }
-

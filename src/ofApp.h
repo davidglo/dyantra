@@ -3,9 +3,9 @@
 #include "ofMain.h"
 #include "ofxSVG.h"
 #include "attractor.h"
-#include "AttractorField.h"
-#include "ParticleEnsemble.h"
-#include "SvgSkeleton.h"
+#include "attractorField.h"
+#include "particleEnsemble.h"
+#include "svgSkeleton.h"
 
 class ofApp : public ofBaseApp {
 public:

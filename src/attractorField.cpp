@@ -20,9 +20,10 @@ void attractorField::draw() const {
 }
 
 void attractorField::drawContours() const {
-    ofSetColor(255, 0, 0); // Red color for contour lines
+//    ofSetColor(0, 0, 255); // Red color for contour lines
+    ofFill();
     for (const auto& point : contourPoints) {
-        ofDrawCircle(point.x, point.y, 0.5); // Smaller size for higher resolution
+        ofDrawCircle(point.x, point.y, 0.8); // Smaller size for higher resolution
     }
 }
 
@@ -65,7 +66,7 @@ void attractorField::calculatePotentialField(ofImage& potentialField, float down
         }
     }
 
-    // Normalize and update the potential field image using logarithmic scale
+    // Normalize and update the potential field image, visualizing it using a logarithmic scale
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             float potential = potentials[y * width + x];

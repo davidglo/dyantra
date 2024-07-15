@@ -4,11 +4,19 @@
 
 void svgSkeleton::loadSvg(const std::string& filename) {
     svg.load(filename);
-    generateEquidistantPoints(1000); // Default number of points
+    fileName = filename; // Store the file name
+    generateEquidistantPoints(2000); // Default number of points
     calculateSvgCentroid();
+    cumulativeScale = 1.0f; // Reset cumulative scale when a new SVG is loaded
 }
 
-#include <cmath>
+std::string svgSkeleton::getFileName() const {
+    return fileName;
+}
+
+float svgSkeleton::getCumulativeScale() const {
+    return cumulativeScale;
+}
 
 void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     float totalPathLength = 0;
@@ -54,24 +62,20 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     });
     vertices.erase(std::unique(vertices.begin(), vertices.end()), vertices.end());
 
-    int numVertices = vertices.size();
-    int remainingPoints = numDesiredPoints - numVertices - 1;  // Subtract 1 for the centroid
+    size_t numVertices = vertices.size(); // Use size_t for numVertices
+
+    // If numDesiredPoints is less than numVertices + 1 (for centroid), set it to numVertices + 1
+    if (numDesiredPoints < numVertices + 1) {
+        numDesiredPoints = numVertices + 1;
+    }
+
+    int remainingPoints = numDesiredPoints - static_cast<int>(numVertices) - 1;  // Subtract 1 for the centroid
 
     equidistantPoints.clear();  // Clear points vector before generating
     equidistantPoints.reserve(numDesiredPoints); // Reserve space for the total number of points
 
     // Step 2: Add vertices to equidistantPoints
     equidistantPoints.insert(equidistantPoints.end(), vertices.begin(), vertices.end());
-
-    if (remainingPoints <= 0) {
-        // Step 4: Calculate the centroid
-        calculateSvgCentroid();
-        glm::vec3 centroid(svgCentroid.x, svgCentroid.y, svgCentroid.z);
-
-        // Step 5: Add the centroid to equidistantPoints
-        equidistantPoints.push_back(centroid);
-        return;
-    }
 
     float segmentLength = totalPathLength / remainingPoints;
 
@@ -85,7 +89,7 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
 
         // Ensure points are distributed approximately equidistantly
         float lengthStep = pathLength / numPointsForPath;
-        for (int j = 0; j <= numPointsForPath; j++) {
+        for (int j = 0; j < numPointsForPath; j++) {
             float lengthAlongPath = j * lengthStep;
             glm::vec3 point = polyline.getPointAtLength(lengthAlongPath);
             equidistantPoints.push_back(point);
@@ -98,9 +102,12 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
 
     // Step 5: Add the centroid to equidistantPoints
     equidistantPoints.push_back(centroid);
+
+    // If we have more points than needed, trim the vector
+    if (equidistantPoints.size() > numDesiredPoints) {
+        equidistantPoints.resize(numDesiredPoints);
+    }
 }
-
-
 
 void svgSkeleton::calculateSvgCentroid() {
     if (equidistantPoints.empty()) return;
@@ -123,16 +130,19 @@ void svgSkeleton::resizeSvg(float scale) {
     for (auto& point : equidistantPoints) {
         point = svgCentroid + (point - svgCentroid) * scale;
     }
+    cumulativeScale *= scale; // Update cumulative scale
 }
 
 void svgSkeleton::draw() const {
-    ofSetColor(255); // White color for points
+//    ofSetColor(255); // White color for points
     for (const auto& point : equidistantPoints) {
         ofDrawCircle(point, 1); // Draw small circles at each point
     }
-
-//    ofFill();
-//    ofDrawCircle(svgCentroid, 5); // Draw a small circle at the centroid
+/*
+    //    code for drawing the centroid; not clear if we need it now that we have a point rendered at the centroid
+    ofFill();
+    ofDrawCircle(svgCentroid, 5); // Draw a small circle at the centroid
+*/
 }
 
 const std::vector<glm::vec3>& svgSkeleton::getEquidistantPoints() const {

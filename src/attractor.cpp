@@ -6,7 +6,6 @@ attractor::attractor(const ofPoint& center, float radius, float amplitude)
 
 void attractor::draw() const {
     ofNoFill();
-    ofSetColor(255); // White color for attractor edges
     int numSegments = 100; // Increase the number of segments for smoother circles
     ofBeginShape();
     for (int i = 0; i < numSegments; ++i) {
@@ -18,7 +17,6 @@ void attractor::draw() const {
     ofEndShape(true);
 
     ofFill();
-    ofSetColor(255, 0, 0); // Red color for attractor centers
     ofDrawCircle(center, 2);
 }
 

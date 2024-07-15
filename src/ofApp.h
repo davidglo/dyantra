@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxSVG.h"
 #include "attractor.h"
+#include "ofxGui.h"
 #include "attractorField.h"
 #include "particleEnsemble.h"
 #include "svgSkeleton.h"
@@ -53,4 +54,36 @@ private:
 
     // Downscale factor
     int downscaleFactor = 3; // Downscale factor for lower resolution calculations
+    
+    // GUI
+    ofxPanel gui;
+    ofParameter<bool> showPotentialFieldGui;
+    ofParameter<ofColor> potentialFieldColor; // Add color wheel
+    ofParameter<ofColor> svgPointsColor; // New parameter for SVG points color
+    ofParameter<string> fpsDisplay; // Add FPS display
+    ofParameter<bool> showAttractorCircles; // Add checkbox for attractor circles
+    ofParameter<bool> showContourLines; // Add checkbox for contour lines
+    ofParameter<int> downscaleFactorGui; // Add slider for downscale factor
+    
+    // New parameters for additional information
+    ofParameter<string> windowSize;
+    ofParameter<string> svgFileName;
+    ofParameter<ofVec2f> svgCentroid;
+    ofParameter<float> svgScale;
+    
+    // Separate panel for attractor information
+    ofxPanel attractorGui;
+    
+    // Dynamic GUI elements for attractors
+    std::vector<ofParameterGroup> attractorGroups;
+    std::vector<ofParameter<ofVec2f>> attractorCenters;
+    std::vector<ofParameter<float>> attractorRadii;
+    std::vector<ofParameter<float>> attractorAmplitudes;
+
+    // New parameter for displaying the number of points
+    ofParameter<string> numPointsDisplay;
+    
+    void addAttractorGui(const attractor& attractor);
+    void removeAttractorGui(int index);
+    void updateAttractorGui(int index, const attractor& attractor);
 };

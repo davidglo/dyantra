@@ -27,10 +27,9 @@ void attractorField::drawContours() const {
     }
 }
 
-void attractorField::updateContours(float downscaleFactor, int width, int height, const std::vector<glm::vec3>& equidistantPoints) {
+void attractorField::updateContours(float downscaleFactor, int width, int height, const std::vector<glm::vec3>& equidistantPoints, float contourThreshold) {
     contourPoints.clear();
-    float contourThreshold = 0.5; // Threshold for contour lines
-
+    
     for (int y = 1; y < height; ++y) {
         for (int x = 1; x < width; ++x) {
             float potential = computePotentialAtPoint(x * downscaleFactor, y * downscaleFactor);
@@ -47,7 +46,7 @@ void attractorField::updateContours(float downscaleFactor, int width, int height
     }
 }
 
-void attractorField::calculatePotentialField(ofImage& potentialField, float downscaleFactor, int width, int height) {
+void attractorField::calculatePotentialField(ofImage& potentialField, float downscaleFactor, int width, int height, float contourThreshold) {
     float maxPotential = 0;
     float minPotential = FLT_MAX;
 
@@ -67,6 +66,7 @@ void attractorField::calculatePotentialField(ofImage& potentialField, float down
     }
 
     // Normalize and update the potential field image, visualizing it using a logarithmic scale
+    /*
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             float potential = potentials[y * width + x];
@@ -75,7 +75,41 @@ void attractorField::calculatePotentialField(ofImage& potentialField, float down
             potentialField.setColor(x, y, ofColor(normalizedPotential));
         }
     }
+    */
+    
 
+    // Adjust max potential for 20% brightness at contourThreshold
+    float adjustedMaxPotential = contourThreshold * 5;
+
+    /*
+    // Apply logarithmic scaling to the potential values
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            float potential = potentials[y * width + x];
+            float normalizedPotential = (potential - minPotential) / (adjustedMaxPotential - minPotential);
+
+            // Apply logarithmic scaling
+            float logScaledPotential = log(1 + normalizedPotential * 9) / log(10); // Logarithmic scale base 10
+            float brightness = ofMap(logScaledPotential, 0, 1, 0, 255, true);
+            
+            potentialField.setColor(x, y, ofColor(brightness));
+        }
+    }
+    */
+    
+    // Apply linear scaling to the potential values
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            float potential = potentials[y * width + x];
+//            float normalizedPotential = (potential - minPotential) / (adjustedMaxPotential - minPotential);
+            float normalizedPotential = (potential) / (maxPotential);
+            // Linear scaling
+            float brightness = ofMap(normalizedPotential, 0, 1, 0, 255, true);
+            
+            potentialField.setColor(x, y, ofColor(brightness));
+        }
+    }
+    
     potentialField.update();
 }
 

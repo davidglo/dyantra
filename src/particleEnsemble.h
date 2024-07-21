@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "attractor.h"  // Include the attractor class
 
 class particleEnsemble {
 public:
@@ -10,8 +11,15 @@ public:
     void initialize(const std::vector<glm::vec3>& initialPositions); // Initialization function
     void translate(const ofPoint& offset); // Translate function
     void resize(float scale, const ofPoint& centroid); // Resize function
-    void ZeroForces(); // Zero forces function
+    void ZeroForces() {  // Zero forces function
+        for (auto& force : f) {
+            force = glm::vec3(0, 0, 0);
+        }
+    };
 
+    void radial_update(float dt, float angularVelocity, const glm::vec3& centroid); // New update function
+    void vv_propagatePositionsVelocities(const std::vector<attractor>& attractorVec, float dt); // Velocity Verlet update function
+    
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> last_positions; // Data member to save positions from the previous timestep
     std::vector<glm::vec3> v; // Data member to save velocities for the present timestep
@@ -20,10 +28,9 @@ public:
 
     std::vector<float> radii;
     std::vector<float> masses;
+    
+private:
+    glm::vec3 calculateGaussianForce(const attractor& attractorObject, const glm::vec3& particlePosition) const; // Helper function
+    
 };
 
-inline void particleEnsemble::ZeroForces() {
-    for (auto& force : f) {
-        force = glm::vec3(0, 0, 0);
-    }
-}

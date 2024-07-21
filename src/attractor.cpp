@@ -51,3 +51,11 @@ float attractor::getAmplitude() const {
 void attractor::setAmplitude(float amplitude) {
     this->amplitude = amplitude;
 }
+
+float attractor::get_coefficient() const {
+    return amplitude / (radius * radius);
+}
+
+float attractor::get_exp_denominator() const {
+    return -2.0f * radius * radius;
+}

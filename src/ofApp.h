@@ -55,6 +55,15 @@ private:
     // Downscale factor
     int downscaleFactor = 3; // Downscale factor for lower resolution calculations
     
+    // New data member for number of points
+    int numPoints;
+    
+    ofParameter<string> elapsedTimestepsDisplay;  // New parameter for elapsed timesteps
+    long long elapsedTimesteps;  // Counter for elapsed timesteps
+    
+    ofParameter<string> timeDirectionDisplay;  // New parameter for time direction
+    bool timeForward;  // Flag to track the direction of time
+    
     // GUI
     ofxPanel gui;
     ofParameter<bool> showPotentialFieldGui;
@@ -63,6 +72,7 @@ private:
     ofParameter<string> fpsDisplay; // Add FPS display
     ofParameter<bool> showAttractorCircles; // Add checkbox for attractor circles
     ofParameter<bool> showContourLines; // Add checkbox for contour lines
+    ofxFloatSlider contourThresholdSlider;  // New slider for contour threshold
     ofParameter<int> downscaleFactorGui; // Add slider for downscale factor
     
     // New parameters for additional information
@@ -71,8 +81,13 @@ private:
     ofParameter<ofVec2f> svgCentroid;
     ofParameter<float> svgScale;
     
+    // New input field for number of points
+    ofxIntField numPointsInput;
+    
     // Separate panel for attractor information
     ofxPanel attractorGui;
+    
+    ofxToggle showSvgPoints; // New toggle for showing/hiding SVG points
     
     // Dynamic GUI elements for attractors
     std::vector<ofParameterGroup> attractorGroups;
@@ -86,4 +101,15 @@ private:
     void addAttractorGui(const attractor& attractor);
     void removeAttractorGui(int index);
     void updateAttractorGui(int index, const attractor& attractor);
+    
+    // Play/pause state
+    bool isPlaying = false;
+
+    // Angular velocity for circular motion
+    float angularVelocity = 0.05;
+    float timestep = 0.005;
+    
+    ofParameter<string> playPauseStatus;  // New parameter for play/pause status
+    
+    void onContourThresholdChanged(float & value); // Add this function
 };

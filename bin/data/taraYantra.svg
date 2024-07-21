@@ -8,7 +8,7 @@
    version="1.1"
    id="svg5"
    inkscape:version="1.2.1 (9c6d41e, 2022-07-14)"
-   sodipodi:docname="testTriangle.svg"
+   sodipodi:docname="taraYantra.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,13 +24,13 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.66"
-     inkscape:cx="446.21212"
-     inkscape:cy="511.36364"
+     inkscape:zoom="0.87"
+     inkscape:cx="418.96552"
+     inkscape:cy="472.98851"
      inkscape:window-width="1408"
      inkscape:window-height="891"
      inkscape:window-x="2560"
-     inkscape:window-y="521"
+     inkscape:window-y="900"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1" />
   <defs
@@ -41,22 +41,22 @@
      id="layer1">
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.399799;stroke-dasharray:none;stroke-opacity:1"
-       d="m 30,53.053547 62.604166,-1e-6 m 24.833734,1e-6 H 180"
+       d="m 29.799999,52.853648 62.804167,0.199898 m 24.833734,1e-6 L 180,52.853648"
        id="path21435"
        sodipodi:nodetypes="cccc" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.399799;stroke-dasharray:none;stroke-opacity:1"
-       d="m 30,202.85364 62.512444,0.0164 m 25.037206,-0.0164 H 180"
+       d="m 29.8,202.85364 62.712444,0.0164 m 25.037206,-0.0164 H 180"
        id="path21437"
        sodipodi:nodetypes="cccc" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 29.8,52.853648 -1e-6,62.521992 m 0,25 1e-6,62.478"
+       d="m 29.799999,52.853648 v 62.521992 m 0,25 1e-6,62.478"
        id="path21439"
        sodipodi:nodetypes="cccc" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 180,52.853648 0.0628,62.477992 m -0.0623,25.022 -4.4e-4,62.5"
+       d="m 180,52.853648 0.0628,62.477992 m -0.0623,25.022 -5e-4,62.5"
        id="path21441"
        sodipodi:nodetypes="cccc" />
     <path
@@ -166,7 +166,7 @@
        d="m 180.00044,140.35364 10.01835,0.022"
        id="path22961" />
     <ellipse
-       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.421854;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.421854;stroke-dasharray:none;stroke-opacity:1"
        id="path23015"
        cx="104.97511"
        cy="127.85365"
@@ -174,14 +174,14 @@
        ry="49.789074" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 62.721514,101.68663 42.253586,75.95609 42.43016,-75.95609"
+       d="m 60.88413,104.76092 44.09097,72.8818 44.06941,-73.20531"
        id="path23079"
        sodipodi:nodetypes="ccc" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 62.721514,101.68663 42.253596,-0.0975 42.43015,0.0975"
+       d="m 60.88413,104.76092 88.16038,-0.32351"
        id="path23081"
-       sodipodi:nodetypes="ccc" />
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.4;stroke-dasharray:none;stroke-opacity:1"
        d="M 85.633915,81.007713 C 83.080916,68.010637 105,59.183112 105,59.183112 c 0,0 21.22574,8.647888 19.36901,21.644965"

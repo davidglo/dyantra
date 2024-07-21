@@ -24,9 +24,22 @@ ofPoint ofApp::getNearestSvgVertex(const ofPoint& point, float& minDistance) {
 }
 
 void ofApp::setup() {
-    string svgFile = "testTriangle.svg";
+    
+    ofSetVerticalSync(true);
+    ofSetFrameRate(60);
+    
+//    string svgFile = "taraYantra.svg";
+    string svgFile = "taraYantra2.svg";
+    //string svgFile = "circle.svg";
+    //string svgFile = "line.svg";
+    //string svgFile = "2lines.svg";
+    //string svgFile = "triangle.svg";
+    
     svgSkeleton.loadSvg(svgFile);
 
+    numPoints = 1000; // Set the desired number of points
+    timestep = 0.005;
+    
     drawingAttractor = false;
     editingCenter = false;
     editingEdge = false;
@@ -40,29 +53,49 @@ void ofApp::setup() {
     potentialFieldUpdated = true;
     showPotentialField = true; // Initialize the flag to show the potential field
     contourLinesUpdated = true; // Initialize the flag to update contour lines
-
-    particleEnsemble.initialize(svgSkeleton.getEquidistantPoints());
     
     // GUI setup
     gui.setup();
 
+    svgSkeleton.generateEquidistantPoints(numPoints); // Call with the data member
+    particleEnsemble.initialize(svgSkeleton.getEquidistantPoints()); // initialize the particleEnsemble
+    
+    elapsedTimesteps = 0;  // Initialize elapsed timesteps counter
+    timeForward = true;  // Initialize time direction to forward
+    
     // Initialize new parameters
     gui.add(windowSize.set("Window Size", ""));
     gui.add(fpsDisplay.set("FPS", "")); // Add FPS display
+    gui.add(playPauseStatus.set("Play/Pause", "Pause"));  // Initialize as "Pause"
     gui.add(numPointsDisplay.set("Number of Points", "")); // Add number of points display
+    
+    // New input field for number of points
+    gui.add(numPointsInput.setup("Edit points:", numPoints, 2, 30000));
+    
+    gui.add(timeDirectionDisplay.set("Time Direction", "FORWARD"));        // Add time direction to the GUI
+    
+    // Add elapsed timesteps to the GUI
+    gui.add(elapsedTimestepsDisplay.set("Elapsed Steps", ofToString(elapsedTimesteps)));
+    
     gui.add(showPotentialFieldGui.set("Show Potential Field", true));
     gui.add(showAttractorCircles.set("Show Attractor Circles", true)); // Add checkbox for attractor circles
     gui.add(showContourLines.set("Show Contour Lines", true)); // Add checkbox for contour lines
+    gui.add(contourThresholdSlider.setup("Contour Threshold", 10000, 0.0, 50000.0));  // Initialize the contour threshold slider
     gui.add(downscaleFactorGui.set("Downscale Factor", 3, 1, 10)); // Add slider for downscale factor
     gui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
+    gui.add(showSvgPoints.setup("Show SVG Points", true));  // Initialize the new toggle
     gui.add(svgCentroid.set("svgCentroid", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
     gui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
     gui.add(potentialFieldColor.set("Potential Field Color", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255))); // Add color wheel
     gui.add(svgPointsColor.set("svg Points Color", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255))); // Add color wheel for SVG points
     
+    contourThresholdSlider.addListener(this, &ofApp::onContourThresholdChanged);  // Add listener to the slider
+    
     // Setup and position the attractor information panel
     attractorGui.setup();
     attractorGui.setPosition(gui.getPosition().x + gui.getWidth() + 10, gui.getPosition().y); // Position to the right of the main panel
+
+ 
 }
 
 void ofApp::update() {
@@ -78,8 +111,18 @@ void ofApp::update() {
         contourLinesUpdated = true;
     }
     
+    // Check if the number of points has changed
+    if (!isPlaying && numPoints != numPointsInput) {
+        numPoints = numPointsInput;
+        svgSkeleton.generateEquidistantPoints(numPoints);
+        svgSkeleton.updateSvgCentroid();
+        particleEnsemble.initialize(svgSkeleton.getEquidistantPoints());
+        potentialFieldUpdated = true;
+        contourLinesUpdated = true;
+    }
+    
     if (potentialFieldUpdated) {
-        attractorField.calculatePotentialField(potentialField, downscaleFactor, ofGetWidth() / downscaleFactor, ofGetHeight() / downscaleFactor);
+        attractorField.calculatePotentialField(potentialField, downscaleFactor, ofGetWidth() / downscaleFactor, ofGetHeight() / downscaleFactor, contourThresholdSlider);
         potentialFieldUpdated = false;
     }
 
@@ -98,6 +141,9 @@ void ofApp::update() {
     // Update window size display
     windowSize = ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight());
 
+    // Update play/pause status
+    playPauseStatus = isPlaying ? "Play" : "Pause";
+    
     // Update SVG centroid display
     svgCentroid = ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y);
     
@@ -108,8 +154,21 @@ void ofApp::update() {
     for (size_t i = 0; i < attractorField.getAttractors().size(); ++i) {
         updateAttractorGui(i, attractorField.getAttractors()[i]);
     }
+        
+    // Handle particle motion if playing
+    if (isPlaying) {
+        float dt = timestep * (timeForward ? 1 : -1);
+//        particleEnsemble.radial_update(dt, angularVelocity, glm::vec3(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y, 0));
+        particleEnsemble.vv_propagatePositionsVelocities(attractorField.getAttractors(), dt);
+        
+        if (timeForward) {
+            elapsedTimesteps++;  // Increment elapsed timesteps
+        } else {
+            elapsedTimesteps--;  // Decrement elapsed timesteps
+        }
+        elapsedTimestepsDisplay = ofToString(elapsedTimesteps);  // Update GUI display
+    }
     
-    // In the future, we'll add the particle update code here.
 }
 
 void ofApp::draw() {
@@ -129,8 +188,10 @@ void ofApp::draw() {
 
     ofSetColor(svgPointsColor);  // Set color to white for drawing
 
-    // Draw the SVG skeleton
-    svgSkeleton.draw();
+    // Draw the SVG skeleton if the toggle is on
+    if (showSvgPoints) {
+        svgSkeleton.draw();
+    }
 
     // Draw the particles
     particleEnsemble.draw();
@@ -210,36 +271,45 @@ void ofApp::mousePressed(int x, int y, int button) {
 
 void ofApp::mouseDragged(int x, int y, int button) {
     if (drawingAttractor) {
-        float radius = ofDist(tempAttractor.getCenter().x, tempAttractor.getCenter().y, x, y);
-        tempAttractor.setRadius(radius);
-    } else if (editingCenter && selectedAttractorIndex >= 0) {
-        ofPoint newCenter(x, y);
-        float minDistance;
-        ofPoint nearestVertex = getNearestSvgVertex(newCenter, minDistance);
-        if (minDistance < 10) {
-            newCenter = nearestVertex;
-        }
-        attractorField.setAttractorCenter(selectedAttractorIndex, newCenter);
-    } else if (editingEdge && selectedAttractorIndex >= 0) {
-        float radius = ofDist(attractorField.getAttractors()[selectedAttractorIndex].getCenter().x,
-                              attractorField.getAttractors()[selectedAttractorIndex].getCenter().y, x, y);
-        attractorField.setAttractorRadius(selectedAttractorIndex, radius);
-    } else if (translatingSvg) {
-        ofPoint offset(x - initialMousePos.x, y - initialMousePos.y);
-        svgSkeleton.translateSvg(offset);
-        particleEnsemble.translate(offset);
-        initialMousePos.set(x, y);
-    } else if (resizingSvg) {
-        float initialDistance = initialMousePos.distance(svgSkeleton.getSvgCentroid());
-        float currentDistance = ofPoint(x, y).distance(svgSkeleton.getSvgCentroid());
-        float scaleFactor = currentDistance / initialDistance;
-        svgSkeleton.resizeSvg(scaleFactor);
-        svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
-        particleEnsemble.resize(scaleFactor, svgSkeleton.getSvgCentroid());
-        initialMousePos.set(x, y);
-    }
-    potentialFieldUpdated = true;
-    contourLinesUpdated = true;
+         float radius = ofDist(tempAttractor.getCenter().x, tempAttractor.getCenter().y, x, y);
+         tempAttractor.setRadius(radius);
+     } else if (editingCenter && selectedAttractorIndex >= 0) {
+         ofPoint newCenter(x, y);
+         float minDistance;
+         ofPoint nearestVertex = getNearestSvgVertex(newCenter, minDistance);
+         if (minDistance < 10) {
+             newCenter = nearestVertex;
+         }
+         attractorField.setAttractorCenter(selectedAttractorIndex, newCenter);
+     } else if (editingEdge && selectedAttractorIndex >= 0) {
+         ofPoint attractorCenter = attractorField.getAttractors()[selectedAttractorIndex].getCenter();
+         ofPoint mousePos(x, y);
+         float radius = ofDist(attractorCenter.x, attractorCenter.y, mousePos.x, mousePos.y);
+
+         float minDistance;
+         ofPoint nearestVertex = getNearestSvgVertex(mousePos, minDistance);
+         if (minDistance < 10) { // Snap to the nearest vertex if within 10 pixels
+             radius = ofDist(attractorCenter.x, attractorCenter.y, nearestVertex.x, nearestVertex.y);
+         }
+
+         attractorField.setAttractorRadius(selectedAttractorIndex, radius);
+     } else if (translatingSvg) {
+         ofPoint offset(x - initialMousePos.x, y - initialMousePos.y);
+         svgSkeleton.translateSvg(offset);
+         particleEnsemble.translate(offset);
+         initialMousePos.set(x, y);
+         svgSkeleton.updateSvgCentroid();
+     } else if (resizingSvg) {
+         float initialDistance = initialMousePos.distance(svgSkeleton.getSvgCentroid());
+         float currentDistance = ofPoint(x, y).distance(svgSkeleton.getSvgCentroid());
+         float scaleFactor = currentDistance / initialDistance;
+         svgSkeleton.resizeSvg(scaleFactor);
+         svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
+         particleEnsemble.resize(scaleFactor, svgSkeleton.getSvgCentroid());
+         initialMousePos.set(x, y);
+     }
+     potentialFieldUpdated = true;
+     contourLinesUpdated = true;
 }
 
 void ofApp::mouseReleased(int x, int y, int button) {
@@ -257,11 +327,22 @@ void ofApp::mouseReleased(int x, int y, int button) {
     contourLinesUpdated = true; // Mark contour lines for update
 }
 
+/*
 void ofApp::updateContours() {
     int width = ofGetWidth() / downscaleFactor;
     int height = ofGetHeight() / downscaleFactor;
-    attractorField.updateContours(downscaleFactor, width, height, svgSkeleton.getEquidistantPoints());
+    attractorField.updateContours(downscaleFactor, width, height, svgSkeleton.getEquidistantPoints(), contourThresholdSlider);  // Pass the slider value
 }
+*/
+
+void ofApp::updateContours() {
+    int width = ofGetWidth() / downscaleFactor;
+    int height = ofGetHeight() / downscaleFactor;
+    float contourThreshold = contourThresholdSlider;  // Use the slider value
+    attractorField.updateContours(downscaleFactor, width, height, svgSkeleton.getEquidistantPoints(), contourThreshold);
+    attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, contourThreshold);  // Update potential field with contourThreshold
+}
+
 
 void ofApp::windowResized(int w, int h) {
     int width = w / downscaleFactor;
@@ -275,6 +356,14 @@ void ofApp::keyPressed(int key) {
     if (key == 'p' || key == 'P') {
         showPotentialField = !showPotentialField; // Toggle the flag
         showPotentialFieldGui = showPotentialField; // Sync the GUI checkbox
+    }
+    if (key == ' ') {
+        isPlaying = !isPlaying;
+        playPauseStatus = isPlaying ? "Play" : "Pause";  // Update play/pause status
+    }
+    if (key == 'b' || key == 'B') {
+        timeForward = !timeForward;
+        timeDirectionDisplay = timeForward ? "FORWARD" : "BACKWARD";  // Update time direction display
     }
 }
 
@@ -325,4 +414,8 @@ void ofApp::updateAttractorGui(int index, const attractor& attractor) {
         attractorRadii[index].set(attractor.getRadius());
         attractorAmplitudes[index].set(attractor.getAmplitude());
     }
+}
+
+void ofApp::onContourThresholdChanged(float & value) {
+    contourLinesUpdated = true;
 }

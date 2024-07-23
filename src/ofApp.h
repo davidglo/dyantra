@@ -92,8 +92,8 @@ private:
     // Dynamic GUI elements for attractors
     std::vector<ofParameterGroup> attractorGroups;
     std::vector<ofParameter<ofVec2f>> attractorCenters;
- //   std::vector<ofParameter<float>> attractorRadii;
-    std::vector<ofParameter<float>> attractorAmplitudes;
+//    std::vector<ofParameter<float>> attractorRadii;
+//    std::vector<ofParameter<float>> attractorAmplitudes;
 
     std::vector<std::shared_ptr<ofxFloatField>> attractorRadiusInputs;
     std::map<ofxFloatField*, int> radiusInputToAttractorIndex;

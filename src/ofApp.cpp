@@ -370,11 +370,6 @@ void ofApp::addAttractorGui(const attractor& attractor) {
     group.add(center);
     attractorCenters.push_back(center);
 
-    ofParameter<float> amplitude;
-    amplitude.set("Amplitude", attractor.getAmplitude(), 0.0f, 10.0f);
-    group.add(amplitude);
-    attractorAmplitudes.push_back(amplitude);
-    
     attractorGroups.push_back(group);
     attractorGui.add(group);
 
@@ -385,17 +380,26 @@ void ofApp::addAttractorGui(const attractor& attractor) {
     radiusInputToAttractorIndex[radiusInput.get()] = attractorGroups.size() - 1;
     attractorGui.add(radiusInput.get());
     
+    auto amplitudeInput = std::make_shared<ofxFloatField>();
+    amplitudeInput->setup("Edit Amplitude:", attractor.getAmplitude(), 0.0f, 100000.0f);
+    amplitudeInput->addListener(this, &ofApp::attractorAmplitudeChanged);
+    attractorAmplitudeInputs.push_back(amplitudeInput);
+    amplitudeInputToAttractorIndex[amplitudeInput.get()] = attractorGroups.size() - 1;
+    attractorGui.add(amplitudeInput.get());
+    
 }
 
 void ofApp::removeAttractorGui(int index) {
     if (index >= 0 && index < attractorGroups.size()) {
         attractorGroups.erase(attractorGroups.begin() + index);
         attractorCenters.erase(attractorCenters.begin() + index);
-        attractorAmplitudes.erase(attractorAmplitudes.begin() + index);
 
         radiusInputToAttractorIndex.erase(attractorRadiusInputs[index].get());
         attractorRadiusInputs.erase(attractorRadiusInputs.begin() + index);
 
+        amplitudeInputToAttractorIndex.erase(attractorAmplitudeInputs[index].get());
+        attractorAmplitudeInputs.erase(attractorAmplitudeInputs.begin() + index);
+        
         // Clear the current GUI and re-add all elements
         attractorGui.clear();
         
@@ -404,7 +408,9 @@ void ofApp::removeAttractorGui(int index) {
             attractorGroups[i].setName("Attractor " + ofToString(i));
             attractorGui.add(attractorGroups[i]);
             attractorGui.add(attractorRadiusInputs[i].get());
+            attractorGui.add(attractorAmplitudeInputs[i].get());
             radiusInputToAttractorIndex[attractorRadiusInputs[i].get()] = i;
+            amplitudeInputToAttractorIndex[attractorAmplitudeInputs[i].get()] = i;
         }
     }
 }
@@ -412,7 +418,6 @@ void ofApp::removeAttractorGui(int index) {
 void ofApp::updateAttractorGui(int index, const attractor& attractor) {
     if (index >= 0 && index < attractorGroups.size()) {
         attractorCenters[index].set(ofVec2f(attractor.getCenter().x, attractor.getCenter().y));
-        attractorAmplitudes[index].set(attractor.getAmplitude());
     }
 }
 
@@ -429,3 +434,11 @@ void ofApp::attractorRadiusChanged(float & radius) {
     }
 }
 
+void ofApp::attractorAmplitudeChanged(float & amplitude) {
+    for (size_t i = 0; i < attractorAmplitudeInputs.size(); ++i) {
+        float currentValueFromInputs = attractorAmplitudeInputs[i]->getParameter().cast<float>();
+        attractorField.getAttractor(i).setAmplitude(currentValueFromInputs);  // Update the attractor's amplitude
+        potentialFieldUpdated = true;
+        contourLinesUpdated = true;
+    }
+}

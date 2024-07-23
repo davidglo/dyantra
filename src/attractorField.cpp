@@ -169,6 +169,10 @@ const std::vector<attractor>& attractorField::getAttractors() const {
     return attractors;
 }
 
+attractor& attractorField::getAttractor(int index) {
+    return attractors[index];  // Assuming attractors is the vector holding the attractor objects
+}
+
 glm::vec3 attractorField::calculateForceOnParticle(const glm::vec3& particlePosition) const {
     glm::vec3 forceVector(0.0f, 0.0f, 0.0f);
 

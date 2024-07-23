@@ -149,7 +149,7 @@ void ofApp::update() {
     
     // Update SVG scale display
     svgScale = svgSkeleton.getCumulativeScale();
-    
+
     // Update GUI elements for attractors
     for (size_t i = 0; i < attractorField.getAttractors().size(); ++i) {
         updateAttractorGui(i, attractorField.getAttractors()[i]);
@@ -168,7 +168,6 @@ void ofApp::update() {
         }
         elapsedTimestepsDisplay = ofToString(elapsedTimesteps);  // Update GUI display
     }
-    
 }
 
 void ofApp::draw() {
@@ -293,6 +292,9 @@ void ofApp::mouseDragged(int x, int y, int button) {
          }
 
          attractorField.setAttractorRadius(selectedAttractorIndex, radius);
+
+         attractorRadiusInputs[selectedAttractorIndex]->getParameter().cast<float>().set(radius); // Synchronize the GUI radius input fields
+
      } else if (translatingSvg) {
          ofPoint offset(x - initialMousePos.x, y - initialMousePos.y);
          svgSkeleton.translateSvg(offset);
@@ -326,14 +328,6 @@ void ofApp::mouseReleased(int x, int y, int button) {
     potentialFieldUpdated = true;
     contourLinesUpdated = true; // Mark contour lines for update
 }
-
-/*
-void ofApp::updateContours() {
-    int width = ofGetWidth() / downscaleFactor;
-    int height = ofGetHeight() / downscaleFactor;
-    attractorField.updateContours(downscaleFactor, width, height, svgSkeleton.getEquidistantPoints(), contourThresholdSlider);  // Pass the slider value
-}
-*/
 
 void ofApp::updateContours() {
     int width = ofGetWidth() / downscaleFactor;
@@ -376,26 +370,31 @@ void ofApp::addAttractorGui(const attractor& attractor) {
     group.add(center);
     attractorCenters.push_back(center);
 
-    ofParameter<float> radius;
-    radius.set("Radius", attractor.getRadius(), 0.0f, 200.0f);
-    group.add(radius);
-    attractorRadii.push_back(radius);
-
     ofParameter<float> amplitude;
     amplitude.set("Amplitude", attractor.getAmplitude(), 0.0f, 10.0f);
     group.add(amplitude);
     attractorAmplitudes.push_back(amplitude);
-
+    
     attractorGroups.push_back(group);
     attractorGui.add(group);
+
+    auto radiusInput = std::make_shared<ofxFloatField>();
+    radiusInput->setup("Edit Radius:", attractor.getRadius(), 0.0f, 4000.0f);
+    radiusInput->addListener(this, &ofApp::attractorRadiusChanged);
+    attractorRadiusInputs.push_back(radiusInput);
+    radiusInputToAttractorIndex[radiusInput.get()] = attractorGroups.size() - 1;
+    attractorGui.add(radiusInput.get());
+    
 }
 
 void ofApp::removeAttractorGui(int index) {
     if (index >= 0 && index < attractorGroups.size()) {
         attractorGroups.erase(attractorGroups.begin() + index);
         attractorCenters.erase(attractorCenters.begin() + index);
-        attractorRadii.erase(attractorRadii.begin() + index);
         attractorAmplitudes.erase(attractorAmplitudes.begin() + index);
+
+        radiusInputToAttractorIndex.erase(attractorRadiusInputs[index].get());
+        attractorRadiusInputs.erase(attractorRadiusInputs.begin() + index);
 
         // Clear the current GUI and re-add all elements
         attractorGui.clear();
@@ -404,6 +403,8 @@ void ofApp::removeAttractorGui(int index) {
         for (size_t i = 0; i < attractorGroups.size(); ++i) {
             attractorGroups[i].setName("Attractor " + ofToString(i));
             attractorGui.add(attractorGroups[i]);
+            attractorGui.add(attractorRadiusInputs[i].get());
+            radiusInputToAttractorIndex[attractorRadiusInputs[i].get()] = i;
         }
     }
 }
@@ -411,7 +412,6 @@ void ofApp::removeAttractorGui(int index) {
 void ofApp::updateAttractorGui(int index, const attractor& attractor) {
     if (index >= 0 && index < attractorGroups.size()) {
         attractorCenters[index].set(ofVec2f(attractor.getCenter().x, attractor.getCenter().y));
-        attractorRadii[index].set(attractor.getRadius());
         attractorAmplitudes[index].set(attractor.getAmplitude());
     }
 }
@@ -419,3 +419,13 @@ void ofApp::updateAttractorGui(int index, const attractor& attractor) {
 void ofApp::onContourThresholdChanged(float & value) {
     contourLinesUpdated = true;
 }
+
+void ofApp::attractorRadiusChanged(float & radius) {
+    for (size_t i = 0; i < attractorRadiusInputs.size(); ++i) {
+        float currentValueFromInputs = attractorRadiusInputs[i]->getParameter().cast<float>();
+            attractorField.getAttractor(i).setRadius(currentValueFromInputs);  // Update the attractor's radius
+            potentialFieldUpdated = true;   // Synchronize the GUI field
+            contourLinesUpdated = true;
+    }
+}
+

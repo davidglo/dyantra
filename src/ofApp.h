@@ -19,7 +19,7 @@ public:
     void mouseReleased(int x, int y, int button);
     void windowResized(int w, int h);
     void keyPressed(int key); // Declare the keyPressed method
-
+    
 private:
     svgSkeleton svgSkeleton; // Use the new svgSkeleton class
     particleEnsemble particleEnsemble; // Use the new particleEnsemble class
@@ -92,9 +92,17 @@ private:
     // Dynamic GUI elements for attractors
     std::vector<ofParameterGroup> attractorGroups;
     std::vector<ofParameter<ofVec2f>> attractorCenters;
-    std::vector<ofParameter<float>> attractorRadii;
+ //   std::vector<ofParameter<float>> attractorRadii;
     std::vector<ofParameter<float>> attractorAmplitudes;
 
+    std::vector<std::shared_ptr<ofxFloatField>> attractorRadiusInputs;
+    std::map<ofxFloatField*, int> radiusInputToAttractorIndex;
+    void attractorRadiusChanged(float & radius);
+    
+    std::vector<std::shared_ptr<ofxFloatField>> attractorAmplitudeInputs;
+    std::map<ofxFloatField*, int> amplitudeInputToAttractorIndex;
+    void attractorAmplitudeChanged(float & amplitude);
+        
     // New parameter for displaying the number of points
     ofParameter<string> numPointsDisplay;
     

@@ -24,6 +24,8 @@ public:
     const std::vector<attractor>& getAttractors() const;
 
     glm::vec3 calculateForceOnParticle(const glm::vec3& particlePosition) const; // New method
+    
+    attractor& getAttractor(int index);
 
 private:
     std::vector<attractor> attractors;

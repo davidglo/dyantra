@@ -81,19 +81,17 @@ private:
     ofParameter<ofVec2f> svgCentroid;
     ofParameter<float> svgScale;
     
-    // New input field for number of points
-    ofxIntField numPointsInput;
+    ofParameter<string> numPointsDisplay;   // parameter for displaying the number of points
+    ofxIntField numPointsInput;             // New input field for number of points
+    ofxToggle showSvgPoints;                // New toggle for showing/hiding SVG points
     
     // Separate panel for attractor information
     ofxPanel attractorGui;
-    
-    ofxToggle showSvgPoints; // New toggle for showing/hiding SVG points
+
     
     // Dynamic GUI elements for attractors
     std::vector<ofParameterGroup> attractorGroups;
     std::vector<ofParameter<ofVec2f>> attractorCenters;
-//    std::vector<ofParameter<float>> attractorRadii;
-//    std::vector<ofParameter<float>> attractorAmplitudes;
 
     std::vector<std::shared_ptr<ofxFloatField>> attractorRadiusInputs;
     std::map<ofxFloatField*, int> radiusInputToAttractorIndex;
@@ -102,10 +100,7 @@ private:
     std::vector<std::shared_ptr<ofxFloatField>> attractorAmplitudeInputs;
     std::map<ofxFloatField*, int> amplitudeInputToAttractorIndex;
     void attractorAmplitudeChanged(float & amplitude);
-        
-    // New parameter for displaying the number of points
-    ofParameter<string> numPointsDisplay;
-    
+            
     void addAttractorGui(const attractor& attractor);
     void removeAttractorGui(int index);
     void updateAttractorGui(int index, const attractor& attractor);

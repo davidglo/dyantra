@@ -12,5 +12,7 @@ ofxSvg/libs/svgtiny/.DS_Store
 *.xcworkspace/xcuserdata/
 *.xcworkspace/xcshareddata/IDEFindNavigatorScopes.plist
 *.xcworkspace/xcshareddata/xcschememanagement.plist
+dyantra.xcodeproj/project.xcworkspace/xcuserdata/
+dyantra.xcodeproj/xcuserdata
 
 

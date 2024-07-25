@@ -1,6 +1,6 @@
 .DS_Store
 bin/dyantraDebug.app
-bin/dyantraRelease.app
+bin/dyantra.app
 bin/.DS_Store
 ofxSvg/.DS_Store
 ofxSvg/libs/.DS_Store

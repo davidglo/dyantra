@@ -110,7 +110,7 @@ private:
 
     // Angular velocity for circular motion
     float angularVelocity = 0.05;
-    float timestep = 0.005;
+    float timestep;
     
     ofParameter<string> playPauseStatus;  // New parameter for play/pause status
     

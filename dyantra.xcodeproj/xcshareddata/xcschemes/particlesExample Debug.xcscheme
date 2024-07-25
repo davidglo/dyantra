@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
-               BuildableName = "svgReader.app"
-               BlueprintName = "svgReader"
-               ReferencedContainer = "container:svgReader.xcodeproj">
+               BuildableName = "dyantra.app"
+               BlueprintName = "dyantra"
+               ReferencedContainer = "container:dyantra.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -31,9 +31,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
-            BuildableName = "svgReader.app"
-            BlueprintName = "svgReader"
-            ReferencedContainer = "container:svgReader.xcodeproj">
+            BuildableName = "dyantra.app"
+            BlueprintName = "dyantra"
+            ReferencedContainer = "container:dyantra.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -54,9 +54,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
-            BuildableName = "svgReader.app"
-            BlueprintName = "svgReader"
-            ReferencedContainer = "container:svgReader.xcodeproj">
+            BuildableName = "dyantra.app"
+            BlueprintName = "dyantra"
+            ReferencedContainer = "container:dyantra.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -71,9 +71,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
-            BuildableName = "svgReader.app"
-            BlueprintName = "svgReader"
-            ReferencedContainer = "container:svgReader.xcodeproj">
+            BuildableName = "dyantra.app"
+            BlueprintName = "dyantra"
+            ReferencedContainer = "container:dyantra.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

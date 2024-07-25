@@ -1,13 +1,16 @@
 .DS_Store
+bin/dyantraDebug.app
+bin/dyantraRelease.app
 bin/.DS_Store
-bin/svgReaderDebug.app/Contents/Frameworks/
-bin/svgReaderDebug.app/Contents/MacOS/
 ofxSvg/.DS_Store
 ofxSvg/libs/.DS_Store
 ofxSvg/libs/libxml2/.DS_Store
 ofxSvg/libs/svgtiny/.DS_Store
-svgReader.xcodeproj/project.xcworkspace/xcuserdata/glowacki.xcuserdatad/UserInterfaceState.xcuserstate
-svgReader.xcodeproj/xcuserdata/glowacki.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
-
+*.xcbkptlist
+*.xcworkspacedata
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/IDEFindNavigatorScopes.plist
+*.xcworkspace/xcshareddata/xcschememanagement.plist
 
 

@@ -38,7 +38,7 @@ void ofApp::setup() {
     svgSkeleton.loadSvg(svgFile);
 
     numPoints = 1000; // Set the desired number of points
-    timestep = 0.005;
+    timestep = 0.003;
     
     drawingAttractor = false;
     editingCenter = false;
@@ -70,7 +70,7 @@ void ofApp::setup() {
     gui.add(numPointsDisplay.set("Number of Points", "")); // Add number of points display
     
     // New input field for number of points
-    gui.add(numPointsInput.setup("Edit points:", numPoints, 2, 30000));
+    gui.add(numPointsInput.setup("Edit points:", numPoints, 2, 50000));
     
     gui.add(timeDirectionDisplay.set("Time Direction", "FORWARD"));        // Add time direction to the GUI
     

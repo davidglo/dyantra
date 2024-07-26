@@ -3,7 +3,7 @@
 ![This is the Tara yantra](images/tara-yantra-iii.png)
 
 This project has been successfully built on Mac with the following:
-1.  Xcode 14 on Mac
+1.  Xcode 14 
 2.  openFrameworksi of_v0.11.2_osx_release
 
 Repo destination:

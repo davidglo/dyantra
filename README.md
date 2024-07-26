@@ -20,12 +20,11 @@ Notes
     * in the project navigator, click on gaussian-Fields
     * under the 'General' tab, go to 'Minimum Deployments'
     * in the 'macOS' dropdown menu, ensure the selection of $(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)
-    * building commit 06d3176 in release mode on my macbook air m2 2022 (macOS 13.2.1), 22,000 particles + 4 attractors ran at 60 FPS 
+    * building commit 6932ed1 in debug mode on my macbook air m2 2022 (macOS 13.3.1), 24,000 particles + 4 attractors ran at 60 FPS 
 
 Running:
 1.  Pressing::
     * 'p' turns on/off the visualization of the potential field
-    * 'z' assigns values of zero to the forces (for as long as it is pressed)
     * 'b' allows you to switch whether the velocity verlet integrator runs in the forward or the backward direction
     * Spacebar pauses/plays the simulation
 2.  If you run into performance issues, reduce the number of attractors & the number of particles

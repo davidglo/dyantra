@@ -1120,6 +1120,7 @@
 					"$(PROJECT_DIR)/ofxSvg/libs/svgtiny/lib/osx",
 					"$(PROJECT_DIR)/ofxSvg/libs/svgtiny/lib/emscripten",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_LDFLAGS = (
 					"$(OF_CORE_LIBS)",
 					"$(OF_CORE_FRAMEWORKS)",
@@ -1228,6 +1229,7 @@
 					"$(PROJECT_DIR)/ofxSvg/libs/svgtiny/lib/osx",
 					"$(PROJECT_DIR)/ofxSvg/libs/svgtiny/lib/emscripten",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_LDFLAGS = (
 					"$(OF_CORE_LIBS)",
 					"$(OF_CORE_FRAMEWORKS)",
@@ -1269,6 +1271,7 @@
 					"$(PROJECT_DIR)/ofxSvg/libs/svgtiny/lib/osx",
 					"$(PROJECT_DIR)/ofxSvg/libs/svgtiny/lib/emscripten",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_LDFLAGS = (
 					"$(OF_CORE_LIBS)",
 					"$(OF_CORE_FRAMEWORKS)",

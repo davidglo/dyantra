@@ -27,8 +27,11 @@ Running:
     * 'p' turns on/off the visualization of the potential field
     * 'b' allows you to switch whether the velocity verlet integrator runs in the forward or the backward direction
     * Spacebar pauses/plays the simulation
-2.  If you run into performance issues, reduce the number of attractors & the number of particles
-3.  Have fun!
+2.  if you want dyantra to upload a different *.svg file:
+    * place the file in the /bin/data/ directory
+    * change the relevant line in the setup() routine of ofApp.cpp to specify the filename
+3.  If you run into performance issues, reduce the number of attractors & the number of particles
+4.  Have fun!
 
 
 

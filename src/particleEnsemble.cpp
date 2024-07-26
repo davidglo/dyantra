@@ -15,6 +15,14 @@ void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
     masses.resize(positions.size(), 1.0f); // Example mass initialization
 }
 
+void particleEnsemble::reinitialize(const std::vector<glm::vec3>& initialPositions) {
+    positions = initialPositions;
+    last_positions = initialPositions;
+    std::fill(v.begin(), v.end(), glm::vec3(0, 0, 0));
+    std::fill(f.begin(), f.end(), glm::vec3(0, 0, 0));
+    std::fill(last_f.begin(), last_f.end(), glm::vec3(0, 0, 0));
+}
+
 void particleEnsemble::translate(const ofPoint& offset) {
     for (auto& position : positions) {
         position += offset;
@@ -190,7 +198,6 @@ void particleEnsemble::vv_propagatePositionsVelocities(const std::vector<attract
         v[i].z += (f[i].z + last_f[i].z) * factor;
     }
 }
-
 
 glm::vec3 particleEnsemble::calculateGaussianForce(const attractor& attractorObject, const glm::vec3& particlePosition) const {
     float dx = particlePosition.x - attractorObject.getCenter().x;

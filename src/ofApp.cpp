@@ -359,6 +359,9 @@ void ofApp::keyPressed(int key) {
         timeForward = !timeForward;
         timeDirectionDisplay = timeForward ? "FORWARD" : "BACKWARD";  // Update time direction display
     }
+    if (key == 'r' || key == 'R') {
+        resetSimulation();
+    }
 }
 
 void ofApp::addAttractorGui(const attractor& attractor) {
@@ -441,4 +444,17 @@ void ofApp::attractorAmplitudeChanged(float & amplitude) {
         potentialFieldUpdated = true;
         contourLinesUpdated = true;
     }
+}
+
+void ofApp::resetSimulation() {
+    // Pause the simulation
+    isPlaying = false;
+    playPauseStatus = "Pause";  // Update play/pause status
+
+    // Reset particle positions to original positions along the SVG skeleton
+    particleEnsemble.reinitialize(svgSkeleton.getEquidistantPoints());
+
+    // Reset elapsed timesteps
+    elapsedTimesteps = 0;
+    elapsedTimestepsDisplay = ofToString(elapsedTimesteps);  // Update GUI display
 }

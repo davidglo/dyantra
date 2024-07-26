@@ -26,6 +26,7 @@ Running:
 1.  Pressing::
     * 'p' turns on/off the visualization of the potential field
     * 'b' allows you to switch whether the velocity verlet integrator runs in the forward or the backward direction
+    * 'r' allows you to reset the positions of the particles as they were at time zero
     * Spacebar pauses/plays the simulation
 2.  if you want dyantra to upload a different *.svg file:
     * place the file in the /bin/data/ directory

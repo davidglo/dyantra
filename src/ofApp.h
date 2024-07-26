@@ -115,4 +115,6 @@ private:
     ofParameter<string> playPauseStatus;  // New parameter for play/pause status
     
     void onContourThresholdChanged(float & value); // Add this function
+    
+    void resetSimulation();
 };

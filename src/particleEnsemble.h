@@ -20,6 +20,8 @@ public:
     void radial_update(float dt, float angularVelocity, const glm::vec3& centroid); // New update function
     void vv_propagatePositionsVelocities(const std::vector<attractor>& attractorVec, float dt); // Velocity Verlet update function
     
+    void reinitialize(const std::vector<glm::vec3>& initialPositions);
+    
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> last_positions; // Data member to save positions from the previous timestep
     std::vector<glm::vec3> v; // Data member to save velocities for the present timestep

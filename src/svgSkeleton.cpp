@@ -4,6 +4,13 @@
 
 
 void svgSkeleton::loadSvg(const std::string& filename) {
+    
+    ofFile file(filename);
+    if (!file.exists()) {
+        ofSystemAlertDialog("Error: SVG file not found.\nPlease make sure the file exists and the path is correct.");
+        return;
+    }
+    
     fileName = filename; // Store the file name
     svg.load(filename);
 //    generateEquidistantPoints(2000); // Default number of points

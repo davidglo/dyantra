@@ -73,6 +73,12 @@ void ofApp::setup() {
     gui.add(numPointsInput.setup("Edit points:", numPoints, 2, 50000));
     
     gui.add(timeDirectionDisplay.set("Time Direction", "FORWARD"));        // Add time direction to the GUI
+
+    // Add the timestep input field
+    gui.add(timestepLabel_1.set("timestep [0.0002-0.01]", ""));
+    gui.add(timestepLabel_2.set("         [default=0.003]", ""));
+    gui.add(timestepInput.setup("Edit timestep", timestep, 0.0002, 0.01));
+    timestepInput.addListener(this, &ofApp::onTimestepChanged);
     
     // Add elapsed timesteps to the GUI
     gui.add(elapsedTimestepsDisplay.set("Elapsed Steps", ofToString(elapsedTimesteps)));
@@ -82,12 +88,17 @@ void ofApp::setup() {
     gui.add(showContourLines.set("Show Contour Lines", true)); // Add checkbox for contour lines
     gui.add(contourThresholdSlider.setup("Contour Threshold", 10000, 0.0, 50000.0));  // Initialize the contour threshold slider
     gui.add(downscaleFactorGui.set("Downscale Factor", 3, 1, 10)); // Add slider for downscale factor
+
+    // svg related input
     gui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
     gui.add(showSvgPoints.setup("Show SVG Points", true));  // Initialize the new toggle
     gui.add(svgCentroid.set("svgCentroid", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
     gui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
-    gui.add(potentialFieldColor.set("Potential Field Color", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255))); // Add color wheel
-    gui.add(svgPointsColor.set("svg Points Color", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255))); // Add color wheel for SVG points
+        
+    ofColor initialPotentialFieldColor(128, 128, 128); // 50% intensity of white color
+    gui.add(potentialFieldColor.set("Potential Field Color", initialPotentialFieldColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel
+    ofColor initialSvgPointsColor(178, 178, 178); // 70% intensity of white color
+    gui.add(svgPointsColor.set("SVG Points Color", initialSvgPointsColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel for SVG points
     
     contourThresholdSlider.addListener(this, &ofApp::onContourThresholdChanged);  // Add listener to the slider
     
@@ -95,7 +106,6 @@ void ofApp::setup() {
     attractorGui.setup();
     attractorGui.setPosition(gui.getPosition().x + gui.getWidth() + 10, gui.getPosition().y); // Position to the right of the main panel
 
- 
 }
 
 void ofApp::update() {
@@ -252,7 +262,7 @@ void ofApp::mousePressed(int x, int y, int button) {
         }
 
         // Otherwise, we are drawing a new attractor
-        tempAttractor = attractor(mousePos, 0);
+        tempAttractor = attractor(mousePos, 20);
         drawingAttractor = true;
     } else if (button == OF_MOUSE_BUTTON_RIGHT) {
         // Check if we are right-clicking near an attractor's center to delete it
@@ -271,6 +281,7 @@ void ofApp::mousePressed(int x, int y, int button) {
 void ofApp::mouseDragged(int x, int y, int button) {
     if (drawingAttractor) {
          float radius = ofDist(tempAttractor.getCenter().x, tempAttractor.getCenter().y, x, y);
+         radius = std::max(radius, 5.0f);  // Ensure minimum radius of 2
          tempAttractor.setRadius(radius);
      } else if (editingCenter && selectedAttractorIndex >= 0) {
          ofPoint newCenter(x, y);
@@ -291,8 +302,8 @@ void ofApp::mouseDragged(int x, int y, int button) {
              radius = ofDist(attractorCenter.x, attractorCenter.y, nearestVertex.x, nearestVertex.y);
          }
 
+         radius = std::max(radius, 5.0f);  // Ensure minimum radius of 5
          attractorField.setAttractorRadius(selectedAttractorIndex, radius);
-
          attractorRadiusInputs[selectedAttractorIndex]->getParameter().cast<float>().set(radius); // Synchronize the GUI radius input fields
 
      } else if (translatingSvg) {
@@ -354,6 +365,9 @@ void ofApp::keyPressed(int key) {
     if (key == ' ') {
         isPlaying = !isPlaying;
         playPauseStatus = isPlaying ? "Play" : "Pause";  // Update play/pause status
+        if (isPlaying) {
+            showSvgPoints = false;  // Hide SVG points when starting
+        }
     }
     if (key == 'b' || key == 'B') {
         timeForward = !timeForward;
@@ -361,6 +375,10 @@ void ofApp::keyPressed(int key) {
     }
     if (key == 'r' || key == 'R') {
         resetSimulation();
+    }
+    if (key == 'c' || key == 'C') {
+        showContourLines = !showContourLines; // Toggle the flag
+        showContourLines.set(showContourLines); // Sync the GUI checkbox
     }
 }
 
@@ -377,7 +395,7 @@ void ofApp::addAttractorGui(const attractor& attractor) {
     attractorGui.add(group);
 
     auto radiusInput = std::make_shared<ofxFloatField>();
-    radiusInput->setup("Edit Radius:", attractor.getRadius(), 0.0f, 4000.0f);
+    radiusInput->setup("Edit Radius:", attractor.getRadius(), 5.0f, 4000.0f);
     radiusInput->addListener(this, &ofApp::attractorRadiusChanged);
     attractorRadiusInputs.push_back(radiusInput);
     radiusInputToAttractorIndex[radiusInput.get()] = attractorGroups.size() - 1;
@@ -429,6 +447,7 @@ void ofApp::onContourThresholdChanged(float & value) {
 }
 
 void ofApp::attractorRadiusChanged(float & radius) {
+    radius = std::max(radius, 5.0f);  // Ensure minimum radius of 5
     for (size_t i = 0; i < attractorRadiusInputs.size(); ++i) {
         float currentValueFromInputs = attractorRadiusInputs[i]->getParameter().cast<float>();
             attractorField.getAttractor(i).setRadius(currentValueFromInputs);  // Update the attractor's radius
@@ -450,6 +469,7 @@ void ofApp::resetSimulation() {
     // Pause the simulation
     isPlaying = false;
     playPauseStatus = "Pause";  // Update play/pause status
+    showSvgPoints = true;  // Show SVG points when resetting
 
     // Reset particle positions to original positions along the SVG skeleton
     particleEnsemble.reinitialize(svgSkeleton.getEquidistantPoints());

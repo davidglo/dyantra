@@ -112,6 +112,12 @@ private:
     float angularVelocity = 0.05;
     float timestep;
     
+    ofxFloatField timestepInput;
+    ofParameter<string> timestepLabel_1;
+    ofParameter<string> timestepLabel_2;
+    
+    void onTimestepChanged(float & value) {timestep = value;}
+    
     ofParameter<string> playPauseStatus;  // New parameter for play/pause status
     
     void onContourThresholdChanged(float & value); // Add this function

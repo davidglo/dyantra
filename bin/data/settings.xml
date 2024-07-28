@@ -1,20 +1,27 @@
 <?xml version="1.0"?>
 <group>
-	<Window_Size>1920x1080</Window_Size>
+	<Window_Size>1470x920</Window_Size>
 	<FPS>60.00</FPS>
-	<Play_Pause>Pause</Play_Pause>
+	<Play_Pause>Play</Play_Pause>
 	<Number_of_Points>19961</Number_of_Points>
 	<Time_Direction>FORWARD</Time_Direction>
-	<Elapsed_Steps>-34</Elapsed_Steps>
+	<Elapsed_Steps>1543</Elapsed_Steps>
 	<Show_Potential_Field>1</Show_Potential_Field>
-	<Show_Attractor_Circles>1</Show_Attractor_Circles>
+	<Show_Attractor_Circles>0</Show_Attractor_Circles>
 	<Show_Contour_Lines>0</Show_Contour_Lines>
 	<Contour_Threshold>10000</Contour_Threshold>
 	<Downscale_Factor>3</Downscale_Factor>
 	<svgFile_>taraYantra2.svg</svgFile_>
 	<Show_SVG_Points>0</Show_SVG_Points>
-	<svgCentroid>963.646, 533.222</svgCentroid>
-	<svgScale>0.854721</svgScale>
-	<Potential_Field_Color>54, 46, 87, 255</Potential_Field_Color>
+	<svgCentroid>733.665, 459.206</svgCentroid>
+	<svgScale>0.726634</svgScale>
+	<Potential_Field_Color>128, 128, 128, 255</Potential_Field_Color>
 	<svg_Points_Color>64, 89, 104, 255</svg_Points_Color>
+	<Attractor_0>
+		<Center>734.197, 460.319</Center>
+	</Attractor_0>
+	<timestep__0_0002-0_01_ />
+	<Edit_timestep>0.001</Edit_timestep>
+	<Show_Grid>0</Show_Grid>
+	<SVG_Points_Color>120, 120, 120, 255</SVG_Points_Color>
 </group>

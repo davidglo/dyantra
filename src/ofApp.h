@@ -123,4 +123,7 @@ private:
     void onContourThresholdChanged(float & value); // Add this function
     
     void resetSimulation();
+    
+    ofParameter<bool> showGrid; // Declare showGrid as private
+    void drawGrid(); // Function to draw the grid
 };

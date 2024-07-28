@@ -53,6 +53,7 @@ void ofApp::setup() {
     potentialFieldUpdated = true;
     showPotentialField = true; // Initialize the flag to show the potential field
     contourLinesUpdated = true; // Initialize the flag to update contour lines
+    showGrid = true;
     
     // GUI setup
     gui.setup();
@@ -89,6 +90,8 @@ void ofApp::setup() {
     gui.add(contourThresholdSlider.setup("Contour Threshold", 10000, 0.0, 50000.0));  // Initialize the contour threshold slider
     gui.add(downscaleFactorGui.set("Downscale Factor", 3, 1, 10)); // Add slider for downscale factor
 
+    gui.add(showGrid.set("Show Grid", true));  // Add the checkbox for the grid
+    
     // svg related input
     gui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
     gui.add(showSvgPoints.setup("Show SVG Points", true));  // Initialize the new toggle
@@ -182,13 +185,17 @@ void ofApp::update() {
 
 void ofApp::draw() {
     ofBackground(0);  // Set background to black
-
+    
     // Draw the potential field if the flag is set
     if (showPotentialField) {
         ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
         potentialField.draw(0, 0, ofGetWidth(), ofGetHeight()); // Upscale when drawing
     }
 
+    if (showGrid) {
+        drawGrid();  // Draw grid
+    }
+    
     // Draw contour lines if the flag is set
     if (showContourLines) {
         ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
@@ -380,6 +387,10 @@ void ofApp::keyPressed(int key) {
         showContourLines = !showContourLines; // Toggle the flag
         showContourLines.set(showContourLines); // Sync the GUI checkbox
     }
+    if (key == 'g' || key == 'G') {
+        showGrid = !showGrid;  // Toggle the flag
+        showGrid.set(showGrid);
+    }
 }
 
 void ofApp::addAttractorGui(const attractor& attractor) {
@@ -477,4 +488,27 @@ void ofApp::resetSimulation() {
     // Reset elapsed timesteps
     elapsedTimesteps = 0;
     elapsedTimestepsDisplay = ofToString(elapsedTimesteps);  // Update GUI display
+}
+
+void ofApp::drawGrid() {
+    ofSetColor(64); // Set grid color to white
+    ofSetLineWidth(1); // Set the line thickness to 1 pixel (change this value to adjust the thickness)
+    int gridSpacing = 100; // Set grid spacing
+    int width = ofGetWidth();
+    int height = ofGetHeight();
+    int centerX = width / 2;
+    int centerY = height / 2;
+
+    for (int x = centerX; x < width; x += gridSpacing) {
+        ofDrawLine(x, 0, x, height);
+    }
+    for (int x = centerX; x > 0; x -= gridSpacing) {
+        ofDrawLine(x, 0, x, height);
+    }
+    for (int y = centerY; y < height; y += gridSpacing) {
+        ofDrawLine(0, y, width, y);
+    }
+    for (int y = centerY; y > 0; y -= gridSpacing) {
+        ofDrawLine(0, y, width, y);
+    }
 }

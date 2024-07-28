@@ -131,4 +131,16 @@ private:
     void regenerateGridIntersections();
     // New helper function to find the nearest vertex on the grid
     ofPoint getNearestGridIntersection(const ofPoint& point, float& minDistance);
+    
+    // Time reversal variables
+    bool timeReversalInProgress;
+    int nTimeReversalSteps; // Adjust this value as needed
+    int timeReversalStepCounter;
+    int nTimeReversalCalls;
+    float last_timeStep;
+    float originalTimeStep;
+    
+    // Function declaration
+    float gentlyReverseTimeWithCos();
+    ofParameter<string> timeReversalStatus;  // Add this for displaying time reversal status
 };

@@ -40,6 +40,12 @@ void ofApp::setup() {
     numPoints = 1000; // Set the desired number of points
     timestep = 0.003;
     gridSpacing = 100; // Set grid spacing
+    last_timeStep = timestep;
+    
+    timeReversalInProgress = false;
+    nTimeReversalSteps = 120; // Adjust this value as needed
+    timeReversalStepCounter = nTimeReversalSteps;
+    nTimeReversalCalls = 0;
     
     drawingAttractor = false;
     editingCenter = false;
@@ -84,6 +90,7 @@ void ofApp::setup() {
     
     // Add elapsed timesteps to the GUI
     gui.add(elapsedTimestepsDisplay.set("Elapsed Steps", ofToString(elapsedTimesteps)));
+    gui.add(timeReversalStatus.set("Time is reversing:", "FALSE"));  // Add this for displaying time reversal status
     
     gui.add(showPotentialFieldGui.set("Show Potential Field", true));
     gui.add(showAttractorCircles.set("Show Attractor Circles", true)); // Add checkbox for attractor circles
@@ -172,13 +179,22 @@ void ofApp::update() {
         
     // Handle particle motion if playing
     if (isPlaying) {
-        float dt = timestep * (timeForward ? 1 : -1);
-//        particleEnsemble.radial_update(dt, angularVelocity, glm::vec3(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y, 0));
+        float dt;
+        if (timeReversalInProgress) {
+            dt = gentlyReverseTimeWithCos();
+            timeReversalStatus = "TRUE";
+        }
+        else {
+            if (timeForward) {dt = timestep;}
+            else {dt = -timestep;}      // If timeForward is false, we want dt to be negative
+            timeReversalStatus = "FALSE";
+        }
         particleEnsemble.vv_propagatePositionsVelocities(attractorField.getAttractors(), dt);
         
         if (timeForward) {
             elapsedTimesteps++;  // Increment elapsed timesteps
-        } else {
+        }
+        else {
             elapsedTimesteps--;  // Decrement elapsed timesteps
         }
         elapsedTimestepsDisplay = ofToString(elapsedTimesteps);  // Update GUI display
@@ -406,8 +422,13 @@ void ofApp::keyPressed(int key) {
         }
     }
     if (key == 'b' || key == 'B') {
-        timeForward = !timeForward;
-        timeDirectionDisplay = timeForward ? "FORWARD" : "BACKWARD";  // Update time direction display
+        if(!timeReversalInProgress){
+            timeReversalInProgress = true;
+            nTimeReversalCalls = 0;
+            timeReversalStepCounter = nTimeReversalSteps;
+            if (timeForward){originalTimeStep = timestep;}
+            else{originalTimeStep = -1.0*timestep;}
+        }
     }
     if (key == 'r' || key == 'R') {
         resetSimulation();
@@ -442,7 +463,7 @@ void ofApp::addAttractorGui(const attractor& attractor) {
     attractorGui.add(radiusInput.get());
     
     auto amplitudeInput = std::make_shared<ofxFloatField>();
-    amplitudeInput->setup("Edit Amplitude:", attractor.getAmplitude(), 0.0f, 100000.0f);
+    amplitudeInput->setup("Edit Amplitude:", attractor.getAmplitude(), -100000.0f, 100000.0f);
     amplitudeInput->addListener(this, &ofApp::attractorAmplitudeChanged);
     attractorAmplitudeInputs.push_back(amplitudeInput);
     amplitudeInputToAttractorIndex[amplitudeInput.get()] = attractorGroups.size() - 1;
@@ -612,4 +633,35 @@ ofPoint ofApp::getNearestGridIntersection(const ofPoint& point, float& minDistan
     return nearestIntersection;
 }
 
+float ofApp::gentlyReverseTimeWithCos() {
+    float new_timeStep, stepSize;
+    
+    ++nTimeReversalCalls;
+    
+    stepSize = 2 * PI / (2 * nTimeReversalSteps + 1);
+    
+    if (timeReversalStepCounter > 0) {       // slowly reduce the size of the timestep
+        new_timeStep = originalTimeStep * 0.5 * (cos(nTimeReversalCalls * stepSize) + 1);
+    } else if (timeReversalStepCounter == 0) {   // flip the sign
+        new_timeStep = -1.0 * last_timeStep;
+        originalTimeStep *= -1;
+        timeForward = !timeForward;
+        timeDirectionDisplay = timeForward ? "FORWARD" : "BACKWARD";
+    } else if (timeReversalStepCounter < 0) {   // slowly increase the size of the timestep
+        new_timeStep = originalTimeStep * 0.5 * (cos(nTimeReversalCalls * stepSize) + 1);
+    }
+    
+    timeReversalStepCounter -= 1;
+
+    if (timeReversalStepCounter < (-1 * nTimeReversalSteps)) {
+        timeReversalInProgress = false;
+        timeReversalStatus = "FALSE";  // Update the status
+    }
+    else {
+        timeReversalStatus = "TRUE";  // Update the status
+    }
+    
+    last_timeStep = new_timeStep;
+    return new_timeStep;
+}
 

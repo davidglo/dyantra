@@ -39,6 +39,7 @@ void ofApp::setup() {
 
     numPoints = 1000; // Set the desired number of points
     timestep = 0.003;
+    gridSpacing = 100; // Set grid spacing
     
     drawingAttractor = false;
     editingCenter = false;
@@ -91,10 +92,11 @@ void ofApp::setup() {
     gui.add(downscaleFactorGui.set("Downscale Factor", 3, 1, 10)); // Add slider for downscale factor
 
     gui.add(showGrid.set("Show Grid", true));  // Add the checkbox for the grid
+    regenerateGridIntersections();  // Generate initial grid intersections
     
     // svg related input
     gui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
-    gui.add(showSvgPoints.setup("Show SVG Points", true));  // Initialize the new toggle
+    gui.add(showSvgPoints.setup("Show SVG Points", false));  // Initialize the new toggle
     gui.add(svgCentroid.set("svgCentroid", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
     gui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
         
@@ -286,6 +288,7 @@ void ofApp::mousePressed(int x, int y, int button) {
 }
 
 void ofApp::mouseDragged(int x, int y, int button) {
+    ofPoint mousePos(x, y);
     if (drawingAttractor) {
          float radius = ofDist(tempAttractor.getCenter().x, tempAttractor.getCenter().y, x, y);
          radius = std::max(radius, 5.0f);  // Ensure minimum radius of 2
@@ -297,10 +300,18 @@ void ofApp::mouseDragged(int x, int y, int button) {
          if (minDistance < 10) {
              newCenter = nearestVertex;
          }
+
+         if (showGrid) {
+             ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);
+             if (minDistance < 10) {
+                 newCenter = nearestIntersection;
+             }
+         }
+
          attractorField.setAttractorCenter(selectedAttractorIndex, newCenter);
+         
      } else if (editingEdge && selectedAttractorIndex >= 0) {
          ofPoint attractorCenter = attractorField.getAttractors()[selectedAttractorIndex].getCenter();
-         ofPoint mousePos(x, y);
          float radius = ofDist(attractorCenter.x, attractorCenter.y, mousePos.x, mousePos.y);
 
          float minDistance;
@@ -314,11 +325,28 @@ void ofApp::mouseDragged(int x, int y, int button) {
          attractorRadiusInputs[selectedAttractorIndex]->getParameter().cast<float>().set(radius); // Synchronize the GUI radius input fields
 
      } else if (translatingSvg) {
-         ofPoint offset(x - initialMousePos.x, y - initialMousePos.y);
-         svgSkeleton.translateSvg(offset);
-         particleEnsemble.translate(offset);
-         initialMousePos.set(x, y);
+         ofPoint offset(mousePos.x - initialMousePos.x, mousePos.y - initialMousePos.y);
+         
+         if(showGrid){
+             ofPoint newCenter = svgSkeleton.getSvgCentroid() + offset;
+             float minDistance;
+             ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);
+             if (minDistance < 10) {
+                 ofPoint snappedOffset = nearestIntersection - svgSkeleton.getSvgCentroid();
+                 svgSkeleton.translateSvg(snappedOffset);
+                 particleEnsemble.translate(snappedOffset);
+             } else {
+                 svgSkeleton.translateSvg(offset);
+                 particleEnsemble.translate(offset);
+             }
+         } else {
+             svgSkeleton.translateSvg(offset);
+             particleEnsemble.translate(offset);
+         }
+         
          svgSkeleton.updateSvgCentroid();
+         initialMousePos = mousePos; // Update initialMousePos with the current mouse position
+         
      } else if (resizingSvg) {
          float initialDistance = initialMousePos.distance(svgSkeleton.getSvgCentroid());
          float currentDistance = ofPoint(x, y).distance(svgSkeleton.getSvgCentroid());
@@ -359,6 +387,7 @@ void ofApp::updateContours() {
 void ofApp::windowResized(int w, int h) {
     int width = w / downscaleFactor;
     int height = h / downscaleFactor;
+    regenerateGridIntersections();  // Regenerate grid intersections when the window is resized
     potentialField.allocate(width, height, OF_IMAGE_GRAYSCALE); // Reallocate the potential field image
     potentialFieldUpdated = true; // Mark the potential field as needing an update
     contourLinesUpdated = true; // Mark contour lines for update
@@ -491,24 +520,96 @@ void ofApp::resetSimulation() {
 }
 
 void ofApp::drawGrid() {
-    ofSetColor(64); // Set grid color to white
-    ofSetLineWidth(1); // Set the line thickness to 1 pixel (change this value to adjust the thickness)
-    int gridSpacing = 100; // Set grid spacing
+    ofSetColor(64); // Set grid color to darker grey (64, 64, 64)
+    ofSetLineWidth(1); // Set the line thickness to 1 pixel
     int width = ofGetWidth();
     int height = ofGetHeight();
     int centerX = width / 2;
     int centerY = height / 2;
 
+    // Draw vertical lines
     for (int x = centerX; x < width; x += gridSpacing) {
         ofDrawLine(x, 0, x, height);
     }
     for (int x = centerX; x > 0; x -= gridSpacing) {
         ofDrawLine(x, 0, x, height);
     }
+
+    // Draw horizontal lines
     for (int y = centerY; y < height; y += gridSpacing) {
         ofDrawLine(0, y, width, y);
     }
     for (int y = centerY; y > 0; y -= gridSpacing) {
         ofDrawLine(0, y, width, y);
     }
+
+    // Draw the central lines with a thicker width
+    ofSetColor(180); // Set grid color to darker grey (64, 64, 64)
+    ofSetLineWidth(1); // Set the line thickness to 1 pixel
+    ofDrawLine(centerX, 0, centerX, height); // Central vertical line
+    ofDrawLine(0, centerY, width, centerY); // Central horizontal line
 }
+
+void ofApp::regenerateGridIntersections() {
+    std::set<std::pair<int, int>> uniqueIntersections; // Use a set to store unique points
+    gridIntersections.clear();
+    int width = ofGetWidth();
+    int height = ofGetHeight();
+    int centerX = width / 2;
+    int centerY = height / 2;
+
+    // Generate grid intersections in all four quadrants
+
+    // Bottom-right quadrant
+    for (int x = centerX; x < width; x += gridSpacing) {
+        for (int y = centerY; y < height; y += gridSpacing) {
+            uniqueIntersections.emplace(x, y);
+        }
+    }
+
+    // Bottom-left quadrant
+    for (int x = centerX; x > 0; x -= gridSpacing) {
+        for (int y = centerY; y < height; y += gridSpacing) {
+            uniqueIntersections.emplace(x, y);
+        }
+    }
+
+    // Top-right quadrant
+    for (int x = centerX; x < width; x += gridSpacing) {
+        for (int y = centerY; y > 0; y -= gridSpacing) {
+            uniqueIntersections.emplace(x, y);
+        }
+    }
+
+    // Top-left quadrant
+    for (int x = centerX; x > 0; x -= gridSpacing) {
+        for (int y = centerY; y > 0; y -= gridSpacing) {
+            uniqueIntersections.emplace(x, y);
+        }
+    }
+
+    // Ensure the center point is included
+    uniqueIntersections.emplace(centerX, centerY);
+
+    // Transfer unique points to the vector
+    for (const auto& point : uniqueIntersections) {
+        gridIntersections.emplace_back(point.first, point.second);
+    }
+}
+
+ofPoint ofApp::getNearestGridIntersection(const ofPoint& point, float& minDistance) {
+    ofPoint nearestIntersection;
+    minDistance = FLT_MAX;
+
+    for (const auto& intersection : gridIntersections) {
+        float distance = point.distance(intersection);
+        if (distance < minDistance) {
+            minDistance = distance;
+            nearestIntersection = intersection;
+        }
+    }
+
+    return nearestIntersection;
+}
+
+

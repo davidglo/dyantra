@@ -17,7 +17,7 @@ void attractor::draw() const {
     ofEndShape(true);
 
     ofFill();
-    ofDrawCircle(center, 2);
+    ofDrawCircle(center, 1);
 }
 
 bool attractor::isPointNear(const ofPoint& point, float tolerance) const {

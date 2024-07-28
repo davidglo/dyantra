@@ -28,7 +28,7 @@ private:
 
     // New helper function to find the nearest vertex on the SVG paths
     ofPoint getNearestSvgVertex(const ofPoint& point, float& minDistance);
-
+    
     // Variables to handle attractor drawing and editing
     attractorField attractorField; // Use the new attractorField class
     attractor tempAttractor = attractor(ofPoint(0, 0), 0);
@@ -124,6 +124,11 @@ private:
     
     void resetSimulation();
     
+    std::vector<ofPoint> gridIntersections;  // Store the grid intersection points
     ofParameter<bool> showGrid; // Declare showGrid as private
     void drawGrid(); // Function to draw the grid
+    int gridSpacing;
+    void regenerateGridIntersections();
+    // New helper function to find the nearest vertex on the grid
+    ofPoint getNearestGridIntersection(const ofPoint& point, float& minDistance);
 };

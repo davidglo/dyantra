@@ -29,15 +29,14 @@ void ofApp::setup() {
     ofSetFrameRate(60);
     
 //    string svgFile = "taraYantra.svg";
-    string svgFile = "taraYantra2.svg";
+//    string svgFile = "taraYantra2.svg";
+    string svgFile = "tara-head-mandala.svg";
     //string svgFile = "circle.svg";
     //string svgFile = "line.svg";
     //string svgFile = "2lines.svg";
     //string svgFile = "triangle.svg";
-    
-    svgSkeleton.loadSvg(svgFile);
 
-    numPoints = 1000; // Set the desired number of points
+    numPoints = 2000; // Set the desired number of points
     timestep = 0.003;
     gridSpacing = 100; // Set grid spacing
     last_timeStep = timestep;
@@ -61,12 +60,14 @@ void ofApp::setup() {
     showPotentialField = true; // Initialize the flag to show the potential field
     contourLinesUpdated = true; // Initialize the flag to update contour lines
     showGrid = true;
+
+    svgSkeleton.loadSvg(svgFile);
+    svgSkeleton.generateEquidistantPoints(numPoints); // Call with the data member
+    svgSkeleton.autoFitToWindow(ofGetWidth(), ofGetHeight());
+    particleEnsemble.initialize(svgSkeleton.getEquidistantPoints()); // initialize the particleEnsemble
     
     // GUI setup
     gui.setup();
-
-    svgSkeleton.generateEquidistantPoints(numPoints); // Call with the data member
-    particleEnsemble.initialize(svgSkeleton.getEquidistantPoints()); // initialize the particleEnsemble
     
     elapsedTimesteps = 0;  // Initialize elapsed timesteps counter
     timeForward = true;  // Initialize time direction to forward
@@ -422,7 +423,7 @@ void ofApp::keyPressed(int key) {
         }
     }
     if (key == 'b' || key == 'B') {
-        if(!timeReversalInProgress){
+        if(!timeReversalInProgress){  // only take action if there's not already a time reversal in progress
             timeReversalInProgress = true;
             nTimeReversalCalls = 0;
             timeReversalStepCounter = nTimeReversalSteps;

@@ -5,6 +5,7 @@
 
 class svgSkeleton {
 public:
+//    void loadSvg(const std::string& filename);
     void loadSvg(const std::string& filename);
     void generateEquidistantPoints(int numDesiredPoints);
     void calculateSvgCentroid();
@@ -14,6 +15,8 @@ public:
     
     void updateSvgCentroid();
     const ofPoint& getInitialCentroid() const;
+    
+    void autoFitToWindow(int windowWidth, int windowHeight);
     
     const std::vector<glm::vec3>& getEquidistantPoints() const;
     const ofPoint& getSvgCentroid() const;

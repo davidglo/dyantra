@@ -13,7 +13,6 @@ void svgSkeleton::loadSvg(const std::string& filename) {
     
     fileName = filename; // Store the file name
     svg.load(filename);
-//    generateEquidistantPoints(2000); // Default number of points
     calculateSvgCentroid();
     translation.set(0, 0);
     cumulativeScale = 1.0f;
@@ -167,4 +166,19 @@ void svgSkeleton::updateSvgCentroid() {
 
 const ofPoint& svgSkeleton::getInitialCentroid() const {
     return initialCentroid;
+}
+
+void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
+    float svgWidth = svg.getWidth();
+    float svgHeight = svg.getHeight();
+    float scaleX = static_cast<float>(windowWidth) / svgWidth;
+    float scaleY = static_cast<float>(windowHeight) / svgHeight;
+    float scale = std::min(scaleX, scaleY) * 0.9f; // Scale down slightly to fit within window
+
+    // Center the SVG
+    ofPoint newCentroid = ofPoint(windowWidth / 2, windowHeight / 2);
+    ofPoint offset = newCentroid - svgCentroid;
+    translateSvg(offset);
+    resizeSvg(scale);
+    updateSvgCentroid();
 }

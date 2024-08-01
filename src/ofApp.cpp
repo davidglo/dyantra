@@ -103,22 +103,30 @@ void ofApp::setup() {
     gui.add(showGrid.set("Show Grid", true));  // Add the checkbox for the grid
     regenerateGridIntersections();  // Generate initial grid intersections
     
-    // svg related input
-    gui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
-    gui.add(showSvgPoints.setup("Show SVG Points", false));  // Initialize the new toggle
-    gui.add(svgCentroid.set("svgCentroid", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
-    gui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
-        
+    // Setup GUI for snapping
+    gui.add(enableSnapping.set("Enable Snapping", true));
+
     ofColor initialPotentialFieldColor(128, 128, 128); // 50% intensity of white color
     gui.add(potentialFieldColor.set("Potential Field Color", initialPotentialFieldColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel
+
+    // svg related input
+    
+    svgInfoGui.setup();
+    svgInfoGui.setPosition(gui.getPosition().x + gui.getWidth() + 10, gui.getPosition().y);
+    svgInfoGui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
+    svgInfoGui.add(showSvgPoints.setup("Show SVG Points", false));  // Initialize the new toggle
+    svgInfoGui.add(svgCentroid.set("svgCentroid", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
+    svgInfoGui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
     ofColor initialSvgPointsColor(178, 178, 178); // 70% intensity of white color
-    gui.add(svgPointsColor.set("SVG Points Color", initialSvgPointsColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel for SVG points
+    svgInfoGui.add(svgPointsColor.set("SVG Points Color", initialSvgPointsColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel for SVG points
+    
+
     
     contourThresholdSlider.addListener(this, &ofApp::onContourThresholdChanged);  // Add listener to the slider
     
     // Setup and position the attractor information panel
     attractorGui.setup();
-    attractorGui.setPosition(gui.getPosition().x + gui.getWidth() + 10, gui.getPosition().y); // Position to the right of the main panel
+    attractorGui.setPosition(ofGetWidth() - 210, gui.getPosition().y); // Position to the right of the main panel
 
 }
 
@@ -247,6 +255,7 @@ void ofApp::draw() {
     // Draw GUI
     gui.draw();
     attractorGui.draw(); // Draw the attractor information panel
+    svgInfoGui.draw(); // Draw the SVG information panel
 }
 
 void ofApp::mousePressed(int x, int y, int button) {
@@ -313,31 +322,32 @@ void ofApp::mouseDragged(int x, int y, int button) {
          tempAttractor.setRadius(radius);
      } else if (editingCenter && selectedAttractorIndex >= 0) {
          ofPoint newCenter(x, y);
-         float minDistance;
-         ofPoint nearestVertex = getNearestSvgVertex(newCenter, minDistance);
-         if (minDistance < 10) {
-             newCenter = nearestVertex;
-         }
-
-         if (showGrid) {
-             ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);
+         if (enableSnapping) {
+             float minDistance;
+             ofPoint nearestVertex = getNearestSvgVertex(newCenter, minDistance);
              if (minDistance < 10) {
-                 newCenter = nearestIntersection;
+                 newCenter = nearestVertex;
+             }
+             
+             if (showGrid) {
+                 ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);
+                 if (minDistance < 10) {
+                     newCenter = nearestIntersection;
+                 }
              }
          }
-
          attractorField.setAttractorCenter(selectedAttractorIndex, newCenter);
          
      } else if (editingEdge && selectedAttractorIndex >= 0) {
          ofPoint attractorCenter = attractorField.getAttractors()[selectedAttractorIndex].getCenter();
          float radius = ofDist(attractorCenter.x, attractorCenter.y, mousePos.x, mousePos.y);
-
-         float minDistance;
-         ofPoint nearestVertex = getNearestSvgVertex(mousePos, minDistance);
-         if (minDistance < 10) { // Snap to the nearest vertex if within 10 pixels
-             radius = ofDist(attractorCenter.x, attractorCenter.y, nearestVertex.x, nearestVertex.y);
+         if (enableSnapping) {
+             float minDistance;
+             ofPoint nearestVertex = getNearestSvgVertex(mousePos, minDistance);
+             if (minDistance < 10) { // Snap to the nearest vertex if within 10 pixels
+                 radius = ofDist(attractorCenter.x, attractorCenter.y, nearestVertex.x, nearestVertex.y);
+             }
          }
-
          radius = std::max(radius, 5.0f);  // Ensure minimum radius of 5
          attractorField.setAttractorRadius(selectedAttractorIndex, radius);
          attractorRadiusInputs[selectedAttractorIndex]->getParameter().cast<float>().set(radius); // Synchronize the GUI radius input fields
@@ -345,7 +355,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
      } else if (translatingSvg) {
          ofPoint offset(mousePos.x - initialMousePos.x, mousePos.y - initialMousePos.y);
          
-         if(showGrid){
+         if(enableSnapping && showGrid){
              ofPoint newCenter = svgSkeleton.getSvgCentroid() + offset;
              float minDistance;
              ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);

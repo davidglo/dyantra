@@ -105,6 +105,8 @@ private:
     void removeAttractorGui(int index);
     void updateAttractorGui(int index, const attractor& attractor);
     
+    ofxPanel svgInfoGui;
+    
     // Play/pause state
     bool isPlaying = false;
 
@@ -143,4 +145,7 @@ private:
     // Function declaration
     float gentlyReverseTimeWithCos();
     ofParameter<string> timeReversalStatus;  // Add this for displaying time reversal status
+    
+    ofParameter<bool> enableSnapping;
+    
 };

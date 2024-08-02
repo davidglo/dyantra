@@ -31,6 +31,10 @@ public:
     std::vector<float> radii;
     std::vector<float> masses;
     
+    const std::vector<glm::vec3>& getPositions() const {
+        return positions;
+    }
+    
 private:
     glm::vec3 calculateGaussianForce(const attractor& attractorObject, const glm::vec3& particlePosition) const; // Helper function
     

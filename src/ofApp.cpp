@@ -31,7 +31,8 @@ void ofApp::setup() {
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-head-mandala.svg";
-    string svgFile = "tara-head-heart-lotus.svg";
+//    string svgFile = "tara-head-heart-lotus.svg";
+    string svgFile = "tara-head-svg-forDynantra.svg";
     //string svgFile = "circle.svg";
     //string svgFile = "line.svg";
     //string svgFile = "2lines.svg";
@@ -453,6 +454,9 @@ void ofApp::keyPressed(int key) {
         showGrid = !showGrid;  // Toggle the flag
         showGrid.set(showGrid);
     }
+    if (key == 'w' || key == 'W') {
+        writeParticlePositionsToSvg(); // Write particle positions to SVG
+    }
 }
 
 void ofApp::addAttractorGui(const attractor& attractor) {
@@ -675,5 +679,36 @@ float ofApp::gentlyReverseTimeWithCos() {
     
     last_timeStep = new_timeStep;
     return new_timeStep;
+}
+
+void ofApp::writeParticlePositionsToSvg() {
+    if (!isPlaying) {  // Only write if the simulation is paused
+        // Get the current time for timestamp
+        auto t = std::time(nullptr);
+        auto tm = *std::localtime(&t);
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+        std::string filename = "particle_positions_" + oss.str() + ".svg";
+
+        std::ofstream svgFile;
+        svgFile.open(ofToDataPath(filename));
+
+        if (svgFile.is_open()) {
+            // Write the SVG header
+            svgFile << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n";
+
+            // Write particle positions as circles
+            for (const auto& position : particleEnsemble.getPositions()) {
+                svgFile << "<circle cx=\"" << position.x << "\" cy=\"" << position.y << "\" r=\"1\" fill=\"black\" />\n";
+            }
+
+            // Write the SVG footer
+            svgFile << "</svg>\n";
+            svgFile.close();
+            ofLogNotice() << "Particle positions written to " << filename;
+        } else {
+            ofLogError() << "Unable to open file for writing: " << filename;
+        }
+    }
 }
 

@@ -1,4 +1,5 @@
-.DS_Store
+*.DS_Store
+bin/data/.DS_Store
 bin/dyantraDebug.app
 bin/dyantra.app
 bin/.DS_Store
@@ -14,5 +15,5 @@ ofxSvg/libs/svgtiny/.DS_Store
 *.xcworkspace/xcshareddata/xcschememanagement.plist
 dyantra.xcodeproj/project.xcworkspace/xcuserdata/
 dyantra.xcodeproj/xcuserdata
-
+bin/data/tara-head-components/
 

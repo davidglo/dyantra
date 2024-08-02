@@ -7,6 +7,9 @@
 #include "attractorField.h"
 #include "particleEnsemble.h"
 #include "svgSkeleton.h"
+#include <fstream>
+#include <ctime>
+#include <iomanip>
 
 class ofApp : public ofBaseApp {
 public:
@@ -148,4 +151,5 @@ private:
     
     ofParameter<bool> enableSnapping;
     
+    void writeParticlePositionsToSvg();
 };

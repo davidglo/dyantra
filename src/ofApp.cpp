@@ -32,7 +32,7 @@ void ofApp::setup() {
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-head-mandala.svg";
 //    string svgFile = "tara-head-heart-lotus.svg";
-    string svgFile = "tara-head-svg-forDynantra.svg";
+    string svgFile = "tara-face.svg";
     //string svgFile = "circle.svg";
     //string svgFile = "line.svg";
     //string svgFile = "2lines.svg";

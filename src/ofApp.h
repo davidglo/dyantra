@@ -152,4 +152,8 @@ private:
     ofParameter<bool> enableSnapping;
     
     void writeParticlePositionsToSvg();
+    
+    // Add the declaration for the flipPotentialFieldRender checkbox
+    ofParameter<bool> flipPotentialFieldRender;
+    void onFlipPotentialFieldRenderChanged(bool & state);
 };

@@ -52,14 +52,21 @@ void attractorField::calculatePotentialField(ofImage& potentialField, float down
 
     std::vector<float> potentials(width * height);
 
+    // Determine the flip state based on the sign of contourThreshold
+    bool flipState = contourThreshold < 0;
+    
     // Compute potential at each pixel
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             float realX = x * downscaleFactor;
             float realY = y * downscaleFactor;
             float potential = computePotentialAtPoint(realX, realY);
+            
+            if (flipState) {
+                potential = -potential;
+            }
+            
             potentials[y * width + x] = potential;
-
             maxPotential = std::max(maxPotential, potential);
             minPotential = std::min(minPotential, potential);
         }
@@ -80,7 +87,7 @@ void attractorField::calculatePotentialField(ofImage& potentialField, float down
 
     // Adjust max potential for 20% brightness at contourThreshold
     float adjustedMaxPotential = contourThreshold * 5;
-
+    
     /*
     // Apply logarithmic scaling to the potential values
     for (int y = 0; y < height; ++y) {

@@ -30,10 +30,11 @@ void ofApp::setup() {
     
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
-//    string svgFile = "tara-head-mandala.svg";
-//    string svgFile = "tara-head-heart-lotus.svg";
+//    string svgFile = "tara-crown-heart-lotus.svg";
+//    string svgFile = "tara-crown-Chakra.svg";
+//    string svgFile = "cir_seasonal-US.svg";
     string svgFile = "tara-face.svg";
-    //string svgFile = "circle.svg";
+//    string svgFile = "circle.svg";
     //string svgFile = "line.svg";
     //string svgFile = "2lines.svg";
     //string svgFile = "triangle.svg";
@@ -96,6 +97,11 @@ void ofApp::setup() {
     gui.add(timeReversalStatus.set("Time is reversing:", "FALSE"));  // Add this for displaying time reversal status
     
     gui.add(showPotentialFieldGui.set("Show Potential Field", true));
+    
+    gui.add(flipPotentialFieldRender.set("Flip Potential Field", false)); // Add the checkbox to the GUI
+    // Add listener to the checkbox
+    flipPotentialFieldRender.addListener(this, &ofApp::onFlipPotentialFieldRenderChanged);
+    
     gui.add(showAttractorCircles.set("Show Attractor Circles", true)); // Add checkbox for attractor circles
     gui.add(showContourLines.set("Show Contour Lines", true)); // Add checkbox for contour lines
     gui.add(contourThresholdSlider.setup("Contour Threshold", 10000, 0.0, 50000.0));  // Initialize the contour threshold slider
@@ -107,7 +113,8 @@ void ofApp::setup() {
     // Setup GUI for snapping
     gui.add(enableSnapping.set("Enable Snapping", true));
 
-    ofColor initialPotentialFieldColor(128, 128, 128); // 50% intensity of white color
+//    ofColor initialPotentialFieldColor(128, 128, 128); // 50% intensity of white color
+    ofColor initialPotentialFieldColor(80, 80, 80);
     gui.add(potentialFieldColor.set("Potential Field Color", initialPotentialFieldColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel
 
     // svg related input
@@ -155,7 +162,14 @@ void ofApp::update() {
     }
     
     if (potentialFieldUpdated) {
-        attractorField.calculatePotentialField(potentialField, downscaleFactor, ofGetWidth() / downscaleFactor, ofGetHeight() / downscaleFactor, contourThresholdSlider);
+        int width = ofGetWidth() / downscaleFactor;
+        int height = ofGetHeight() / downscaleFactor;
+        if (flipPotentialFieldRender) {
+            attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, -1 * contourThresholdSlider);  // Flip the sign
+        }
+        if (!flipPotentialFieldRender){
+            attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, contourThresholdSlider);
+        }
         potentialFieldUpdated = false;
     }
 
@@ -410,6 +424,7 @@ void ofApp::updateContours() {
     float contourThreshold = contourThresholdSlider;  // Use the slider value
     attractorField.updateContours(downscaleFactor, width, height, svgSkeleton.getEquidistantPoints(), contourThreshold);
     attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, contourThreshold);  // Update potential field with contourThreshold
+    
 }
 
 
@@ -449,6 +464,10 @@ void ofApp::keyPressed(int key) {
     if (key == 'c' || key == 'C') {
         showContourLines = !showContourLines; // Toggle the flag
         showContourLines.set(showContourLines); // Sync the GUI checkbox
+    }
+    if(key == 'a' || key == 'A'){
+        showAttractorCircles = !showAttractorCircles;
+        showAttractorCircles.set(showAttractorCircles);
     }
     if (key == 'g' || key == 'G') {
         showGrid = !showGrid;  // Toggle the flag
@@ -680,7 +699,8 @@ float ofApp::gentlyReverseTimeWithCos() {
     last_timeStep = new_timeStep;
     return new_timeStep;
 }
-
+/*
+// write particle positions as small circles
 void ofApp::writeParticlePositionsToSvg() {
     if (!isPlaying) {  // Only write if the simulation is paused
         // Get the current time for timestamp
@@ -711,4 +731,44 @@ void ofApp::writeParticlePositionsToSvg() {
         }
     }
 }
+*/
+// write particle positions as points along polyline
+void ofApp::writeParticlePositionsToSvg() {
+    if (!isPlaying) {  // Only write if the simulation is paused
+        // Get the current time for timestamp
+        auto t = std::time(nullptr);
+        auto tm = *std::localtime(&t);
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+        std::string filename = "particle_positions_" + oss.str() + ".svg";
 
+        std::ofstream svgFile;
+        svgFile.open(ofToDataPath(filename));
+
+        if (svgFile.is_open()) {
+            // Write the SVG header
+            svgFile << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n";
+
+            // Write particle positions as a polyline
+            svgFile << "<polyline points=\"";
+            for (const auto& position : particleEnsemble.getPositions()) {
+                svgFile << position.x << "," << position.y << " ";
+                ofLogNotice() << "Writing position: " << position.x << ", " << position.y;
+            }
+            svgFile << "\" fill=\"none\" stroke=\"black\" stroke-width=\"1\" />\n";
+
+            // Write the SVG footer
+            svgFile << "</svg>\n";
+            svgFile.close();
+            ofLogNotice() << "Particle positions written to " << filename;
+        } else {
+            ofLogError() << "Unable to open file for writing: " << filename;
+        }
+    }
+}
+
+void ofApp::onFlipPotentialFieldRenderChanged(bool & state) {
+    // Update contours when the flip state changes
+    potentialFieldUpdated = true;
+//    updateContours();
+}

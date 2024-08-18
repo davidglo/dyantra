@@ -17,6 +17,7 @@ void svgSkeleton::loadSvg(const std::string& filename) {
     translation.set(0, 0);
     cumulativeScale = 1.0f;
     initialCentroid = svgCentroid;
+    crossSize = 1.05f;
 }
 
 void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
@@ -143,21 +144,52 @@ void svgSkeleton::resizeSvg(float scaleFactor) {
     }
     // After resizing, recalculate the centroid
     calculateSvgCentroid();
+    // Adjust the cross size dynamically after resizing
+    calculateCrossSize();
 }
 
 void svgSkeleton::draw() const {
     if (!equidistantPoints.empty()) {
-        // Draw the centroid as a small cross
-        const auto& centroid = equidistantPoints[0];
-        float crossSize = 8.0f; // Size of the cross
-        ofDrawLine(centroid.x - crossSize, centroid.y, centroid.x + crossSize, centroid.y); // Horizontal line
-        ofDrawLine(centroid.x, centroid.y - crossSize, centroid.x, centroid.y + crossSize); // Vertical line
-
-        // Draw the remaining points as circles
+        
+        // Draw the SVG points as circles with the default SVG points color
+//        ofSetColor(255);  // Reset to default color (white or other)
         for (size_t i = 1; i < equidistantPoints.size(); ++i) {
             ofDrawCircle(equidistantPoints[i], 1); // Draw small circles at each point
         }
- 
+
+        // Calculate cross size based on the farthest points in x and y directions
+        float crossSizeX, crossSizeY;
+        calculateMaxDistances(crossSizeX, crossSizeY);
+
+        // Increase the cross size by 10%
+        crossSizeX *= crossSize;
+        crossSizeY *= crossSize;
+
+        // now draw the cross
+//        ofSetColor(200, 100, 255);  // Light purple color for the cross
+        float dashLength = 5.0f; // Length of each dash
+        float gapLength = 3.0f;  // Length of the gap between dashes
+        
+        const auto& centroid = equidistantPoints[0];
+        
+        // Draw horizontal dashed line
+        for (float x = centroid.x - crossSizeX; x < centroid.x + crossSizeX; x += dashLength + gapLength) {
+            ofDrawLine(x, centroid.y, std::min(x + dashLength, centroid.x + crossSizeX), centroid.y);
+        }
+
+        // Draw vertical dashed line
+        for (float y = centroid.y - crossSizeY; y < centroid.y + crossSizeY; y += dashLength + gapLength) {
+            ofDrawLine(centroid.x, y, centroid.x, std::min(y + dashLength, centroid.y + crossSizeY));
+        }
+
+        // Draw circles at the endpoints of the cross
+        ofNoFill();
+        ofDrawCircle(centroid.x - crossSizeX, centroid.y, 5.0f);
+        ofDrawCircle(centroid.x + crossSizeX, centroid.y, 5.0f);
+        ofDrawCircle(centroid.x, centroid.y - crossSizeY, 5.0f);
+        ofDrawCircle(centroid.x, centroid.y + crossSizeY, 5.0f);
+        ofFill();
+
     }
 }
 
@@ -191,4 +223,100 @@ void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
     translateSvg(offset);
     resizeSvg(scale);
     updateSvgCentroid();
+}
+
+void svgSkeleton::calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const {
+    maxDistanceX = 0.0f;
+    maxDistanceY = 0.0f;
+
+    if (equidistantPoints.empty()) return;
+
+    const auto& centroid = equidistantPoints[0];
+
+    for (size_t i = 1; i < equidistantPoints.size(); ++i) {
+        float distanceX = std::abs(equidistantPoints[i].x - centroid.x);
+        float distanceY = std::abs(equidistantPoints[i].y - centroid.y);
+
+        if (distanceX > maxDistanceX) {
+            maxDistanceX = distanceX;
+        }
+        if (distanceY > maxDistanceY) {
+            maxDistanceY = distanceY;
+        }
+    }
+}
+
+void svgSkeleton::calculateCrossSize() {
+    float crossSizeX, crossSizeY;
+    calculateMaxDistances(crossSizeX, crossSizeY);
+
+    // Increase the cross size by 10%
+    crossSizeX *= crossSize;
+    crossSizeY *= crossSize;
+}
+
+bool svgSkeleton::isNearCentroid(const ofPoint& point, float threshold) const {
+    return point.distance(svgCentroid) <= threshold;
+}
+
+bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
+    float crossSizeX, crossSizeY;
+    calculateMaxDistances(crossSizeX, crossSizeY);
+
+    // Increase the cross size
+    crossSizeX *= crossSize;
+    crossSizeY *= crossSize;
+
+    // Define the four endpoints of the cross
+    ofPoint endPoint1(svgCentroid.x - crossSizeX, svgCentroid.y);
+    ofPoint endPoint2(svgCentroid.x + crossSizeX, svgCentroid.y);
+    ofPoint endPoint3(svgCentroid.x, svgCentroid.y - crossSizeY);
+    ofPoint endPoint4(svgCentroid.x, svgCentroid.y + crossSizeY);
+
+    float threshold = 10.0f;  // Define the distance threshold for snapping
+
+    // Check if the point is near any of the cross endpoints
+    return (point.distance(endPoint1) <= threshold ||
+            point.distance(endPoint2) <= threshold ||
+            point.distance(endPoint3) <= threshold ||
+            point.distance(endPoint4) <= threshold);
+}
+
+bool svgSkeleton::canScale(float scaleFactor, int windowWidth, int windowHeight) const {
+
+    float crossSizeX, crossSizeY;
+    calculateMaxDistances(crossSizeX, crossSizeY);
+
+    // Increase the cross size
+    crossSizeX *= crossSize;
+    crossSizeY *= crossSize;
+    
+    float newCrossSizeX = crossSizeX * scaleFactor;
+    float newCrossSizeY = crossSizeY * scaleFactor;
+
+    float leftBound = svgCentroid.x - newCrossSizeX;
+    float rightBound = svgCentroid.x + newCrossSizeX;
+    float topBound = svgCentroid.y - newCrossSizeY;
+    float bottomBound = svgCentroid.y + newCrossSizeY;
+
+    return leftBound >= 0 && rightBound <= windowWidth && topBound >= 0 && bottomBound <= windowHeight;
+}
+
+
+bool svgSkeleton::canTranslate(const ofPoint& newCenter, int windowWidth, int windowHeight) const {
+
+    float leftBound = newCenter.x - 20.0f;
+    float rightBound = newCenter.x + 20.0f;
+    float topBound = newCenter.y - 20.0f;
+    float bottomBound = newCenter.y + 20.0f;
+
+    return leftBound >= 0 && rightBound <= windowWidth && topBound >= 0 && bottomBound <= windowHeight;
+}
+
+bool svgSkeleton::canDragCircle(const ofPoint& circlePosition, const ofPoint& offset, int windowWidth, int windowHeight) const {
+    ofPoint newCirclePos = circlePosition + offset;
+
+    // Check if the new position of the circle is within the window bounds
+    return (newCirclePos.x >= 0 && newCirclePos.x <= windowWidth &&
+            newCirclePos.y >= 0 && newCirclePos.y <= windowHeight);
 }

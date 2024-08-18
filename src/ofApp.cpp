@@ -31,9 +31,9 @@ void ofApp::setup() {
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-crown-heart-lotus.svg";
-//    string svgFile = "tara-crown-Chakra.svg";
+    string svgFile = "tara-crown-Chakra.svg";
 //    string svgFile = "cir_seasonal-US.svg";
-    string svgFile = "tara-face.svg";
+//    string svgFile = "tara-face.svg";
 //    string svgFile = "circle.svg";
     //string svgFile = "line.svg";
     //string svgFile = "2lines.svg";
@@ -291,28 +291,27 @@ void ofApp::mousePressed(int x, int y, int button) {
                 return;
             }
         }
-
-        // Check if we are clicking near the SVG centroid
-        if (isPointNear(svgSkeleton.getSvgCentroid(), mousePos, 10)) {
+        
+        // Check if we are clicking near the centroid to start translating
+        if (svgSkeleton.isNearCentroid(mousePos, 10)) {
             initialMousePos = mousePos;
             translatingSvg = true;
             return;
         }
 
         // Check if we are clicking on an SVG point to start resizing
-        for (auto& point : svgSkeleton.getEquidistantPoints()) {
-            if (isPointNear(point, mousePos, 10)) {
-                initialMousePos = mousePos;
-                initialSvgScale = 1.0f;
-                resizingSvg = true;
-                return;
-            }
+        if (svgSkeleton.isNearCrossEndPoints(mousePos)) {
+            initialMousePos = mousePos;
+            initialSvgScale = 1.0f;
+            resizingSvg = true;
+            return;
         }
 
         // Otherwise, we are drawing a new attractor
         tempAttractor = attractor(mousePos, 20);
         drawingAttractor = true;
-    } else if (button == OF_MOUSE_BUTTON_RIGHT) {
+    }
+    else if (button == OF_MOUSE_BUTTON_RIGHT) {
         // Check if we are right-clicking near an attractor's center to delete it
         for (size_t i = 0; i < attractorField.getAttractors().size(); ++i) {
             if (attractorField.getAttractors()[i].isPointNear(mousePos, 10)) {
@@ -366,35 +365,43 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
      } else if (translatingSvg) {
          ofPoint offset(mousePos.x - initialMousePos.x, mousePos.y - initialMousePos.y);
-         
-         if(enableSnapping && showGrid){
-             ofPoint newCenter = svgSkeleton.getSvgCentroid() + offset;
-             float minDistance;
-             ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);
-             if (minDistance < 10) {
-                 ofPoint snappedOffset = nearestIntersection - svgSkeleton.getSvgCentroid();
-                 svgSkeleton.translateSvg(snappedOffset);
-                 particleEnsemble.translate(snappedOffset);
+
+         // Calculate the new potential centroid position
+         ofPoint newCenter = svgSkeleton.getSvgCentroid() + offset;
+
+         // Enforce boundaries to keep the centroid within the window
+         if (svgSkeleton.canTranslate(newCenter, ofGetWidth(), ofGetHeight())) {
+             if (enableSnapping && showGrid) {
+                 float minDistance;
+                 ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);
+                 if (minDistance < 10) {
+                     ofPoint snappedOffset = nearestIntersection - svgSkeleton.getSvgCentroid();
+                     svgSkeleton.translateSvg(snappedOffset);
+                     particleEnsemble.translate(snappedOffset);
+                 } else {
+                     svgSkeleton.translateSvg(offset);
+                     particleEnsemble.translate(offset);
+                 }
              } else {
                  svgSkeleton.translateSvg(offset);
                  particleEnsemble.translate(offset);
              }
-         } else {
-             svgSkeleton.translateSvg(offset);
-             particleEnsemble.translate(offset);
+
+             svgSkeleton.updateSvgCentroid();
+             initialMousePos = mousePos; // Update initialMousePos with the current mouse position
          }
-         
-         svgSkeleton.updateSvgCentroid();
-         initialMousePos = mousePos; // Update initialMousePos with the current mouse position
-         
      } else if (resizingSvg) {
          float initialDistance = initialMousePos.distance(svgSkeleton.getSvgCentroid());
          float currentDistance = ofPoint(x, y).distance(svgSkeleton.getSvgCentroid());
          float scaleFactor = currentDistance / initialDistance;
-         svgSkeleton.resizeSvg(scaleFactor);
-         svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
-         particleEnsemble.resize(scaleFactor, svgSkeleton.getSvgCentroid());
-         initialMousePos.set(x, y);
+
+         // Enforce maximum scaling limit
+         if (svgSkeleton.canScale(scaleFactor, ofGetWidth(), ofGetHeight())) {
+             svgSkeleton.resizeSvg(scaleFactor);
+             svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
+             particleEnsemble.resize(scaleFactor, svgSkeleton.getSvgCentroid());
+             initialMousePos.set(x, y);
+         }
      }
      potentialFieldUpdated = true;
      contourLinesUpdated = true;

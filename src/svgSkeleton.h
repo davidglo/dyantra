@@ -26,6 +26,21 @@ public:
     std::string getFileName() const {return fileName;}
     float getCumulativeScale() const {return cumulativeScale;}
     
+    // Check if a point is near the SVG centroid
+    bool isNearCentroid(const ofPoint& point, float threshold) const;
+
+    // Check if a point is near the endpoints of the cross
+    bool isNearCrossEndPoints(const ofPoint& point) const;
+    
+    bool canScale(float scaleFactor, int windowWidth, int windowHeight) const;
+    bool canTranslate(const ofPoint& newCenter, int windowWidth, int windowHeight) const;
+    
+    // Function to check if a specific circle can be dragged within the window bounds
+    bool canDragCircle(const ofPoint& circlePosition, const ofPoint& offset, int windowWidth, int windowHeight) const;
+    
+    // Optionally, if you need a method to get the specific circle position:
+    ofPoint getCrossCirclePosition() const;  
+    
 private:
     ofxSVG svg;
     std::vector<glm::vec3> equidistantPoints;
@@ -34,4 +49,8 @@ private:
     ofPoint translation;
     float cumulativeScale;
     ofPoint initialCentroid;
+    float crossSize;
+    
+    void calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const;
+    void calculateCrossSize();
 };

@@ -6,8 +6,10 @@ particleEnsemble::particleEnsemble() {
 }
 
 void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions) {
-    positions = initialPositions;
-    last_positions = initialPositions;
+    // Exclude the first element (centroid) and copy the rest of the positions
+    positions.assign(initialPositions.begin() + 1, initialPositions.end());
+    last_positions.assign(initialPositions.begin() + 1, initialPositions.end());
+    
     v.resize(positions.size(), glm::vec3(0, 0, 0));
     f.resize(positions.size(), glm::vec3(0, 0, 0));
     last_f.resize(positions.size(), glm::vec3(0, 0, 0));
@@ -16,8 +18,10 @@ void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
 }
 
 void particleEnsemble::reinitialize(const std::vector<glm::vec3>& initialPositions) {
-    positions = initialPositions;
-    last_positions = initialPositions;
+    // Exclude the first element (centroid) and copy the rest of the positions
+    positions.assign(initialPositions.begin() + 1, initialPositions.end());
+    last_positions.assign(initialPositions.begin() + 1, initialPositions.end());
+
     std::fill(v.begin(), v.end(), glm::vec3(0, 0, 0));
     std::fill(f.begin(), f.end(), glm::vec3(0, 0, 0));
     std::fill(last_f.begin(), last_f.end(), glm::vec3(0, 0, 0));

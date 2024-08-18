@@ -146,8 +146,18 @@ void svgSkeleton::resizeSvg(float scaleFactor) {
 }
 
 void svgSkeleton::draw() const {
-    for (const auto& point : equidistantPoints) {
-        ofDrawCircle(point, 1); // Draw small circles at each point
+    if (!equidistantPoints.empty()) {
+        // Draw the centroid as a small cross
+        const auto& centroid = equidistantPoints[0];
+        float crossSize = 8.0f; // Size of the cross
+        ofDrawLine(centroid.x - crossSize, centroid.y, centroid.x + crossSize, centroid.y); // Horizontal line
+        ofDrawLine(centroid.x, centroid.y - crossSize, centroid.x, centroid.y + crossSize); // Vertical line
+
+        // Draw the remaining points as circles
+        for (size_t i = 1; i < equidistantPoints.size(); ++i) {
+            ofDrawCircle(equidistantPoints[i], 1); // Draw small circles at each point
+        }
+ 
     }
 }
 

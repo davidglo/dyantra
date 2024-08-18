@@ -99,8 +99,7 @@ void ofApp::setup() {
     gui.add(showPotentialFieldGui.set("Show Potential Field", true));
     
     gui.add(flipPotentialFieldRender.set("Flip Potential Field", false)); // Add the checkbox to the GUI
-    // Add listener to the checkbox
-    flipPotentialFieldRender.addListener(this, &ofApp::onFlipPotentialFieldRenderChanged);
+    flipPotentialFieldRender.addListener(this, &ofApp::onFlipPotentialFieldRenderChanged);     // Add listener to the checkbox
     
     gui.add(showAttractorCircles.set("Show Attractor Circles", true)); // Add checkbox for attractor circles
     gui.add(showContourLines.set("Show Contour Lines", true)); // Add checkbox for contour lines
@@ -122,7 +121,7 @@ void ofApp::setup() {
     svgInfoGui.setup();
     svgInfoGui.setPosition(gui.getPosition().x + gui.getWidth() + 10, gui.getPosition().y);
     svgInfoGui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
-    svgInfoGui.add(showSvgPoints.setup("Show SVG Points", false));  // Initialize the new toggle
+    svgInfoGui.add(showSvgPoints.setup("Show SVG Points", true));  // Initialize the new toggle
     svgInfoGui.add(svgCentroid.set("svgCentroid", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
     svgInfoGui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
     ofColor initialSvgPointsColor(178, 178, 178); // 70% intensity of white color
@@ -247,14 +246,12 @@ void ofApp::draw() {
 
     ofSetColor(svgPointsColor);  // Set color to white for drawing
 
-    // Draw the SVG skeleton if the toggle is on
-    if (showSvgPoints) {
-        svgSkeleton.draw();
-    }
-
-    // Draw the particles
+    // unlike the particleEnsemble, the svgSkeleton points include the centroid
+    // we only draw the svgSkeleton points if explicitly indicated
     particleEnsemble.draw();
+    if (showSvgPoints) {svgSkeleton.draw();}
 
+    
     // Draw established attractors if the flag is set
     if (showAttractorCircles) {
         ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
@@ -768,7 +765,6 @@ void ofApp::writeParticlePositionsToSvg() {
 }
 
 void ofApp::onFlipPotentialFieldRenderChanged(bool & state) {
-    // Update contours when the flip state changes
+    // Update the potential field render when the flip state changes
     potentialFieldUpdated = true;
-//    updateContours();
 }

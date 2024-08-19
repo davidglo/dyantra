@@ -50,6 +50,7 @@ private:
     float cumulativeScale;
     ofPoint initialCentroid;
     float crossSize;
+    float maxDistanceX, maxDistanceY;
     
     void calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const;
     void calculateCrossSize();

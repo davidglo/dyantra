@@ -282,41 +282,4 @@ bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
             point.distance(endPoint4) <= threshold);
 }
 
-bool svgSkeleton::canScale(float scaleFactor, int windowWidth, int windowHeight) const {
 
-    float crossSizeX, crossSizeY;
-    calculateMaxDistances(crossSizeX, crossSizeY);
-
-    // Increase the cross size
-    crossSizeX *= crossSize;
-    crossSizeY *= crossSize;
-    
-    float newCrossSizeX = crossSizeX * scaleFactor;
-    float newCrossSizeY = crossSizeY * scaleFactor;
-
-    float leftBound = svgCentroid.x - newCrossSizeX;
-    float rightBound = svgCentroid.x + newCrossSizeX;
-    float topBound = svgCentroid.y - newCrossSizeY;
-    float bottomBound = svgCentroid.y + newCrossSizeY;
-
-    return leftBound >= 0 && rightBound <= windowWidth && topBound >= 0 && bottomBound <= windowHeight;
-}
-
-
-bool svgSkeleton::canTranslate(const ofPoint& newCenter, int windowWidth, int windowHeight) const {
-
-    float leftBound = newCenter.x - 20.0f;
-    float rightBound = newCenter.x + 20.0f;
-    float topBound = newCenter.y - 20.0f;
-    float bottomBound = newCenter.y + 20.0f;
-
-    return leftBound >= 0 && rightBound <= windowWidth && topBound >= 0 && bottomBound <= windowHeight;
-}
-
-bool svgSkeleton::canDragCircle(const ofPoint& circlePosition, const ofPoint& offset, int windowWidth, int windowHeight) const {
-    ofPoint newCirclePos = circlePosition + offset;
-
-    // Check if the new position of the circle is within the window bounds
-    return (newCirclePos.x >= 0 && newCirclePos.x <= windowWidth &&
-            newCirclePos.y >= 0 && newCirclePos.y <= windowHeight);
-}

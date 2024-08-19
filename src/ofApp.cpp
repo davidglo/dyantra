@@ -370,7 +370,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
          ofPoint newCenter = svgSkeleton.getSvgCentroid() + offset;
 
          // Enforce boundaries to keep the centroid within the window
-         if (svgSkeleton.canTranslate(newCenter, ofGetWidth(), ofGetHeight())) {
+         if (mousePos.x > 10 && mousePos.x < (ofGetWidth()-10) && mousePos.y > 10 && mousePos.y < (ofGetHeight()-10)){
              if (enableSnapping && showGrid) {
                  float minDistance;
                  ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);
@@ -396,7 +396,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
          float scaleFactor = currentDistance / initialDistance;
 
          // Enforce maximum scaling limit
-         if (svgSkeleton.canScale(scaleFactor, ofGetWidth(), ofGetHeight())) {
+         if (mousePos.x > 0 && mousePos.x < ofGetWidth() && mousePos.y > 0 && mousePos.y < ofGetHeight()){
              svgSkeleton.resizeSvg(scaleFactor);
              svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
              particleEnsemble.resize(scaleFactor, svgSkeleton.getSvgCentroid());

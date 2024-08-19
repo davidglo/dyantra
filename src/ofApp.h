@@ -136,6 +136,9 @@ private:
     ofParameter<bool> showGrid; // Declare showGrid as private
     void drawGrid(); // Function to draw the grid
     int gridSpacing;
+    
+    int numSpokes;  // number of spokes in radial grid
+    
     void regenerateGridIntersections();
     // New helper function to find the nearest vertex on the grid
     ofPoint getNearestGridIntersection(const ofPoint& point, float& minDistance);

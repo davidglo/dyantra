@@ -42,6 +42,7 @@ void ofApp::setup() {
     numPoints = 2000; // Set the desired number of points
     timestep = 0.003;
     gridSpacing = 100; // Set grid spacing
+    numSpokes = 16;
     last_timeStep = timestep;
     
     timeReversalInProgress = false;
@@ -641,7 +642,6 @@ void ofApp::drawGrid() {
     int height = ofGetHeight();
     int centerX = width / 2;
     int centerY = height / 2;
-    int numSpokes = 16; // Number of spokes (you can adjust this)
     
     // Calculate the maximum radius for the concentric circles
     float maxRadius = std::max(width, height) / 2.0f;
@@ -687,9 +687,8 @@ void ofApp::regenerateGridIntersections() {
     int centerY = height / 2;
 
     // Calculate the maximum radius for the grid
-    float maxRadius = std::min(width, height) / 2.0f;
+    float maxRadius = std::max(width, height) / 2.0f;
     float radiusStep = gridSpacing;
-    int numSpokes = 12;
     float angleStep = 360.0f / numSpokes;
 
     // Generate intersections for concentric circles and spokes

@@ -126,6 +126,7 @@ void ofApp::setup() {
     svgInfoGui.add(showSvgPoints.setup("Show SVG Points", true));  // Initialize the new toggle
     svgInfoGui.add(svgCentroid.set("svgCentroid", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
     svgInfoGui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
+    svgInfoGui.add(svgRotationAngle.set("SVG rot (deg)", ofRadToDeg(svgSkeleton.getCurrentRotationAngle())));
     ofColor initialSvgPointsColor(178, 178, 178); // 70% intensity of white color
     svgInfoGui.add(svgPointsColor.set("SVG Points Color", initialSvgPointsColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel for SVG points
     
@@ -197,6 +198,9 @@ void ofApp::update() {
     
     // Update SVG scale display
     svgScale = svgSkeleton.getCumulativeScale();
+    
+    // Update the SVG rotation angle
+    svgRotationAngle = ofRadToDeg(svgSkeleton.getCurrentRotationAngle());
 
     // Update GUI elements for attractors
     for (size_t i = 0; i < attractorField.getAttractors().size(); ++i) {
@@ -397,7 +401,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
          // Enforce boundaries to keep the centroid within the window
          if (mousePos.x > 10 && mousePos.x < (ofGetWidth()-10) && mousePos.y > 10 && mousePos.y < (ofGetHeight()-10)){
-             if (enableSnapping && showGrid) {
+             if (enableSnapping) {
                  float minDistance;
                  ofPoint nearestIntersection = getNearestGridIntersection(newCenter, minDistance);
                  if (minDistance < 10) {
@@ -418,17 +422,35 @@ void ofApp::mouseDragged(int x, int y, int button) {
          }
     }
     else if (resizingSvg) {
-         float initialDistance = initialMousePos.distance(svgSkeleton.getSvgCentroid());
-         float currentDistance = ofPoint(x, y).distance(svgSkeleton.getSvgCentroid());
-         float scaleFactor = currentDistance / initialDistance;
-
-         // Enforce maximum scaling limit
-         if (mousePos.x > 0 && mousePos.x < ofGetWidth() && mousePos.y > 0 && mousePos.y < ofGetHeight()){
-             svgSkeleton.resizeSvg(scaleFactor);
-             svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
-             particleEnsemble.update(svgSkeleton.getEquidistantPoints());
-             initialMousePos.set(x, y);
-         }
+        float initialDistance = initialMousePos.distance(svgSkeleton.getSvgCentroid());
+        float currentDistance = ofPoint(x, y).distance(svgSkeleton.getSvgCentroid());
+        float scaleFactor = currentDistance / initialDistance;
+        
+        // Calculate the potential new handle positions after scaling
+        auto newScalingHandles = svgSkeleton.getScalingHandlePositions();
+        
+        // Snapping logic
+        if (enableSnapping) {
+            for (auto& handlePos : newScalingHandles) {
+                // Calculate the new position of each handle after scaling
+                ofPoint newHandlePos = svgSkeleton.getSvgCentroid() + (handlePos - svgSkeleton.getSvgCentroid()) * scaleFactor;
+                float minDistance;
+                ofPoint nearestIntersection = getNearestGridIntersection(newHandlePos, minDistance);
+                if (minDistance < 10) {
+                    float handleDistanceBefore = svgSkeleton.getSvgCentroid().distance(handlePos);
+                    float handleDistanceAfter = svgSkeleton.getSvgCentroid().distance(nearestIntersection);
+                    scaleFactor = handleDistanceAfter / handleDistanceBefore;
+                }
+            }
+        }
+        
+        // Enforce maximum scaling limit
+        if (mousePos.x > 0 && mousePos.x < ofGetWidth() && mousePos.y > 0 && mousePos.y < ofGetHeight()){
+            svgSkeleton.resizeSvg(scaleFactor);
+            svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
+            particleEnsemble.update(svgSkeleton.getEquidistantPoints());
+            initialMousePos.set(x, y);
+        }
      }
     
      potentialFieldUpdated = true;
@@ -507,6 +529,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'g' || key == 'G') {
         showGrid = !showGrid;  // Toggle the flag
         showGrid.set(showGrid);
+        if(!showGrid){enableSnapping = false;}
     }
     if (key == 'w' || key == 'W') {
         writeParticlePositionsToSvg(); // Write particle positions to SVG
@@ -613,6 +636,94 @@ void ofApp::resetSimulation() {
 void ofApp::drawGrid() {
     ofSetColor(64); // Set grid color to darker grey (64, 64, 64)
     ofSetLineWidth(1); // Set the line thickness to 1 pixel
+
+    int width = ofGetWidth();
+    int height = ofGetHeight();
+    int centerX = width / 2;
+    int centerY = height / 2;
+    int numSpokes = 16; // Number of spokes (you can adjust this)
+    
+    // Calculate the maximum radius for the concentric circles
+    float maxRadius = std::max(width, height) / 2.0f;
+    float radiusStep = gridSpacing; // Define the spacing between circles
+
+    int numSegments = numSpokes*8; // Number of segments for smoother circles
+
+    // Draw concentric circles with a smoother appearance
+    for (float r = radiusStep; r <= maxRadius; r += radiusStep) {
+        ofNoFill();
+        ofBeginShape();
+        for (int i = 0; i < numSegments; ++i) {
+            float angle = ofMap(i, 0, numSegments, 0, TWO_PI);
+            float x = centerX + r * cos(angle);
+            float y = centerY + r * sin(angle);
+            ofVertex(x, y);
+        }
+        ofEndShape(true);
+    }
+
+    // Draw radial lines (spokes)
+    float angleStep = 360.0f / numSpokes;
+
+    for (int i = 0; i < numSpokes; ++i) {
+        float angle = ofDegToRad(i * angleStep);
+        float x = centerX + maxRadius * cos(angle);
+        float y = centerY + maxRadius * sin(angle);
+        ofDrawLine(centerX, centerY, x, y);
+    }
+
+    // Draw the central lines (same as in the rectangular grid)
+    ofSetColor(180); // Set grid color to a lighter grey
+    ofSetLineWidth(2); // Set the line thickness to 2 pixels
+    ofDrawLine(centerX, 0, centerX, height); // Central vertical line
+    ofDrawLine(0, centerY, width, centerY); // Central horizontal line
+}
+
+void ofApp::regenerateGridIntersections() {
+    gridIntersections.clear();
+    int width = ofGetWidth();
+    int height = ofGetHeight();
+    int centerX = width / 2;
+    int centerY = height / 2;
+
+    // Calculate the maximum radius for the grid
+    float maxRadius = std::min(width, height) / 2.0f;
+    float radiusStep = gridSpacing;
+    int numSpokes = 12;
+    float angleStep = 360.0f / numSpokes;
+
+    // Generate intersections for concentric circles and spokes
+    for (float r = radiusStep; r <= maxRadius; r += radiusStep) {
+        for (int i = 0; i < numSpokes; ++i) {
+            float angle = ofDegToRad(i * angleStep);
+            float x = centerX + r * cos(angle);
+            float y = centerY + r * sin(angle);
+            gridIntersections.emplace_back(x, y);
+        }
+    }
+
+    // Ensure the center point is included
+    gridIntersections.emplace_back(centerX, centerY);
+}
+
+ofPoint ofApp::getNearestGridIntersection(const ofPoint& point, float& minDistance) {
+    ofPoint nearestIntersection;
+    minDistance = FLT_MAX;
+
+    for (const auto& intersection : gridIntersections) {
+        float distance = point.distance(intersection);
+        if (distance < minDistance) {
+            minDistance = distance;
+            nearestIntersection = intersection;
+        }
+    }
+    return nearestIntersection;
+}
+
+/*
+void ofApp::drawRectangularGrid() {
+    ofSetColor(64); // Set grid color to darker grey (64, 64, 64)
+    ofSetLineWidth(1); // Set the line thickness to 1 pixel
     int width = ofGetWidth();
     int height = ofGetHeight();
     int centerX = width / 2;
@@ -641,7 +752,7 @@ void ofApp::drawGrid() {
     ofDrawLine(0, centerY, width, centerY); // Central horizontal line
 }
 
-void ofApp::regenerateGridIntersections() {
+void ofApp::regenerateRectangularGridIntersections() {
     std::set<std::pair<int, int>> uniqueIntersections; // Use a set to store unique points
     gridIntersections.clear();
     int width = ofGetWidth();
@@ -688,7 +799,7 @@ void ofApp::regenerateGridIntersections() {
     }
 }
 
-ofPoint ofApp::getNearestGridIntersection(const ofPoint& point, float& minDistance) {
+ofPoint ofApp::getNearestRectangularGridIntersection(const ofPoint& point, float& minDistance) {
     ofPoint nearestIntersection;
     minDistance = FLT_MAX;
 
@@ -702,6 +813,7 @@ ofPoint ofApp::getNearestGridIntersection(const ofPoint& point, float& minDistan
 
     return nearestIntersection;
 }
+*/
 
 float ofApp::gentlyReverseTimeWithCos() {
     float new_timeStep, stepSize;

@@ -85,6 +85,7 @@ private:
     ofParameter<string> svgFileName;
     ofParameter<ofVec2f> svgCentroid;
     ofParameter<float> svgScale;
+    ofParameter<float> svgRotationAngle;
     
     ofParameter<string> numPointsDisplay;   // parameter for displaying the number of points
     ofxIntField numPointsInput;             // New input field for number of points

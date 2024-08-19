@@ -18,7 +18,7 @@ void svgSkeleton::loadSvg(const std::string& filename) {
     cumulativeScale = 1.0f;
     initialCentroid = svgCentroid;
     crossSize = 1.05f;
-    currentRotationAngle = -PI / 4.0f; // 45 degrees counterclockwise from vertical
+    currentRotationAngle = PI / 4.0f; // 45 degrees counterclockwise from vertical
 }
 
 void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {

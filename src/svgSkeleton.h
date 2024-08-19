@@ -27,6 +27,8 @@ public:
     std::string getFileName() const {return fileName;}
     float getCumulativeScale() const {return cumulativeScale;}
     
+    float getCurrentRotationAngle() const{return currentRotationAngle;}
+    
     // Check if a point is near the SVG centroid
     bool isNearCentroid(const ofPoint& point, float threshold) const;
 

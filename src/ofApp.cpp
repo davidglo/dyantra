@@ -349,9 +349,9 @@ void ofApp::mouseDragged(int x, int y, int button) {
         // Update the initial angle for the next mouse move
         initialAngle = currentAngle;
 
-        potentialFieldUpdated = true;
-        contourLinesUpdated = true;
-        return;
+//        potentialFieldUpdated = true;
+//        contourLinesUpdated = true;
+//        return;
     }
     if (drawingAttractor) {
          float radius = ofDist(tempAttractor.getCenter().x, tempAttractor.getCenter().y, x, y);

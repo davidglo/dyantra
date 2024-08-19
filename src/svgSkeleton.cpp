@@ -18,6 +18,7 @@ void svgSkeleton::loadSvg(const std::string& filename) {
     cumulativeScale = 1.0f;
     initialCentroid = svgCentroid;
     crossSize = 1.05f;
+    currentRotationAngle = -PI / 4.0f; // 45 degrees counterclockwise from vertical
 }
 
 void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
@@ -355,6 +356,8 @@ void svgSkeleton::rotateSvg(float angleDelta) {
         point.x = newX + centroid.x;
         point.y = newY + centroid.y;
     }
+    
+    currentRotationAngle += angleDelta;
 }
 
 std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {
@@ -386,12 +389,12 @@ ofPoint svgSkeleton::getRotationalHandlePosition() const {
     crossSizeX *= crossSize;
     crossSizeY *= crossSize;
     
-    float crossSize = std::max(crossSizeX, crossSizeY);
-    float angle = -PI / 4.0f; // 45 degrees counterclockwise from vertical
+    float crossDims = std::max(crossSizeX, crossSizeY);
+    float angle = currentRotationAngle;
 
     ofPoint rotationHandle(
-        svgCentroid.x + crossSize * cos(angle),
-        svgCentroid.y + crossSize * sin(angle)
+        svgCentroid.x + crossDims * cos(angle),
+        svgCentroid.y + crossDims * sin(angle)
     );
 
     return rotationHandle;

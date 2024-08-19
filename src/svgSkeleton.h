@@ -56,6 +56,7 @@ private:
     ofPoint initialCentroid;
     float crossSize;
     float maxDistanceX, maxDistanceY;
+    float currentRotationAngle;
     
     void calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const;
     void calculateCrossSize();

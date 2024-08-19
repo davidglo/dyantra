@@ -345,13 +345,11 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
         // Apply the rotation to the SVG
         svgSkeleton.rotateSvg(angleDelta);
+        particleEnsemble.update(svgSkeleton.getEquidistantPoints());
 
         // Update the initial angle for the next mouse move
         initialAngle = currentAngle;
 
-//        potentialFieldUpdated = true;
-//        contourLinesUpdated = true;
-//        return;
     }
     if (drawingAttractor) {
          float radius = ofDist(tempAttractor.getCenter().x, tempAttractor.getCenter().y, x, y);
@@ -405,14 +403,14 @@ void ofApp::mouseDragged(int x, int y, int button) {
                  if (minDistance < 10) {
                      ofPoint snappedOffset = nearestIntersection - svgSkeleton.getSvgCentroid();
                      svgSkeleton.translateSvg(snappedOffset);
-                     particleEnsemble.translate(snappedOffset);
+                     particleEnsemble.update(svgSkeleton.getEquidistantPoints());
                  } else {
                      svgSkeleton.translateSvg(offset);
-                     particleEnsemble.translate(offset);
+                     particleEnsemble.update(svgSkeleton.getEquidistantPoints());
                  }
              } else {
                  svgSkeleton.translateSvg(offset);
-                 particleEnsemble.translate(offset);
+                 particleEnsemble.update(svgSkeleton.getEquidistantPoints());
              }
 
              svgSkeleton.updateSvgCentroid();
@@ -428,7 +426,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
          if (mousePos.x > 0 && mousePos.x < ofGetWidth() && mousePos.y > 0 && mousePos.y < ofGetHeight()){
              svgSkeleton.resizeSvg(scaleFactor);
              svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
-             particleEnsemble.resize(scaleFactor, svgSkeleton.getSvgCentroid());
+             particleEnsemble.update(svgSkeleton.getEquidistantPoints());
              initialMousePos.set(x, y);
          }
      }

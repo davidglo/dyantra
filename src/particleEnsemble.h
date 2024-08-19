@@ -9,8 +9,6 @@ public:
 
     void draw() const;
     void initialize(const std::vector<glm::vec3>& initialPositions); // Initialization function
-    void translate(const ofPoint& offset); // Translate function
-    void resize(float scale, const ofPoint& centroid); // Resize function
     void ZeroForces() {  // Zero forces function
         for (auto& force : f) {
             force = glm::vec3(0, 0, 0);
@@ -21,6 +19,7 @@ public:
     void vv_propagatePositionsVelocities(const std::vector<attractor>& attractorVec, float dt); // Velocity Verlet update function
     
     void reinitialize(const std::vector<glm::vec3>& initialPositions);
+    void update(const std::vector<glm::vec3>& initialPositions);
     
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> last_positions; // Data member to save positions from the previous timestep

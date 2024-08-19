@@ -27,16 +27,10 @@ void particleEnsemble::reinitialize(const std::vector<glm::vec3>& initialPositio
     std::fill(last_f.begin(), last_f.end(), glm::vec3(0, 0, 0));
 }
 
-void particleEnsemble::translate(const ofPoint& offset) {
-    for (auto& position : positions) {
-        position += offset;
-    }
-}
-
-void particleEnsemble::resize(float scale, const ofPoint& centroid) {
-    for (auto& position : positions) {
-        position = centroid + (position - centroid) * scale;
-    }
+void particleEnsemble::update(const std::vector<glm::vec3>& initialPositions) {
+    // Exclude the first element (centroid) and copy the rest of the positions
+    positions.assign(initialPositions.begin() + 1, initialPositions.end());
+    last_positions.assign(initialPositions.begin() + 1, initialPositions.end());
 }
 
 void particleEnsemble::draw() const {

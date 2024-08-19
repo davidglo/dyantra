@@ -11,6 +11,7 @@ public:
     void calculateSvgCentroid();
     void translateSvg(const ofPoint& offset);
     void resizeSvg(float scale);
+    void rotateSvg(float angleDelta); // Declaration
     void draw() const;
     
     void updateSvgCentroid();
@@ -39,7 +40,11 @@ public:
     bool canDragCircle(const ofPoint& circlePosition, const ofPoint& offset, int windowWidth, int windowHeight) const;
     
     // Optionally, if you need a method to get the specific circle position:
-    ofPoint getCrossCirclePosition() const;  
+    ofPoint getCrossCirclePosition() const;
+    
+    std::vector<ofPoint> getScalingHandlePositions() const; // Get the positions of the scaling handles
+    ofPoint getRotationalHandlePosition() const; // Get the position of the rotational handle
+    bool isNearRotationalHandle(const ofPoint& mousePos) const; // Check if near the rotational handle
     
 private:
     ofxSVG svg;

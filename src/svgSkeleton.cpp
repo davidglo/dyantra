@@ -150,6 +150,59 @@ void svgSkeleton::resizeSvg(float scaleFactor) {
 
 void svgSkeleton::draw() const {
     if (!equidistantPoints.empty()) {
+        // Draw the SVG points as circles with the default SVG points color
+        for (size_t i = 1; i < equidistantPoints.size(); ++i) {
+            ofDrawCircle(equidistantPoints[i], 1); // Draw small circles at each point
+        }
+        
+        // Calculate cross size based on the farthest points in x and y directions
+        float crossSizeX, crossSizeY;
+        calculateMaxDistances(crossSizeX, crossSizeY);
+
+        // Increase the cross size by 10%
+        crossSizeX *= crossSize;
+        crossSizeY *= crossSize;
+
+
+        // Draw the cross as dashed lines
+        float dashLength = 5.0f; // Length of each dash
+        float gapLength = 3.0f;  // Length of the gap between dashes
+        
+        const auto& centroid = equidistantPoints[0];
+        
+        // Draw horizontal dashed line
+        for (float x = centroid.x - crossSizeX; x < centroid.x + crossSizeX; x += dashLength + gapLength) {
+            ofDrawLine(x, centroid.y, std::min(x + dashLength, centroid.x + crossSizeX), centroid.y);
+        }
+
+        // Draw vertical dashed line
+        for (float y = centroid.y - crossSizeY; y < centroid.y + crossSizeY; y += dashLength + gapLength) {
+            ofDrawLine(centroid.x, y, centroid.x, std::min(y + dashLength, centroid.y + crossSizeY));
+        }
+        
+        // Draw the scaling handles as circles
+        for (const auto& handle : getScalingHandlePositions()) {
+            ofNoFill();
+            ofDrawCircle(handle, 5); // Draw circles at each handle
+        }
+
+        // Draw the rotational handle as a dashed line
+        ofPoint rotationHandle = getRotationalHandlePosition();
+        ofPoint rotationLineStart = svgCentroid;
+
+        float rotationLineLength = rotationHandle.distance(rotationLineStart);
+
+        for (float dist = 0; dist < rotationLineLength; dist += dashLength + gapLength) {
+            ofPoint start = rotationLineStart + dist * (rotationHandle - rotationLineStart) / rotationLineLength;
+            ofPoint end = start + std::min(dashLength, rotationLineLength - dist) * (rotationHandle - rotationLineStart) / rotationLineLength;
+            ofDrawLine(start, end);
+        }
+        
+        // Draw the rotational handle circle
+        ofDrawCircle(rotationHandle, 5); // Draw the rotational handle as a circle
+    }
+    /*
+    if (!equidistantPoints.empty()) {
         
         // Draw the SVG points as circles with the default SVG points color
 //        ofSetColor(255);  // Reset to default color (white or other)
@@ -189,8 +242,8 @@ void svgSkeleton::draw() const {
         ofDrawCircle(centroid.x, centroid.y - crossSizeY, 5.0f);
         ofDrawCircle(centroid.x, centroid.y + crossSizeY, 5.0f);
         ofFill();
-
     }
+    */
 }
 
 const std::vector<glm::vec3>& svgSkeleton::getEquidistantPoints() const {
@@ -282,4 +335,69 @@ bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
             point.distance(endPoint4) <= threshold);
 }
 
+void svgSkeleton::rotateSvg(float angleDelta) {
+    ofPoint centroid = getSvgCentroid();
 
+    // Rotate each point around the centroid by angleDelta
+    for (auto& point : equidistantPoints) {
+        float s = sin(angleDelta);
+        float c = cos(angleDelta);
+
+        // Translate point to origin (centroid)
+        point.x -= centroid.x;
+        point.y -= centroid.y;
+
+        // Rotate point
+        float newX = point.x * c - point.y * s;
+        float newY = point.x * s + point.y * c;
+
+        // Translate point back
+        point.x = newX + centroid.x;
+        point.y = newY + centroid.y;
+    }
+}
+
+std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {
+    // Calculate cross size based on the farthest points in x and y directions
+    float crossSizeX, crossSizeY;
+    calculateMaxDistances(crossSizeX, crossSizeY);
+
+    // Increase the cross size by 10%
+    crossSizeX *= crossSize;
+    crossSizeY *= crossSize;
+
+    std::vector<ofPoint> handles = {
+        ofPoint(svgCentroid.x + crossSizeX, svgCentroid.y),  // Right
+        ofPoint(svgCentroid.x - crossSizeX, svgCentroid.y),  // Left
+        ofPoint(svgCentroid.x, svgCentroid.y + crossSizeY),  // Bottom
+        ofPoint(svgCentroid.x, svgCentroid.y - crossSizeY)   // Top
+    };
+
+    return handles;
+}
+
+ofPoint svgSkeleton::getRotationalHandlePosition() const {
+    
+    // Calculate cross size based on the farthest points in x and y directions
+    float crossSizeX, crossSizeY;
+    calculateMaxDistances(crossSizeX, crossSizeY);
+
+    // Increase the cross size by 10%
+    crossSizeX *= crossSize;
+    crossSizeY *= crossSize;
+    
+    float crossSize = std::max(crossSizeX, crossSizeY);
+    float angle = -PI / 4.0f; // 45 degrees counterclockwise from vertical
+
+    ofPoint rotationHandle(
+        svgCentroid.x + crossSize * cos(angle),
+        svgCentroid.y + crossSize * sin(angle)
+    );
+
+    return rotationHandle;
+}
+
+bool svgSkeleton::isNearRotationalHandle(const ofPoint& mousePos) const {
+    ofPoint rotationHandle = getRotationalHandlePosition();
+    return mousePos.distance(rotationHandle) <= 10.0f; // Adjust the threshold as needed
+}

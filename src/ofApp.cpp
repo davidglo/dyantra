@@ -54,6 +54,8 @@ void ofApp::setup() {
     editingEdge = false;
     translatingSvg = false;
     resizingSvg = false;
+    rotatingSvg = false;
+    initialAngle = 0.0f; // To store the initial angle when starting the rotation
     selectedAttractorIndex = -1;
 
     int width = ofGetWidth() / downscaleFactor;
@@ -300,10 +302,19 @@ void ofApp::mousePressed(int x, int y, int button) {
         }
 
         // Check if we are clicking on an SVG point to start resizing
+//        /*
         if (svgSkeleton.isNearCrossEndPoints(mousePos)) {
             initialMousePos = mousePos;
             initialSvgScale = 1.0f;
             resizingSvg = true;
+            return;
+        }
+//        */
+        // Check if we are clicking on a handle to start rotating
+        if (svgSkeleton.isNearRotationalHandle(mousePos)) {
+            initialMousePos = mousePos;
+            rotatingSvg = true;
+            initialAngle = atan2(mousePos.y - svgSkeleton.getSvgCentroid().y, mousePos.x - svgSkeleton.getSvgCentroid().x);
             return;
         }
 
@@ -327,11 +338,27 @@ void ofApp::mousePressed(int x, int y, int button) {
 
 void ofApp::mouseDragged(int x, int y, int button) {
     ofPoint mousePos(x, y);
+    if(rotatingSvg){
+        // Calculate the angle between the initial mouse position and the current mouse position relative to the centroid
+        float currentAngle = atan2(mousePos.y - svgSkeleton.getSvgCentroid().y, mousePos.x - svgSkeleton.getSvgCentroid().x);
+        float angleDelta = currentAngle - initialAngle;
+
+        // Apply the rotation to the SVG
+        svgSkeleton.rotateSvg(angleDelta);
+
+        // Update the initial angle for the next mouse move
+        initialAngle = currentAngle;
+
+        potentialFieldUpdated = true;
+        contourLinesUpdated = true;
+        return;
+    }
     if (drawingAttractor) {
          float radius = ofDist(tempAttractor.getCenter().x, tempAttractor.getCenter().y, x, y);
          radius = std::max(radius, 5.0f);  // Ensure minimum radius of 2
          tempAttractor.setRadius(radius);
-     } else if (editingCenter && selectedAttractorIndex >= 0) {
+    }
+    else if (editingCenter && selectedAttractorIndex >= 0) {
          ofPoint newCenter(x, y);
          if (enableSnapping) {
              float minDistance;
@@ -348,8 +375,8 @@ void ofApp::mouseDragged(int x, int y, int button) {
              }
          }
          attractorField.setAttractorCenter(selectedAttractorIndex, newCenter);
-         
-     } else if (editingEdge && selectedAttractorIndex >= 0) {
+    }
+    else if (editingEdge && selectedAttractorIndex >= 0) {
          ofPoint attractorCenter = attractorField.getAttractors()[selectedAttractorIndex].getCenter();
          float radius = ofDist(attractorCenter.x, attractorCenter.y, mousePos.x, mousePos.y);
          if (enableSnapping) {
@@ -363,7 +390,8 @@ void ofApp::mouseDragged(int x, int y, int button) {
          attractorField.setAttractorRadius(selectedAttractorIndex, radius);
          attractorRadiusInputs[selectedAttractorIndex]->getParameter().cast<float>().set(radius); // Synchronize the GUI radius input fields
 
-     } else if (translatingSvg) {
+    }
+    else if (translatingSvg) {
          ofPoint offset(mousePos.x - initialMousePos.x, mousePos.y - initialMousePos.y);
 
          // Calculate the new potential centroid position
@@ -390,7 +418,8 @@ void ofApp::mouseDragged(int x, int y, int button) {
              svgSkeleton.updateSvgCentroid();
              initialMousePos = mousePos; // Update initialMousePos with the current mouse position
          }
-     } else if (resizingSvg) {
+    }
+    else if (resizingSvg) {
          float initialDistance = initialMousePos.distance(svgSkeleton.getSvgCentroid());
          float currentDistance = ofPoint(x, y).distance(svgSkeleton.getSvgCentroid());
          float scaleFactor = currentDistance / initialDistance;
@@ -403,6 +432,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
              initialMousePos.set(x, y);
          }
      }
+    
      potentialFieldUpdated = true;
      contourLinesUpdated = true;
 }
@@ -420,6 +450,9 @@ void ofApp::mouseReleased(int x, int y, int button) {
     selectedAttractorIndex = -1;
     potentialFieldUpdated = true;
     contourLinesUpdated = true; // Mark contour lines for update
+    if (rotatingSvg) {
+        rotatingSvg = false;
+    }
 }
 
 void ofApp::updateContours() {

@@ -45,9 +45,11 @@ private:
     // Editing state for SVG paths
     bool translatingSvg;
     bool resizingSvg;
+    bool rotatingSvg;
     ofPoint initialMousePos;
     ofPoint svgOffset;
     float initialSvgScale;
+    float initialAngle;
 
     // Potential field
     ofImage potentialField;

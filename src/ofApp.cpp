@@ -165,14 +165,7 @@ void ofApp::update() {
     }
     
     if (potentialFieldUpdated) {
-        int width = ofGetWidth() / downscaleFactor;
-        int height = ofGetHeight() / downscaleFactor;
-        if (flipPotentialFieldRender) {
-            attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, -1 * contourThresholdSlider);  // Flip the sign
-        }
-        if (!flipPotentialFieldRender){
-            attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, contourThresholdSlider);
-        }
+        calculatePotentialField();
         potentialFieldUpdated = false;
     }
 
@@ -358,7 +351,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
     }
     if (drawingAttractor) {
          float radius = ofDist(tempAttractor.getCenter().x, tempAttractor.getCenter().y, x, y);
-         radius = std::max(radius, 5.0f);  // Ensure minimum radius of 2
+         radius = std::max(radius, 10.0f);  // Ensure minimum radius of 10
          tempAttractor.setRadius(radius);
     }
     else if (editingCenter && selectedAttractorIndex >= 0) {
@@ -387,6 +380,12 @@ void ofApp::mouseDragged(int x, int y, int button) {
              ofPoint nearestVertex = getNearestSvgVertex(mousePos, minDistance);
              if (minDistance < 10) { // Snap to the nearest vertex if within 10 pixels
                  radius = ofDist(attractorCenter.x, attractorCenter.y, nearestVertex.x, nearestVertex.y);
+             }
+             if (showGrid){
+                 ofPoint nearestIntersection = getNearestGridIntersection(mousePos, minDistance);
+                 if (minDistance < 10){
+                     radius = ofDist(attractorCenter.x, attractorCenter.y, nearestIntersection.x, nearestIntersection.y);
+                 }
              }
          }
          radius = std::max(radius, 5.0f);  // Ensure minimum radius of 5
@@ -481,10 +480,20 @@ void ofApp::updateContours() {
     int height = ofGetHeight() / downscaleFactor;
     float contourThreshold = contourThresholdSlider;  // Use the slider value
     attractorField.updateContours(downscaleFactor, width, height, svgSkeleton.getEquidistantPoints(), contourThreshold);
-    attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, contourThreshold);  // Update potential field with contourThreshold
-    
+    calculatePotentialField();
 }
 
+void ofApp::calculatePotentialField(){
+    int width = ofGetWidth() / downscaleFactor;
+    int height = ofGetHeight() / downscaleFactor;
+    float contourThreshold = contourThresholdSlider;  // Use the slider value
+    if (flipPotentialFieldRender) {
+        attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, -1 * contourThresholdSlider);  // Flip the sign
+    }
+    if (!flipPotentialFieldRender){
+        attractorField.calculatePotentialField(potentialField, downscaleFactor, width, height, contourThresholdSlider);
+    }
+}
 
 void ofApp::windowResized(int w, int h) {
     int width = w / downscaleFactor;

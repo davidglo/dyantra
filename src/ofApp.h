@@ -28,7 +28,8 @@ private:
     particleEnsemble particleEnsemble; // Use the new particleEnsemble class
 
     void updateContours();  // Declare the updateContours method
-
+    void calculatePotentialField();
+    
     // New helper function to find the nearest vertex on the SVG paths
     ofPoint getNearestSvgVertex(const ofPoint& point, float& minDistance);
     

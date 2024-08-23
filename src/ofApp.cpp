@@ -323,21 +323,20 @@ void ofApp::mousePressed(int x, int y, int button) {
             translatingSvg = true;
             return;
         }
-
-        // Check if we are clicking on an SVG point to start resizing
-//        /*
-        if (svgSkeleton.isNearCrossEndPoints(mousePos)) {
-            initialMousePos = mousePos;
-            initialSvgScale = 1.0f;
-            resizingSvg = true;
-            return;
-        }
-//        */
+        
         // Check if we are clicking on a handle to start rotating
         if (svgSkeleton.isNearRotationalHandle(mousePos)) {
             initialMousePos = mousePos;
             rotatingSvg = true;
             initialAngle = atan2(mousePos.y - svgSkeleton.getSvgCentroid().y, mousePos.x - svgSkeleton.getSvgCentroid().x);
+            return;
+        }
+        
+        // Check if we are clicking on an SVG point to start resizing
+        if (svgSkeleton.isNearCrossEndPoints(mousePos)) {
+            initialMousePos = mousePos;
+            initialSvgScale = 1.0f;
+            resizingSvg = true;
             return;
         }
 
@@ -368,6 +367,42 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
         // Apply the rotation to the SVG
         svgSkeleton.rotateSvg(angleDelta);
+
+        if (enableSnapping) {
+            // Get the position of the rotational handle after the rotation
+            ofPoint rotationHandlePos = svgSkeleton.getRotationalHandlePosition();
+
+            // Calculate the angle of the rotational handle relative to the centroid
+            float handleAngle = atan2(rotationHandlePos.y - svgSkeleton.getSvgCentroid().y, rotationHandlePos.x - svgSkeleton.getSvgCentroid().x);
+
+            // Find the nearest grid intersection in terms of angle
+            float minAngleDifference = FLT_MAX;
+            float snappedAngle = handleAngle;  // Initialize with the current angle
+
+            for (const auto& intersection : gridIntersections) {
+                float intersectionAngle = atan2(intersection.y - svgSkeleton.getSvgCentroid().y, intersection.x - svgSkeleton.getSvgCentroid().x);
+                float angleDifference = fabs(intersectionAngle - handleAngle);
+
+                // Wrap angle difference to be within [0, PI]
+                angleDifference = fmod(angleDifference + PI, TWO_PI) - PI;
+                angleDifference = fabs(angleDifference);
+
+                if (angleDifference < minAngleDifference) {
+                    minAngleDifference = angleDifference;
+                    snappedAngle = intersectionAngle;
+                }
+            }
+
+            // If the angle difference is within the snapping threshold, snap the rotation
+            if (minAngleDifference < 0.02) {  // Adjust the threshold as needed
+                angleDelta += snappedAngle - handleAngle;
+
+                // Apply the snapped rotation
+                svgSkeleton.rotateSvg(snappedAngle - handleAngle);
+            }
+        }
+
+        // Update the particle positions and SVG state
         particleEnsemble.update(svgSkeleton.getEquidistantPoints());
 
         // Update the initial angle for the next mouse move

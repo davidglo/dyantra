@@ -200,7 +200,7 @@ void svgSkeleton::draw() const {
         }
         
         // Draw the rotational handle circle
-        ofDrawCircle(rotationHandle, 5); // Draw the rotational handle as a circle
+        ofDrawCircle(rotationHandle, 10); // Draw the rotational handle as a circle
     }
     /*
     if (!equidistantPoints.empty()) {
@@ -358,6 +358,12 @@ void svgSkeleton::rotateSvg(float angleDelta) {
     }
     
     currentRotationAngle += angleDelta;
+    
+    // Wrap the current rotation angle to ensure it stays within [0, 2*PI]
+    currentRotationAngle = fmod(currentRotationAngle, TWO_PI);
+    if (currentRotationAngle < 0) {
+        currentRotationAngle += TWO_PI;  // Ensure the angle is positive
+    }
 }
 
 std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {

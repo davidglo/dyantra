@@ -163,4 +163,15 @@ private:
     // Add the declaration for the flipPotentialFieldRender checkbox
     ofParameter<bool> flipPotentialFieldRender;
     void onFlipPotentialFieldRenderChanged(bool & state);
+    
+    // GUI elements for time reversal
+    ofParameter<bool> timeReversalActive;  // Checkbox to activate/deactivate time reversal
+    ofxIntField timeReversalTimestepInput;  // Input field to set the timestep at which reversal occurs
+
+    void onTimeReversalTimestepInputUpdated(int & value);
+    
+    // Other variables
+    int timeReversalTimestep;  // Variable to store the user-defined timestep for reversal
+    bool timeReversalValueChanged;
+    
 };

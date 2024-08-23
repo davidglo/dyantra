@@ -49,6 +49,8 @@ void ofApp::setup() {
     nTimeReversalSteps = 120; // Adjust this value as needed
     timeReversalStepCounter = nTimeReversalSteps;
     nTimeReversalCalls = 0;
+    timeReversalTimestep = 2000;      // Initialize the timestep for reversal
+    timeReversalValueChanged = false;
     
     drawingAttractor = false;
     editingCenter = false;
@@ -99,6 +101,12 @@ void ofApp::setup() {
     gui.add(elapsedTimestepsDisplay.set("Elapsed Steps", ofToString(elapsedTimesteps)));
     gui.add(timeReversalStatus.set("Time is reversing:", "FALSE"));  // Add this for displaying time reversal status
     
+    
+    // Add GUI elements for time reversal
+    gui.add(timeReversalActive.set("Time Reversal Active", false));
+    gui.add(timeReversalTimestepInput.setup("Time Reversal Step", timeReversalTimestep, -100000, 100000));  // Add the input field
+    timeReversalTimestepInput.addListener(this, &ofApp::onTimeReversalTimestepInputUpdated);
+    
     gui.add(showPotentialFieldGui.set("Show Potential Field", true));
     
     gui.add(flipPotentialFieldRender.set("Flip Potential Field", false)); // Add the checkbox to the GUI
@@ -130,8 +138,6 @@ void ofApp::setup() {
     svgInfoGui.add(svgRotationAngle.set("SVG rot (deg)", ofRadToDeg(svgSkeleton.getCurrentRotationAngle())));
     ofColor initialSvgPointsColor(178, 178, 178); // 70% intensity of white color
     svgInfoGui.add(svgPointsColor.set("SVG Points Color", initialSvgPointsColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel for SVG points
-    
-
     
     contourThresholdSlider.addListener(this, &ofApp::onContourThresholdChanged);  // Add listener to the slider
     
@@ -195,6 +201,11 @@ void ofApp::update() {
     
     // Update the SVG rotation angle
     svgRotationAngle = ofRadToDeg(svgSkeleton.getCurrentRotationAngle());
+    
+    if (timeReversalValueChanged){
+        timeReversalTimestepInput = timeReversalTimestep;
+        timeReversalValueChanged = false;
+    }
 
     // Update GUI elements for attractors
     for (size_t i = 0; i < attractorField.getAttractors().size(); ++i) {
@@ -209,8 +220,22 @@ void ofApp::update() {
             timeReversalStatus = "TRUE";
         }
         else {
+/*
             if (timeForward) {dt = timestep;}
             else {dt = -timestep;}      // If timeForward is false, we want dt to be negative
+            timeReversalStatus = "FALSE";
+ */
+            // Check if time reversal should start
+            if (timeReversalActive && elapsedTimesteps == timeReversalTimestepInput) {
+                timeReversalTimestepInput = -timeReversalTimestepInput;
+                timeReversalInProgress = true;
+                nTimeReversalCalls = 0;
+                timeReversalStepCounter = nTimeReversalSteps;
+                if (timeForward){originalTimeStep = timestep;}
+                else{originalTimeStep = -1.0*timestep;}
+            }
+            
+            dt = timeForward ? timestep : -timestep;  // Continue with normal time progression
             timeReversalStatus = "FALSE";
         }
         particleEnsemble.vv_propagatePositionsVelocities(attractorField.getAttractors(), dt);
@@ -641,6 +666,8 @@ void ofApp::resetSimulation() {
     // Reset elapsed timesteps
     elapsedTimesteps = 0;
     elapsedTimestepsDisplay = ofToString(elapsedTimesteps);  // Update GUI display
+    timeReversalInProgress = false;
+    timeForward = true; // Reset to forward direction
 }
 
 void ofApp::drawGrid() {
@@ -926,3 +953,20 @@ void ofApp::onFlipPotentialFieldRenderChanged(bool & state) {
     // Update the potential field render when the flip state changes
     potentialFieldUpdated = true;
 }
+
+void ofApp::onTimeReversalTimestepInputUpdated(int & value){
+    if (timeReversalTimestepInput >= 0 && timeReversalTimestepInput <= nTimeReversalSteps){
+        timeReversalTimestep = nTimeReversalSteps + 1;
+        timeReversalTimestepInput = timeReversalTimestep;
+    }
+    else if (timeReversalTimestepInput < 0 && timeReversalTimestepInput >= (-nTimeReversalSteps)){
+        timeReversalTimestep = -nTimeReversalSteps - 1;
+        timeReversalTimestepInput = timeReversalTimestep;
+    }
+    else {
+        timeReversalTimestep = value;
+        timeReversalTimestepInput = timeReversalTimestep;
+    }
+    timeReversalValueChanged = true;
+}
+

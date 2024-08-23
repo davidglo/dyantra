@@ -20,6 +20,7 @@
 		9200DE6B2C55AD9E00134C97 /* particleEnsemble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9200DE652C55AD9E00134C97 /* particleEnsemble.cpp */; };
 		9200DE6C2C55AD9E00134C97 /* attractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9200DE672C55AD9E00134C97 /* attractor.cpp */; };
 		9200DE812C55ADE500134C97 /* svgSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9200DE7F2C55ADE500134C97 /* svgSkeleton.cpp */; };
+		923F7DF02C78E59F00184014 /* ofAppGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 923F7DEF2C78E59F00184014 /* ofAppGui.cpp */; };
 		933A2227713C720CEFF80FD9 /* tinyxml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B40EDA85BEB63E46785BC29 /* tinyxml.cpp */; };
 		9D44DC88EF9E7991B4A09951 /* tinyxmlerror.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 832BDC407620CDBA568B713D /* tinyxmlerror.cpp */; };
 		B266578FC55D23BFEBC042E7 /* ofxGuiGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECF8674C7975F1063C5E30CA /* ofxGuiGroup.cpp */; };
@@ -92,6 +93,8 @@
 		9200DE692C55AD9E00134C97 /* attractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = attractor.h; sourceTree = "<group>"; };
 		9200DE7F2C55ADE500134C97 /* svgSkeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = svgSkeleton.cpp; sourceTree = "<group>"; };
 		9200DE802C55ADE500134C97 /* svgSkeleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svgSkeleton.h; sourceTree = "<group>"; };
+		923F7DEE2C78E59F00184014 /* ofAppGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofAppGui.h; sourceTree = "<group>"; };
+		923F7DEF2C78E59F00184014 /* ofAppGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofAppGui.cpp; sourceTree = "<group>"; };
 		9554769CA7302D13CEF02214 /* hash.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = hash.h; path = ../../../addons/ofxSvg/libs/libxml2/include/libxml/hash.h; sourceTree = SOURCE_ROOT; };
 		9604B925D32EE39065747725 /* ofxBaseGui.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxBaseGui.cpp; path = ../../../addons/ofxGui/src/ofxBaseGui.cpp; sourceTree = SOURCE_ROOT; };
 		98FAC428A9E588867DBAA559 /* schemasInternals.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = schemasInternals.h; path = ../../../addons/ofxSvg/libs/libxml2/include/libxml/schemasInternals.h; sourceTree = SOURCE_ROOT; };
@@ -808,6 +811,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				923F7DEF2C78E59F00184014 /* ofAppGui.cpp */,
+				923F7DEE2C78E59F00184014 /* ofAppGui.h */,
 				9200DE7F2C55ADE500134C97 /* svgSkeleton.cpp */,
 				9200DE802C55ADE500134C97 /* svgSkeleton.h */,
 				9200DE672C55AD9E00134C97 /* attractor.cpp */,
@@ -946,6 +951,7 @@
 				B56FE57CC35806596D38118C /* ofxSliderGroup.cpp in Sources */,
 				1CD33E884D9E3358252E82A1 /* ofxToggle.cpp in Sources */,
 				B88A57B4B0BA6191EF3571E9 /* ofxSvg.cpp in Sources */,
+				923F7DF02C78E59F00184014 /* ofAppGui.cpp in Sources */,
 				933A2227713C720CEFF80FD9 /* tinyxml.cpp in Sources */,
 				9200DE812C55ADE500134C97 /* svgSkeleton.cpp in Sources */,
 				9D44DC88EF9E7991B4A09951 /* tinyxmlerror.cpp in Sources */,

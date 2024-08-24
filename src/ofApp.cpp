@@ -1090,9 +1090,19 @@ void ofApp::loadSettings(const std::string& filename) {
         
         // Load the main GUI
         ofXml guiXml = settings.getChild("gui");
-        if (guiXml) {
+        ofPoint originalWindowSize;
+        if (guiXml) {            
+            // Load the GUI from the XML
             gui.loadFrom(guiXml);
 
+            // Retrieve the original window size from the loaded GUI
+            std::string windowSizeStr = windowSize.get();
+            std::vector<std::string> tokens = ofSplitString(windowSizeStr, "x");
+            if (tokens.size() == 2) {
+                originalWindowSize.x = ofToFloat(tokens[0]);
+                originalWindowSize.y = ofToFloat(tokens[1]);
+            }
+            
             // Manually load numPointsInput
             ofXml numPointsNode = guiXml.findFirst("numPointsInput");
             if (numPointsNode) {
@@ -1102,7 +1112,7 @@ void ofApp::loadSettings(const std::string& filename) {
         
         // Load the SVG info GUI
         ofXml svgInfoXml = settings.getChild("svgInfoGui");
-        if (svgInfoXml) {
+        if (svgInfoXml && originalWindowSize.x > 0 && originalWindowSize.y > 0) {
             svgInfoGui.loadFrom(svgInfoXml);
 
             // Load svgFile_
@@ -1122,10 +1132,16 @@ void ofApp::loadSettings(const std::string& filename) {
                 std::string centroidStr = centroidNode.getValue();
                 std::vector<std::string> tokens = ofSplitString(centroidStr, ",");
                 if (tokens.size() == 2) {
+
+                    ofPoint relativeCentroid;
+                    relativeCentroid.x = ofToFloat(tokens[0]) / originalWindowSize.x;
+                    relativeCentroid.y = ofToFloat(tokens[1]) / originalWindowSize.y;
+
+                    // Calculate the new absolute position based on the current window size
                     ofPoint newCentroid;
-                    newCentroid.x = ofToFloat(tokens[0]);
-                    newCentroid.y = ofToFloat(tokens[1]);
-                    
+                    newCentroid.x = relativeCentroid.x * ofGetWidth();
+                    newCentroid.y = relativeCentroid.y * ofGetHeight();
+
                     // Calculate the translation needed to move the SVG to the new centroid
                     ofPoint currentCentroid = svgSkeleton.getSvgCentroid();
                     ofPoint translation = newCentroid - currentCentroid;
@@ -1179,7 +1195,7 @@ void ofApp::loadSettings(const std::string& filename) {
         
         ofXml attractorXml = settings.getChild("attractorGui");
 
-        if (attractorXml) {
+        if (attractorXml && originalWindowSize.x > 0 && originalWindowSize.y > 0) {
             attractorCenters.clear();
             attractorRadiusInputs.clear();
             attractorAmplitudeInputs.clear();
@@ -1190,12 +1206,17 @@ void ofApp::loadSettings(const std::string& filename) {
                 if (attractorNode.getName().find("Attractor_") != std::string::npos) {
                     // Load center
                     ofPoint center;
+                    ofPoint relativeCenter;
                     if (attractorNode.getChild("Center")) {
                         std::string centerStr = attractorNode.getChild("Center").getValue();
                         std::vector<std::string> tokens = ofSplitString(centerStr, ",");
                         if (tokens.size() == 2) {
-                            center.x = ofToFloat(tokens[0]);
-                            center.y = ofToFloat(tokens[1]);
+                            relativeCenter.x = ofToFloat(tokens[0]) / originalWindowSize.x;
+                            relativeCenter.y = ofToFloat(tokens[1]) / originalWindowSize.y;
+
+                            // Calculate the new absolute position based on the current window size
+                            center.x = relativeCenter.x * ofGetWidth();
+                            center.y = relativeCenter.y * ofGetHeight();
                         }
                     }
 
@@ -1228,22 +1249,4 @@ void ofApp::onLoadSettingsButtonPressed() {
     std::string filename = loadFileNameInput; // Alternative way to get the filename
     loadSettings(filename); // Load settings from the specified file
 }
-/*
-void ofApp::onSaveSettingsButtonPressed() {
-    std::string baseFilename = saveFileNameInput;
-    if (baseFilename.empty()) {
-        baseFilename = "settings.xml";
-    }
-
-    std::string filename = baseFilename;
-    int counter = 1;
-
-    // Check if the file already exists and append _1, _2, etc., if necessary
-    while (ofFile::doesFileExist(filename)) {
-        filename = baseFilename + "_" + ofToString(counter++) + ".xml";
-    }
-
-    saveSettings(filename); // Save settings to the specified file
-}
-*/
 

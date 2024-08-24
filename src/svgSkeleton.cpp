@@ -396,8 +396,8 @@ ofPoint svgSkeleton::getRotationalHandlePosition() const {
     calculateMaxDistances(crossSizeX, crossSizeY);
 
     // Increase the cross size by 10%
-    crossSizeX *= crossSize;
-    crossSizeY *= crossSize;
+    crossSizeX *= crossSize*1.1;
+    crossSizeY *= crossSize*1.1;
     
     float crossDims = std::max(crossSizeX, crossSizeY);
     float angle = currentRotationAngle;

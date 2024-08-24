@@ -173,15 +173,17 @@ private:
     int timeReversalTimestep;  // Variable to store the user-defined timestep for reversal
     bool timeReversalValueChanged;
     
+    ofxPanel fileGui;
+    
     ofxButton saveButton;
+    ofxInputField<std::string> saveFileNameInput; // Text input field for loading settings
+
     ofxButton loadButton;
     ofxInputField<std::string> loadFileNameInput; // Text input field for loading settings
-    ofxInputField<std::string> saveFileNameInput; // Text input field for loading settings
     
     void saveSettings();
     void loadSettings(const std::string& filename);
 
     void onLoadSettingsButtonPressed();
-//    void onSaveSettingsButtonPressed();
     
 };

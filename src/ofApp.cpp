@@ -145,15 +145,18 @@ void ofApp::setup() {
     attractorGui.setup();
     attractorGui.setPosition(ofGetWidth() - 210, gui.getPosition().y); // Position to the right of the main panel
     
+    // file handling GUI
+    fileGui.setup();
+    fileGui.setPosition(gui.getPosition().x, gui.getPosition().y + 600);
+    
     // Add save and load buttons to the main GUI
-    gui.add(saveButton.setup("Click to Save Settings"));
-    gui.add(saveFileNameInput.setup("Save:", "settings.xml"));
+    fileGui.add(saveButton.setup("Click to Save Filename"));
+    fileGui.add(saveFileNameInput.setup("", "settings.xml"));
     saveButton.addListener(this, &ofApp::saveSettings);
     
-    gui.add(loadButton.setup("Click to Load Settings"));
-    gui.add(loadFileNameInput.setup("Load:", "settings.xml")); // Default to "settings.xml"
+    fileGui.add(loadButton.setup("Click to Load Filename"));
+    fileGui.add(loadFileNameInput.setup("", "settings.xml")); // Default to "settings.xml"
     loadButton.addListener(this, &ofApp::onLoadSettingsButtonPressed); // Attach the load listener
-//    saveButton.addListener(this, &ofApp::onSaveSettingsButtonPressed);
 
 }
 
@@ -303,6 +306,7 @@ void ofApp::draw() {
     gui.draw();
     attractorGui.draw(); // Draw the attractor information panel
     svgInfoGui.draw(); // Draw the SVG information panel
+    fileGui.draw();
 }
 
 void ofApp::mousePressed(int x, int y, int button) {

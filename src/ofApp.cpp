@@ -752,8 +752,6 @@ void ofApp::drawGrid() {
     }
 
     // Draw the central lines (same as in the rectangular grid)
-    ofSetColor(180); // Set grid color to a lighter grey
-    ofSetLineWidth(2); // Set the line thickness to 2 pixels
     ofDrawLine(centerX, 0, centerX, height); // Central vertical line
     ofDrawLine(0, centerY, width, centerY); // Central horizontal line
 }

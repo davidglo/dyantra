@@ -138,8 +138,11 @@ void svgSkeleton::translateSvg(const ofPoint& offset) {
     initialCentroid += offset; // Ensure the initialCentroid is also updated
 }
 
-void svgSkeleton::resizeSvg(float scaleFactor) {
-    cumulativeScale *= scaleFactor;
+void svgSkeleton::resizeSvg(float scaleFactor, bool loadingSvg) {
+
+    if(loadingSvg){cumulativeScale = scaleFactor;}
+    else{cumulativeScale *= scaleFactor;}
+
     for (auto& point : equidistantPoints) {
         point = svgCentroid + (point - svgCentroid) * scaleFactor;
     }
@@ -147,6 +150,37 @@ void svgSkeleton::resizeSvg(float scaleFactor) {
     calculateSvgCentroid();
     // Adjust the cross size dynamically after resizing
     calculateCrossSize();
+}
+
+void svgSkeleton::rotateSvg(float angleDelta, bool loadingSvg) {
+    ofPoint centroid = getSvgCentroid();
+
+    // Rotate each point around the centroid by angleDelta
+    for (auto& point : equidistantPoints) {
+        float s = sin(angleDelta);
+        float c = cos(angleDelta);
+
+        // Translate point to origin (centroid)
+        point.x -= centroid.x;
+        point.y -= centroid.y;
+
+        // Rotate point
+        float newX = point.x * c - point.y * s;
+        float newY = point.x * s + point.y * c;
+
+        // Translate point back
+        point.x = newX + centroid.x;
+        point.y = newY + centroid.y;
+    }
+    
+    if(loadingSvg){currentRotationAngle = angleDelta;}
+    else{currentRotationAngle += angleDelta;}
+    
+    // Wrap the current rotation angle to ensure it stays within [0, 2*PI]
+    currentRotationAngle = fmod(currentRotationAngle, TWO_PI);
+    if (currentRotationAngle < 0) {
+        currentRotationAngle += TWO_PI;  // Ensure the angle is positive
+    }
 }
 
 void svgSkeleton::draw() const {
@@ -275,7 +309,7 @@ void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
     ofPoint newCentroid = ofPoint(windowWidth / 2, windowHeight / 2);
     ofPoint offset = newCentroid - svgCentroid;
     translateSvg(offset);
-    resizeSvg(scale);
+    resizeSvg(scale,false);
     updateSvgCentroid();
 }
 
@@ -334,36 +368,6 @@ bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
             point.distance(endPoint2) <= threshold ||
             point.distance(endPoint3) <= threshold ||
             point.distance(endPoint4) <= threshold);
-}
-
-void svgSkeleton::rotateSvg(float angleDelta) {
-    ofPoint centroid = getSvgCentroid();
-
-    // Rotate each point around the centroid by angleDelta
-    for (auto& point : equidistantPoints) {
-        float s = sin(angleDelta);
-        float c = cos(angleDelta);
-
-        // Translate point to origin (centroid)
-        point.x -= centroid.x;
-        point.y -= centroid.y;
-
-        // Rotate point
-        float newX = point.x * c - point.y * s;
-        float newY = point.x * s + point.y * c;
-
-        // Translate point back
-        point.x = newX + centroid.x;
-        point.y = newY + centroid.y;
-    }
-    
-    currentRotationAngle += angleDelta;
-    
-    // Wrap the current rotation angle to ensure it stays within [0, 2*PI]
-    currentRotationAngle = fmod(currentRotationAngle, TWO_PI);
-    if (currentRotationAngle < 0) {
-        currentRotationAngle += TWO_PI;  // Ensure the angle is positive
-    }
 }
 
 std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {

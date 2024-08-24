@@ -10,8 +10,9 @@ public:
     void generateEquidistantPoints(int numDesiredPoints);
     void calculateSvgCentroid();
     void translateSvg(const ofPoint& offset);
-    void resizeSvg(float scale);
-    void rotateSvg(float angleDelta); // Declaration
+    void resizeSvg(float scale, bool loadingSvg);
+//    void loadSvgScale(float scaleFactor);
+    void rotateSvg(float angleDelta, bool loadingSvg); // Declaration
     void draw() const;
     
     void updateSvgCentroid();

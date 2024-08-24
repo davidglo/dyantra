@@ -95,7 +95,6 @@ private:
     // Separate panel for attractor information
     ofxPanel attractorGui;
 
-    
     // Dynamic GUI elements for attractors
     std::vector<ofParameterGroup> attractorGroups;
     std::vector<ofParameter<ofVec2f>> attractorCenters;
@@ -173,5 +172,14 @@ private:
     // Other variables
     int timeReversalTimestep;  // Variable to store the user-defined timestep for reversal
     bool timeReversalValueChanged;
+    
+    ofxButton saveButton;
+    ofxButton loadButton;
+    ofxInputField<std::string> loadFileNameInput; // Text input field for loading settings
+    
+    void saveSettings();
+    void loadSettings(const std::string& filename);
+
+    void onLoadSettingsButtonPressed();
     
 };

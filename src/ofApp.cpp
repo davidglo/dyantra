@@ -28,10 +28,10 @@ void ofApp::setup() {
     ofSetVerticalSync(true);
     ofSetFrameRate(60);
     
-//    string svgFile = "taraYantra.svg";
+    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-crown-heart-lotus.svg";
-    string svgFile = "tara-crown-Chakra.svg";
+//    string svgFile = "tara-crown-Chakra.svg";
 //    string svgFile = "cir_seasonal-US.svg";
 //    string svgFile = "tara-face.svg";
 //    string svgFile = "circle.svg";
@@ -144,6 +144,14 @@ void ofApp::setup() {
     // Setup and position the attractor information panel
     attractorGui.setup();
     attractorGui.setPosition(ofGetWidth() - 210, gui.getPosition().y); // Position to the right of the main panel
+    
+    // Add save and load buttons to the main GUI
+    gui.add(saveButton.setup("Save Settings"));
+    gui.add(loadButton.setup("Load Settings"));
+    gui.add(loadFileNameInput.setup("Load:", "settings.xml")); // Default to "settings.xml"
+
+    saveButton.addListener(this, &ofApp::saveSettings);
+    loadButton.addListener(this, &ofApp::onLoadSettingsButtonPressed); // Attach the load listener
 
 }
 
@@ -366,7 +374,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
         float angleDelta = currentAngle - initialAngle;
 
         // Apply the rotation to the SVG
-        svgSkeleton.rotateSvg(angleDelta);
+        svgSkeleton.rotateSvg(angleDelta, false);
 
         if (enableSnapping) {
             // Get the position of the rotational handle after the rotation
@@ -398,7 +406,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
                 angleDelta += snappedAngle - handleAngle;
 
                 // Apply the snapped rotation
-                svgSkeleton.rotateSvg(snappedAngle - handleAngle);
+                svgSkeleton.rotateSvg(snappedAngle - handleAngle, false);
             }
         }
 
@@ -506,7 +514,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
         
         // Enforce maximum scaling limit
         if (mousePos.x > 0 && mousePos.x < ofGetWidth() && mousePos.y > 0 && mousePos.y < ofGetHeight()){
-            svgSkeleton.resizeSvg(scaleFactor);
+            svgSkeleton.resizeSvg(scaleFactor,false);
             svgScale = svgSkeleton.getCumulativeScale(); // Update the cumulative scale in the GUI
             particleEnsemble.update(svgSkeleton.getEquidistantPoints());
             initialMousePos.set(x, y);
@@ -1005,3 +1013,192 @@ void ofApp::onTimeReversalTimestepInputUpdated(int & value){
     timeReversalValueChanged = true;
 }
 
+void ofApp::saveSettings() {
+    
+    // Determine the filename to save to
+    std::string filename = "settings.xml";
+    int fileIndex = 0;
+
+    // Check if the file already exists and increment the index until we find a free name
+    while (std::filesystem::exists(ofToDataPath(filename))) {
+        fileIndex++;
+        filename = "settings_" + ofToString(fileIndex) + ".xml";
+    }
+    
+    // Create an XML object to store the settings
+    ofXml settings;
+    settings.appendChild("Settings");
+    settings.set("Settings");
+
+    // Save the main GUI
+    ofXml guiXml = settings.appendChild("gui");
+    gui.saveTo(guiXml);
+
+    // Manually save numPointsInput
+    ofXml numPointsNode = guiXml.appendChild("numPointsInput");
+    numPointsNode.set(numPointsInput.getParameter().toString());
+
+    // Manually save the SVG info GUI parameters (without the <group> tag)
+    ofXml svgInfoXml = settings.appendChild("svgInfoGui");
+    svgInfoXml.appendChild("svgFile_").set(svgFileName.get());
+    svgInfoXml.appendChild("Show_SVG_Points").set((bool)showSvgPoints);
+    svgInfoXml.appendChild("svgCentroid").set(svgCentroid.get());
+    svgInfoXml.appendChild("svgScale").set(svgScale.get());
+    svgInfoXml.appendChild("SVG_rot__deg_").set(svgRotationAngle.get());
+    svgInfoXml.appendChild("SVG_Points_Color").set(svgPointsColor.get());
+
+    // Save the attractor GUI
+    ofXml attractorXml = settings.appendChild("attractorGui");
+    
+    // Save attractor centers, radius, and amplitude
+    for (size_t i = 0; i < attractorCenters.size(); ++i) {
+        ofXml attractorGroup = attractorXml.appendChild("Attractor_" + ofToString(i));
+        attractorGroup.appendChild("Center").set(attractorCenters[i].get());
+        attractorGroup.appendChild("Radius").set(attractorRadiusInputs[i]->getParameter().cast<float>().get());
+        attractorGroup.appendChild("Amplitude").set(attractorAmplitudeInputs[i]->getParameter().cast<float>().get());
+    }
+    
+    // Save all settings to an XML file
+    settings.save(filename);
+
+    ofLogNotice() << "Settings saved to " << filename;
+}
+
+void ofApp::loadSettings(const std::string& filename) {
+    // Load the XML file
+    ofXml settings;
+    if (settings.load(filename)) {
+        ofLogNotice() << "Settings loaded from " << filename;
+        
+        // Load the main GUI
+        ofXml guiXml = settings.getChild("gui");
+        if (guiXml) {
+            gui.loadFrom(guiXml);
+
+            // Manually load numPointsInput
+            ofXml numPointsNode = guiXml.findFirst("numPointsInput");
+            if (numPointsNode) {
+                numPointsInput = ofToInt(numPointsNode.getValue());
+            }
+        }
+        
+        // Load the SVG info GUI
+        ofXml svgInfoXml = settings.getChild("svgInfoGui");
+        if (svgInfoXml) {
+            svgInfoGui.loadFrom(svgInfoXml);
+
+            // Load svgFile_
+            ofXml fileNode = svgInfoXml.findFirst("svgFile_");
+            if (fileNode) {
+                std::string svgFile = fileNode.getValue();
+                svgFileName = svgFile;
+                svgSkeleton.loadSvg(svgFile);  // Load the SVG file
+                svgSkeleton.generateEquidistantPoints(numPoints); // Call with the data member
+                svgSkeleton.autoFitToWindow(ofGetWidth(), ofGetHeight());
+                particleEnsemble.initialize(svgSkeleton.getEquidistantPoints()); // initialize the particleEnsemble
+            }
+            
+            // Update the SVG position to match the loaded centroid
+            ofXml centroidNode = svgInfoXml.findFirst("svgCentroid");
+            if (centroidNode) {
+                std::string centroidStr = centroidNode.getValue();
+                std::vector<std::string> tokens = ofSplitString(centroidStr, ",");
+                if (tokens.size() == 2) {
+                    ofPoint newCentroid;
+                    newCentroid.x = ofToFloat(tokens[0]);
+                    newCentroid.y = ofToFloat(tokens[1]);
+                    
+                    // Calculate the translation needed to move the SVG to the new centroid
+                    ofPoint currentCentroid = svgSkeleton.getSvgCentroid();
+                    ofPoint translation = newCentroid - currentCentroid;
+                    
+                    // Apply the translation
+                    svgSkeleton.translateSvg(translation);
+                    svgSkeleton.updateSvgCentroid();
+                    particleEnsemble.update(svgSkeleton.getEquidistantPoints());
+                }
+            }
+
+            // Apply the scale if it's specified
+            ofXml scaleNode = svgInfoXml.findFirst("svgScale");
+            if (scaleNode) {
+                float scale = scaleNode.getFloatValue();
+                svgSkeleton.resizeSvg(scale, true);
+                particleEnsemble.update(svgSkeleton.getEquidistantPoints());
+            }
+
+            // Apply the rotation if it's specified
+            ofXml rotationNode = svgInfoXml.findFirst("SVG_rot__deg_");
+            if (rotationNode) {
+                float rotation = rotationNode.getFloatValue();
+                svgSkeleton.rotateSvg(ofDegToRad(rotation), true);
+                particleEnsemble.update(svgSkeleton.getEquidistantPoints());
+            }
+            
+            // Load SVG_Points_Color
+            ofXml colorNode = svgInfoXml.findFirst("SVG_Points_Color");
+            if (colorNode) {
+                std::string colorStr = colorNode.getValue();
+                std::vector<std::string> colorTokens = ofSplitString(colorStr, ",");
+                if (colorTokens.size() == 4) {
+                    int r = ofToInt(colorTokens[0]);
+                    int g = ofToInt(colorTokens[1]);
+                    int b = ofToInt(colorTokens[2]);
+                    int a = ofToInt(colorTokens[3]);
+                    ofColor color(r, g, b, a);
+                    svgPointsColor = color;
+                }
+            }
+            
+        }
+        
+        // Load the attractor GUI
+        ofXml attractorXml = settings.getChild("attractorGui");
+        if (attractorXml) {
+            attractorCenters.clear();
+            attractorRadiusInputs.clear();
+            attractorAmplitudeInputs.clear();
+            
+            auto attractorNodes = attractorXml.getChildren();
+            for (auto& attractorNode : attractorNodes) {
+                if (attractorNode.getName().find("Attractor_") != std::string::npos) {
+                    // Load center
+                    ofPoint center;
+                    if (attractorNode.getChild("Center")) {
+                        std::string centerStr = attractorNode.getChild("Center").getValue();
+                        std::vector<std::string> tokens = ofSplitString(centerStr, ",");
+                        if (tokens.size() == 2) {
+                            center.x = ofToFloat(tokens[0]);
+                            center.y = ofToFloat(tokens[1]);
+                        }
+                    }
+
+                    // Load radius
+                    float radius = 0;
+                    if (attractorNode.getChild("Radius")) {
+                        radius = attractorNode.getChild("Radius").getFloatValue();
+                    }
+
+                    // Load amplitude
+                    float amplitude = 0;
+                    if (attractorNode.getChild("Amplitude")) {
+                        amplitude = attractorNode.getChild("Amplitude").getFloatValue();
+                    }
+
+                    // Add attractor data
+                    attractor tempAttractor(center, radius);
+                    tempAttractor.setAmplitude(amplitude);
+                    attractorField.addAttractor(tempAttractor);
+                    addAttractorGui(tempAttractor);
+                }
+            }
+        }
+    } else {
+        ofLogError() << "Failed to load settings from " << filename;
+    }
+}
+
+void ofApp::onLoadSettingsButtonPressed() {
+    std::string filename = loadFileNameInput; // Alternative way to get the filename
+    loadSettings(filename); // Load settings from the specified file
+}

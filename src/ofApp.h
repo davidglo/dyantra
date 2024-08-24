@@ -176,10 +176,12 @@ private:
     ofxButton saveButton;
     ofxButton loadButton;
     ofxInputField<std::string> loadFileNameInput; // Text input field for loading settings
+    ofxInputField<std::string> saveFileNameInput; // Text input field for loading settings
     
     void saveSettings();
     void loadSettings(const std::string& filename);
 
     void onLoadSettingsButtonPressed();
+//    void onSaveSettingsButtonPressed();
     
 };

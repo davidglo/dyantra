@@ -146,12 +146,14 @@ void ofApp::setup() {
     attractorGui.setPosition(ofGetWidth() - 210, gui.getPosition().y); // Position to the right of the main panel
     
     // Add save and load buttons to the main GUI
-    gui.add(saveButton.setup("Save Settings"));
-    gui.add(loadButton.setup("Load Settings"));
-    gui.add(loadFileNameInput.setup("Load:", "settings.xml")); // Default to "settings.xml"
-
+    gui.add(saveButton.setup("Click to Save Settings"));
+    gui.add(saveFileNameInput.setup("Save:", "settings.xml"));
     saveButton.addListener(this, &ofApp::saveSettings);
+    
+    gui.add(loadButton.setup("Click to Load Settings"));
+    gui.add(loadFileNameInput.setup("Load:", "settings.xml")); // Default to "settings.xml"
     loadButton.addListener(this, &ofApp::onLoadSettingsButtonPressed); // Attach the load listener
+//    saveButton.addListener(this, &ofApp::onSaveSettingsButtonPressed);
 
 }
 
@@ -1012,7 +1014,7 @@ void ofApp::onTimeReversalTimestepInputUpdated(int & value){
 }
 
 void ofApp::saveSettings() {
-    
+    /*
     // Determine the filename to save to
     std::string filename = "settings.xml";
     int fileIndex = 0;
@@ -1021,6 +1023,20 @@ void ofApp::saveSettings() {
     while (std::filesystem::exists(ofToDataPath(filename))) {
         fileIndex++;
         filename = "settings_" + ofToString(fileIndex) + ".xml";
+    }
+    */
+    
+    std::string baseFilename = saveFileNameInput;
+    if (baseFilename.empty()) {
+        baseFilename = "settings.xml";
+    }
+
+    std::string filename = baseFilename;
+    int counter = 1;
+
+    // Check if the file already exists and append _1, _2, etc., if necessary
+    while (ofFile::doesFileExist(filename)) {
+        filename = baseFilename + "_" + ofToString(counter++) + ".xml";
     }
     
     // Create an XML object to store the settings
@@ -1150,12 +1166,20 @@ void ofApp::loadSettings(const std::string& filename) {
             
         }
         
-        // Load the attractor GUI
+        // Load the attractor GUI..
+        // (... but first delete previous attractors & associated GUI elements)
+        for (int i = attractorField.getAttractors().size() - 1; i >= 0; --i) {
+            attractorField.removeAttractorAt(i);
+            removeAttractorGui(i);
+        }
+        
         ofXml attractorXml = settings.getChild("attractorGui");
+
         if (attractorXml) {
             attractorCenters.clear();
             attractorRadiusInputs.clear();
             attractorAmplitudeInputs.clear();
+            attractorGui.clear();
             
             auto attractorNodes = attractorXml.getChildren();
             for (auto& attractorNode : attractorNodes) {
@@ -1200,3 +1224,22 @@ void ofApp::onLoadSettingsButtonPressed() {
     std::string filename = loadFileNameInput; // Alternative way to get the filename
     loadSettings(filename); // Load settings from the specified file
 }
+/*
+void ofApp::onSaveSettingsButtonPressed() {
+    std::string baseFilename = saveFileNameInput;
+    if (baseFilename.empty()) {
+        baseFilename = "settings.xml";
+    }
+
+    std::string filename = baseFilename;
+    int counter = 1;
+
+    // Check if the file already exists and append _1, _2, etc., if necessary
+    while (ofFile::doesFileExist(filename)) {
+        filename = baseFilename + "_" + ofToString(counter++) + ".xml";
+    }
+
+    saveSettings(filename); // Save settings to the specified file
+}
+*/
+

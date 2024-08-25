@@ -229,49 +229,6 @@ void svgSkeleton::draw() const {
         drawDottedCircle(rotationHandle, 12, 5, 3); // Adjust dotLength and gapLength as needed
         drawDottedCircle(rotationHandle, 5, 3, 2);
     }
-    /*
-    if (!equidistantPoints.empty()) {
-        
-        // Draw the SVG points as circles with the default SVG points color
-//        ofSetColor(255);  // Reset to default color (white or other)
-        for (size_t i = 1; i < equidistantPoints.size(); ++i) {
-            ofDrawCircle(equidistantPoints[i], 1); // Draw small circles at each point
-        }
-
-        // Calculate cross size based on the farthest points in x and y directions
-        float crossSizeX, crossSizeY;
-        calculateMaxDistances(crossSizeX, crossSizeY);
-
-        // Increase the cross size by 10%
-        crossSizeX *= crossSize;
-        crossSizeY *= crossSize;
-
-        // now draw the cross
-//        ofSetColor(200, 100, 255);  // Light purple color for the cross
-        float dashLength = 5.0f; // Length of each dash
-        float gapLength = 3.0f;  // Length of the gap between dashes
-        
-        const auto& centroid = equidistantPoints[0];
-        
-        // Draw horizontal dashed line
-        for (float x = centroid.x - crossSizeX; x < centroid.x + crossSizeX; x += dashLength + gapLength) {
-            ofDrawLine(x, centroid.y, std::min(x + dashLength, centroid.x + crossSizeX), centroid.y);
-        }
-
-        // Draw vertical dashed line
-        for (float y = centroid.y - crossSizeY; y < centroid.y + crossSizeY; y += dashLength + gapLength) {
-            ofDrawLine(centroid.x, y, centroid.x, std::min(y + dashLength, centroid.y + crossSizeY));
-        }
-
-        // Draw circles at the endpoints of the cross
-        ofNoFill();
-        ofDrawCircle(centroid.x - crossSizeX, centroid.y, 5.0f);
-        ofDrawCircle(centroid.x + crossSizeX, centroid.y, 5.0f);
-        ofDrawCircle(centroid.x, centroid.y - crossSizeY, 5.0f);
-        ofDrawCircle(centroid.x, centroid.y + crossSizeY, 5.0f);
-        ofFill();
-    }
-    */
 }
 
 const std::vector<glm::vec3>& svgSkeleton::getEquidistantPoints() const {

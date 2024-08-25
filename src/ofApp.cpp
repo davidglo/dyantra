@@ -384,6 +384,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
         if (enableSnapping) {
             // Get the position of the rotational handle after the rotation
+            svgSkeleton.calculateAdjustedCrossSize();
             ofPoint rotationHandlePos = svgSkeleton.getRotationalHandlePosition();
 
             // Calculate the angle of the rotational handle relative to the centroid
@@ -501,6 +502,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
         float scaleFactor = currentDistance / initialDistance;
         
         // Calculate the potential new handle positions after scaling
+        svgSkeleton.calculateAdjustedCrossSize();
         auto newScalingHandles = svgSkeleton.getScalingHandlePositions();
         
         // Snapping logic

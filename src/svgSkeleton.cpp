@@ -17,8 +17,7 @@ void svgSkeleton::loadSvg(const std::string& filename) {
     translation.set(0, 0);
     cumulativeScale = 1.0f;
     initialCentroid = svgCentroid;
-    crossSize = 1.05f;
-//    currentRotationAngle = PI / 4.0f; // 45 degrees counterclockwise from vertical
+    crossSizeScaleFactor = 1.05f;
     currentRotationAngle = 0.0f; // 45 degrees counterclockwise from vertical
 }
 
@@ -191,12 +190,6 @@ void svgSkeleton::draw() const {
             ofDrawCircle(equidistantPoints[i], 1); // Draw small circles at each point
         }
         
-        // Calculate cross size based on the farthest points in x and y directions
-        ofVec2f crossSize = calculateAdjustedCrossSize();
-        float crossSizeX = crossSize.x;
-        float crossSizeY = crossSize.y;
-
-        // Draw the cross as dashed lines
         float dashLength = 5.0f; // Length of each dash
         float gapLength = 3.0f;  // Length of the gap between dashes
         
@@ -313,35 +306,12 @@ void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
     updateSvgCentroid();
 }
 
-void svgSkeleton::calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const {
-
-    if (equidistantPoints.empty()) return;
-    
-    float maxDistance = 0.0f;
-    const auto& centroid = getSvgCentroid();
-    
-    for (const auto& point : equidistantPoints) {
-        float distance = centroid.distance(point);
-        if (distance > maxDistance) {
-            maxDistance = distance;
-        }
-    }
-    
-    maxDistanceX = maxDistance;
-    maxDistanceY = maxDistance;
-}
-
 bool svgSkeleton::isNearCentroid(const ofPoint& point, float threshold) const {
     return point.distance(svgCentroid) <= threshold;
 }
 
 bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
-    // Calculate cross size based on the farthest points in x and y directions
-    ofVec2f crossSize = calculateAdjustedCrossSize();
-    float crossSizeX = crossSize.x;
-    float crossSizeY = crossSize.y;
 
-    // Define the four endpoints of the cross
     ofPoint endPoint1(svgCentroid.x - crossSizeX, svgCentroid.y);
     ofPoint endPoint2(svgCentroid.x + crossSizeX, svgCentroid.y);
     ofPoint endPoint3(svgCentroid.x, svgCentroid.y - crossSizeY);
@@ -357,10 +327,6 @@ bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
 }
 
 std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {
-    // Calculate cross size based on the farthest points in x and y directions
-    ofVec2f crossSize = calculateAdjustedCrossSize();
-    float crossSizeX = crossSize.x;
-    float crossSizeY = crossSize.y;
 
     std::vector<ofPoint> handles = {
         ofPoint(svgCentroid.x + crossSizeX, svgCentroid.y),  // Right
@@ -373,11 +339,6 @@ std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {
 }
 
 ofPoint svgSkeleton::getRotationalHandlePosition() const {
-    
-    // Calculate cross size based on the farthest points in x and y directions
-    ofVec2f crossSize = calculateAdjustedCrossSize();
-    float crossSizeX = crossSize.x*1.1;
-    float crossSizeY = crossSize.y*1.1;
     
     float crossDims = std::max(crossSizeX, crossSizeY);
     float angle = currentRotationAngle;
@@ -414,13 +375,21 @@ void svgSkeleton::drawDottedCircle(const ofPoint& center, float radius, float do
     }
 }
 
-ofVec2f svgSkeleton::calculateAdjustedCrossSize() const {
-    float crossSizeX, crossSizeY;
-    calculateMaxDistances(crossSizeX, crossSizeY);
+void svgSkeleton::calculateAdjustedCrossSize() {
 
-    // Adjust the cross size by the scale factor
-    crossSizeX *= crossSize;
-    crossSizeY *= crossSize;
-
-    return ofVec2f(crossSizeX, crossSizeY);
+    if (equidistantPoints.empty()) return;
+    
+    float maxDistance = 0.0f;
+    const auto& centroid = getSvgCentroid();
+    
+    for (const auto& point : equidistantPoints) {
+        float distance = centroid.distance(point);
+        if (distance > maxDistance) {
+            maxDistance = distance;
+        }
+    }
+    
+    crossSizeX = maxDistance * crossSizeScaleFactor;
+    crossSizeY = maxDistance * crossSizeScaleFactor;
+    
 }

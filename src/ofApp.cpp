@@ -1018,29 +1018,27 @@ void ofApp::onTimeReversalTimestepInputUpdated(int & value){
 }
 
 void ofApp::saveSettings() {
-    /*
-    // Determine the filename to save to
-    std::string filename = "settings.xml";
-    int fileIndex = 0;
-
-    // Check if the file already exists and increment the index until we find a free name
-    while (std::filesystem::exists(ofToDataPath(filename))) {
-        fileIndex++;
-        filename = "settings_" + ofToString(fileIndex) + ".xml";
-    }
-    */
     
     std::string baseFilename = saveFileNameInput;
     if (baseFilename.empty()) {
         baseFilename = "settings.xml";
     }
 
-    std::string filename = baseFilename;
+    // Separate the base filename and the extension
+    std::string extension = ".xml";
+    std::string filenameWithoutExtension = baseFilename;
+
+    // If the base filename already ends with ".xml", remove the extension part
+    if (baseFilename.size() >= extension.size() && baseFilename.compare(baseFilename.size() - extension.size(), extension.size(), extension) == 0) {
+        filenameWithoutExtension = baseFilename.substr(0, baseFilename.size() - extension.size());
+    }
+
+    std::string filename = filenameWithoutExtension + extension;
     int counter = 1;
 
     // Check if the file already exists and append _1, _2, etc., if necessary
     while (ofFile::doesFileExist(filename)) {
-        filename = baseFilename + "_" + ofToString(counter++) + ".xml";
+        filename = filenameWithoutExtension + "_" + ofToString(counter++) + extension;
     }
     
     // Create an XML object to store the settings
@@ -1122,7 +1120,7 @@ void ofApp::loadSettings(const std::string& filename) {
                 svgFileName = svgFile;
                 svgSkeleton.loadSvg(svgFile);  // Load the SVG file
                 svgSkeleton.generateEquidistantPoints(numPoints); // Call with the data member
-                svgSkeleton.autoFitToWindow(ofGetWidth(), ofGetHeight());
+//                svgSkeleton.autoFitToWindow(ofGetWidth(), ofGetHeight());
                 particleEnsemble.initialize(svgSkeleton.getEquidistantPoints()); // initialize the particleEnsemble
             }
             

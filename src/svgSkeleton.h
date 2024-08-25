@@ -49,6 +49,8 @@ public:
     ofPoint getRotationalHandlePosition() const; // Get the position of the rotational handle
     bool isNearRotationalHandle(const ofPoint& mousePos) const; // Check if near the rotational handle
     
+    void drawDottedCircle(const ofPoint& center, float radius, float dotLength, float gapLength) const;
+    
 private:
     ofxSVG svg;
     std::vector<glm::vec3> equidistantPoints;

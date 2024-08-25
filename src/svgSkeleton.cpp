@@ -18,7 +18,8 @@ void svgSkeleton::loadSvg(const std::string& filename) {
     cumulativeScale = 1.0f;
     initialCentroid = svgCentroid;
     crossSize = 1.05f;
-    currentRotationAngle = PI / 4.0f; // 45 degrees counterclockwise from vertical
+//    currentRotationAngle = PI / 4.0f; // 45 degrees counterclockwise from vertical
+    currentRotationAngle = 0.0f; // 45 degrees counterclockwise from vertical
 }
 
 void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
@@ -233,8 +234,11 @@ void svgSkeleton::draw() const {
             ofDrawLine(start, end);
         }
         
-        // Draw the rotational handle circle
-        ofDrawCircle(rotationHandle, 10); // Draw the rotational handle as a circle
+        // Draw the rotational handle circles
+//        ofDrawCircle(rotationHandle, 10); // Draw the rotational handle as a circle
+        drawDottedCircle(rotationHandle, 12, 5, 3); // Adjust dotLength and gapLength as needed
+        drawDottedCircle(rotationHandle, 5, 3, 2);
+//        ofDrawCircle(rotationHandle, 5); // Draw the rotational handle as a circle
     }
     /*
     if (!equidistantPoints.empty()) {
@@ -413,4 +417,23 @@ ofPoint svgSkeleton::getRotationalHandlePosition() const {
 bool svgSkeleton::isNearRotationalHandle(const ofPoint& mousePos) const {
     ofPoint rotationHandle = getRotationalHandlePosition();
     return mousePos.distance(rotationHandle) <= 10.0f; // Adjust the threshold as needed
+}
+
+void svgSkeleton::drawDottedCircle(const ofPoint& center, float radius, float dotLength, float gapLength) const {
+    int numSegments = 36; // Number of segments to approximate the circle
+    float angleStep = TWO_PI / numSegments; // Step size for each segment
+
+    for (int i = 0; i < numSegments; i++) {
+        float angle1 = i * angleStep;
+        float angle2 = angle1 + angleStep;
+
+        // Calculate the start and end points of each segment
+        ofPoint p1(center.x + radius * cos(angle1), center.y + radius * sin(angle1));
+        ofPoint p2(center.x + radius * cos(angle2), center.y + radius * sin(angle2));
+
+        // Draw a short line segment and then a gap to create a dotted effect
+        if (i % 2 == 0) {
+            ofDrawLine(p1, p2);
+        }
+    }
 }

@@ -314,24 +314,21 @@ void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
 }
 
 void svgSkeleton::calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const {
-    maxDistanceX = 0.0f;
-    maxDistanceY = 0.0f;
 
     if (equidistantPoints.empty()) return;
-
-    const auto& centroid = equidistantPoints[0];
-
-    for (size_t i = 1; i < equidistantPoints.size(); ++i) {
-        float distanceX = std::abs(equidistantPoints[i].x - centroid.x);
-        float distanceY = std::abs(equidistantPoints[i].y - centroid.y);
-
-        if (distanceX > maxDistanceX) {
-            maxDistanceX = distanceX;
-        }
-        if (distanceY > maxDistanceY) {
-            maxDistanceY = distanceY;
+    
+    float maxDistance = 0.0f;
+    const auto& centroid = getSvgCentroid();
+    
+    for (const auto& point : equidistantPoints) {
+        float distance = centroid.distance(point);
+        if (distance > maxDistance) {
+            maxDistance = distance;
         }
     }
+    
+    maxDistanceX = maxDistance;
+    maxDistanceY = maxDistance;
 }
 
 bool svgSkeleton::isNearCentroid(const ofPoint& point, float threshold) const {

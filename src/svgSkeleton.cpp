@@ -150,7 +150,7 @@ void svgSkeleton::resizeSvg(float scaleFactor, bool loadingSvg) {
     // After resizing, recalculate the centroid
     calculateSvgCentroid();
     // Adjust the cross size dynamically after resizing
-    calculateCrossSize();
+    calculateAdjustedCrossSize();
 }
 
 void svgSkeleton::rotateSvg(float angleDelta, bool loadingSvg) {
@@ -192,13 +192,9 @@ void svgSkeleton::draw() const {
         }
         
         // Calculate cross size based on the farthest points in x and y directions
-        float crossSizeX, crossSizeY;
-        calculateMaxDistances(crossSizeX, crossSizeY);
-
-        // Increase the cross size by 10%
-        crossSizeX *= crossSize;
-        crossSizeY *= crossSize;
-
+        ofVec2f crossSize = calculateAdjustedCrossSize();
+        float crossSizeX = crossSize.x;
+        float crossSizeY = crossSize.y;
 
         // Draw the cross as dashed lines
         float dashLength = 5.0f; // Length of each dash
@@ -236,9 +232,9 @@ void svgSkeleton::draw() const {
         
         // Draw the rotational handle circles
 //        ofDrawCircle(rotationHandle, 10); // Draw the rotational handle as a circle
+//        ofDrawCircle(rotationHandle, 5); // Draw the rotational handle as a circle
         drawDottedCircle(rotationHandle, 12, 5, 3); // Adjust dotLength and gapLength as needed
         drawDottedCircle(rotationHandle, 5, 3, 2);
-//        ofDrawCircle(rotationHandle, 5); // Draw the rotational handle as a circle
     }
     /*
     if (!equidistantPoints.empty()) {
@@ -338,26 +334,15 @@ void svgSkeleton::calculateMaxDistances(float& maxDistanceX, float& maxDistanceY
     }
 }
 
-void svgSkeleton::calculateCrossSize() {
-    float crossSizeX, crossSizeY;
-    calculateMaxDistances(crossSizeX, crossSizeY);
-
-    // Increase the cross size by 10%
-    crossSizeX *= crossSize;
-    crossSizeY *= crossSize;
-}
-
 bool svgSkeleton::isNearCentroid(const ofPoint& point, float threshold) const {
     return point.distance(svgCentroid) <= threshold;
 }
 
 bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
-    float crossSizeX, crossSizeY;
-    calculateMaxDistances(crossSizeX, crossSizeY);
-
-    // Increase the cross size
-    crossSizeX *= crossSize;
-    crossSizeY *= crossSize;
+    // Calculate cross size based on the farthest points in x and y directions
+    ofVec2f crossSize = calculateAdjustedCrossSize();
+    float crossSizeX = crossSize.x;
+    float crossSizeY = crossSize.y;
 
     // Define the four endpoints of the cross
     ofPoint endPoint1(svgCentroid.x - crossSizeX, svgCentroid.y);
@@ -376,12 +361,9 @@ bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
 
 std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {
     // Calculate cross size based on the farthest points in x and y directions
-    float crossSizeX, crossSizeY;
-    calculateMaxDistances(crossSizeX, crossSizeY);
-
-    // Increase the cross size by 10%
-    crossSizeX *= crossSize;
-    crossSizeY *= crossSize;
+    ofVec2f crossSize = calculateAdjustedCrossSize();
+    float crossSizeX = crossSize.x;
+    float crossSizeY = crossSize.y;
 
     std::vector<ofPoint> handles = {
         ofPoint(svgCentroid.x + crossSizeX, svgCentroid.y),  // Right
@@ -396,12 +378,9 @@ std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {
 ofPoint svgSkeleton::getRotationalHandlePosition() const {
     
     // Calculate cross size based on the farthest points in x and y directions
-    float crossSizeX, crossSizeY;
-    calculateMaxDistances(crossSizeX, crossSizeY);
-
-    // Increase the cross size by 10%
-    crossSizeX *= crossSize*1.1;
-    crossSizeY *= crossSize*1.1;
+    ofVec2f crossSize = calculateAdjustedCrossSize();
+    float crossSizeX = crossSize.x*1.1;
+    float crossSizeY = crossSize.y*1.1;
     
     float crossDims = std::max(crossSizeX, crossSizeY);
     float angle = currentRotationAngle;
@@ -436,4 +415,15 @@ void svgSkeleton::drawDottedCircle(const ofPoint& center, float radius, float do
             ofDrawLine(p1, p2);
         }
     }
+}
+
+ofVec2f svgSkeleton::calculateAdjustedCrossSize() const {
+    float crossSizeX, crossSizeY;
+    calculateMaxDistances(crossSizeX, crossSizeY);
+
+    // Adjust the cross size by the scale factor
+    crossSizeX *= crossSize;
+    crossSizeY *= crossSize;
+
+    return ofVec2f(crossSizeX, crossSizeY);
 }

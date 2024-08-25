@@ -64,5 +64,6 @@ private:
     float currentRotationAngle;
     
     void calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const;
-    void calculateCrossSize();
+    
+    ofVec2f calculateAdjustedCrossSize() const;
 };

@@ -30,7 +30,7 @@ void ofApp::setup() {
     
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
-//    string svgFile = "tara-crown-heart-lotus.svg";
+    string svgFile = "tara-crown-heart-lotus.svg";
 //    string svgFile = "tara-crown-Chakra.svg";
 //    string svgFile = "tara-CHL-head.svg";
 //    string svgFile = "tara-CHL-heart.svg";
@@ -41,7 +41,7 @@ void ofApp::setup() {
 //    string svgFile = "circle.svg";
 //    string svgFile = "line.svg";
 //    string svgFile = "2lines.svg";
-    string svgFile = "triangle.svg";
+//    string svgFile = "triangle.svg";
 
     numPoints = 2000; // Set the desired number of points
     timestep = 0.003;
@@ -189,8 +189,6 @@ void ofApp::update() {
         svgSkeleton.generateEquidistantPoints(numPoints);
         svgSkeleton.calculateSvgCentroid();
         particleEnsemble.initialize(svgSkeleton.getEquidistantPoints());
-//        potentialFieldUpdated = true;
-//        contourLinesUpdated = true;
     }
     
     if (potentialFieldUpdated) {

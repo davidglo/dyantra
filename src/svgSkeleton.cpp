@@ -140,19 +140,36 @@ void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
 }
 
 void svgSkeleton::calculateSvgCentroid() {
+    /*
     if (equidistantPoints.empty()) return;
     ofPoint sum(0, 0);
     for (const auto& point : equidistantPoints) {
         sum += point;
     }
     svgCentroid = sum / equidistantPoints.size();
+     */
+    
+    if (equidistantPoints.empty()) return;
+
+    float minX = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::lowest();
+    float minY = std::numeric_limits<float>::max();
+    float maxY = std::numeric_limits<float>::lowest();
+
+    for (const auto& point : equidistantPoints) {
+        if (point.x < minX) minX = point.x;
+        if (point.x > maxX) maxX = point.x;
+        if (point.y < minY) minY = point.y;
+        if (point.y > maxY) maxY = point.y;
+    }
+
+    // Calculate the midpoint
+//    svgMidpoint.x = (minX + maxX) / 2.0f;
+//    svgMidpoint.y = (minY + maxY) / 2.0f;
+    svgCentroid.x = (minX + maxX) / 2.0f;
+    svgCentroid.y = (minY + maxY) / 2.0f;
 }
-/*
-void svgSkeleton::updateSvgCentroid() {
-    calculateSvgCentroid();
-    referenceOrigin = svgCentroid; // Ensure the referenceOrigin is also updated
-}
-*/
+
 void svgSkeleton::translateSvg(const ofPoint& offset) {
     translation += offset;
     for (auto& point : equidistantPoints) {
@@ -354,7 +371,7 @@ void svgSkeleton::calculateAdjustedCrossSize() {
     crossSizeY = maxDistance * crossSizeScaleFactor;
     
 }
-
+/* This code is currently in the calcuateSvgCentroid routine, pending some reorganization
 void svgSkeleton::calculateSvgMidpoint() {
     if (equidistantPoints.empty()) return;
 
@@ -374,3 +391,4 @@ void svgSkeleton::calculateSvgMidpoint() {
     svgMidpoint.x = (minX + maxX) / 2.0f;
     svgMidpoint.y = (minY + maxY) / 2.0f;
 }
+*/

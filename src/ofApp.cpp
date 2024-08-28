@@ -28,16 +28,20 @@ void ofApp::setup() {
     ofSetVerticalSync(true);
     ofSetFrameRate(60);
     
-    string svgFile = "taraYantra.svg";
+//    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-crown-heart-lotus.svg";
 //    string svgFile = "tara-crown-Chakra.svg";
+//    string svgFile = "tara-CHL-head.svg";
+//    string svgFile = "tara-CHL-heart.svg";
+    string svgFile = "tara-CHL-lotus.svg";
 //    string svgFile = "cir_seasonal-US.svg";
 //    string svgFile = "tara-face.svg";
+//    string svgFile = "tara-face-ii.svg";
 //    string svgFile = "circle.svg";
-    //string svgFile = "line.svg";
-    //string svgFile = "2lines.svg";
-    //string svgFile = "triangle.svg";
+//    string svgFile = "line.svg";
+//    string svgFile = "2lines.svg";
+//    string svgFile = "triangle.svg";
 
     numPoints = 2000; // Set the desired number of points
     timestep = 0.003;
@@ -147,17 +151,23 @@ void ofApp::setup() {
     
     // file handling GUI
     fileGui.setup();
-    fileGui.setPosition(gui.getPosition().x, gui.getPosition().y + 600);
+    fileGui.setPosition(gui.getPosition().x, ofGetHeight() - 140);
     
     // Add save and load buttons to the main GUI
     fileGui.add(saveButton.setup("Click to Save Filename"));
+    fileGui.add(buttonToPasteSaveFilenameFromClipboard.setup("  Paste from Clipboard"));
     fileGui.add(saveFileNameInput.setup("", "settings.xml"));
     saveButton.addListener(this, &ofApp::saveSettings);
     
     fileGui.add(loadButton.setup("Click to Load Filename"));
+    fileGui.add(buttonToPasteLoadFilenameFromClipboard.setup("  Paste from Clipboard"));
     fileGui.add(loadFileNameInput.setup("", "settings.xml")); // Default to "settings.xml"
     loadButton.addListener(this, &ofApp::onLoadSettingsButtonPressed); // Attach the load listener
 
+    // Add listeners for the buttons
+    buttonToPasteLoadFilenameFromClipboard.addListener(this, &ofApp::onPasteLoadFilenameButtonPressed);
+    buttonToPasteSaveFilenameFromClipboard.addListener(this, &ofApp::onPasteSaveFilenameButtonPressed);
+    
 }
 
 void ofApp::update() {
@@ -311,8 +321,9 @@ void ofApp::draw() {
 
 void ofApp::mousePressed(int x, int y, int button) {
     ofPoint mousePos(x, y);
-
+    
     if (button == OF_MOUSE_BUTTON_LEFT) {
+                
         // Check if we are clicking near an attractor's center
         for (size_t i = 0; i < attractorField.getAttractors().size(); ++i) {
             if (attractorField.getAttractors()[i].isPointNear(mousePos, 10)) {
@@ -578,6 +589,8 @@ void ofApp::windowResized(int w, int h) {
     potentialField.allocate(width, height, OF_IMAGE_GRAYSCALE); // Reallocate the potential field image
     potentialFieldUpdated = true; // Mark the potential field as needing an update
     contourLinesUpdated = true; // Mark contour lines for update
+    attractorGui.setPosition(ofGetWidth() - 210, gui.getPosition().y); // Position to the right of the main panel
+    fileGui.setPosition(gui.getPosition().x, ofGetHeight() - 140);
 }
 
 void ofApp::keyPressed(int key) {
@@ -1250,3 +1263,18 @@ void ofApp::onLoadSettingsButtonPressed() {
     loadSettings(filename); // Load settings from the specified file
 }
 
+void ofApp::onPasteLoadFilenameButtonPressed() {
+    // Get the text from the clipboard
+    std::string clipboardText = ofGetClipboardString();
+
+    // Set the clipboard text to the loadFileNameInput field
+    loadFileNameInput = clipboardText;
+}
+
+void ofApp::onPasteSaveFilenameButtonPressed() {
+    // Get the text from the clipboard
+    std::string clipboardText = ofGetClipboardString();
+
+    // Set the clipboard text to the saveFileNameInput field
+    saveFileNameInput = clipboardText;
+}

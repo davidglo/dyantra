@@ -186,4 +186,11 @@ private:
 
     void onLoadSettingsButtonPressed();
     
+    ofxButton buttonToPasteLoadFilenameFromClipboard;
+    ofxButton buttonToPasteSaveFilenameFromClipboard;
+
+    // Listener functions
+    void onPasteLoadFilenameButtonPressed();
+    void onPasteSaveFilenameButtonPressed();
+    
 };

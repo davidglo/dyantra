@@ -13,10 +13,10 @@ void svgSkeleton::loadSvg(const std::string& filename) {
     
     fileName = filename; // Store the file name
     svg.load(filename);
-    calculateSvgCentroid();
     translation.set(0, 0);
     cumulativeScale = 1.0f;
-    initialCentroid = svgCentroid;
+    referenceOrigin.set(0, 0);
+    svgCentroid.set(0, 0);
     crossSizeScaleFactor = 1.05f;
     currentRotationAngle = 0.0f; // 45 degrees counterclockwise from vertical
 }
@@ -81,6 +81,7 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
         
         // Step 5: Add the centroid to equidistantPoints
         equidistantPoints.insert(equidistantPoints.begin(), centroid); // Ensure centroid is the first point
+        
         return;
     }
     
@@ -114,10 +115,28 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     // Step 5: Add the centroid to equidistantPoints
     equidistantPoints.insert(equidistantPoints.begin(), centroid); // Ensure centroid is the first point
     
+
     // Apply the stored translation and scale to the newly generated points
     for (auto& point : equidistantPoints) {
         point = svgCentroid + (point - svgCentroid) * cumulativeScale + translation;
     }
+}
+
+void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
+    float svgWidth = svg.getWidth();
+    float svgHeight = svg.getHeight();
+    referenceOrigin = ofPoint(svg.getWidth()/2, svg.getHeight()/2);
+    float scaleX = static_cast<float>(windowWidth) / svgWidth;
+    float scaleY = static_cast<float>(windowHeight) / svgHeight;
+    float scale = std::min(scaleX, scaleY) * 0.9f; // Scale down slightly to fit within window
+
+    // Center the SVG
+    ofPoint newCentroid = ofPoint(windowWidth / 2, windowHeight / 2);
+    ofPoint offset = newCentroid - svgCentroid;
+    translateSvg(offset);
+    resizeSvg(scale,false);
+
+    calculateSvgCentroid();
 }
 
 void svgSkeleton::calculateSvgCentroid() {
@@ -128,14 +147,19 @@ void svgSkeleton::calculateSvgCentroid() {
     }
     svgCentroid = sum / equidistantPoints.size();
 }
-
+/*
+void svgSkeleton::updateSvgCentroid() {
+    calculateSvgCentroid();
+    referenceOrigin = svgCentroid; // Ensure the referenceOrigin is also updated
+}
+*/
 void svgSkeleton::translateSvg(const ofPoint& offset) {
     translation += offset;
     for (auto& point : equidistantPoints) {
         point += offset;
     }
     svgCentroid += offset;
-    initialCentroid += offset; // Ensure the initialCentroid is also updated
+//    referenceOrigin += offset; // Ensure the referenceOrigin is also updated
 }
 
 void svgSkeleton::resizeSvg(float scaleFactor, bool loadingSvg) {
@@ -239,28 +263,8 @@ const ofPoint& svgSkeleton::getSvgCentroid() const {
     return svgCentroid;
 }
 
-void svgSkeleton::updateSvgCentroid() {
-    calculateSvgCentroid();
-    initialCentroid = svgCentroid; // Ensure the initialCentroid is also updated
-}
-
 const ofPoint& svgSkeleton::getInitialCentroid() const {
-    return initialCentroid;
-}
-
-void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
-    float svgWidth = svg.getWidth();
-    float svgHeight = svg.getHeight();
-    float scaleX = static_cast<float>(windowWidth) / svgWidth;
-    float scaleY = static_cast<float>(windowHeight) / svgHeight;
-    float scale = std::min(scaleX, scaleY) * 0.9f; // Scale down slightly to fit within window
-
-    // Center the SVG
-    ofPoint newCentroid = ofPoint(windowWidth / 2, windowHeight / 2);
-    ofPoint offset = newCentroid - svgCentroid;
-    translateSvg(offset);
-    resizeSvg(scale,false);
-    updateSvgCentroid();
+    return referenceOrigin;
 }
 
 bool svgSkeleton::isNearCentroid(const ofPoint& point, float threshold) const {
@@ -349,4 +353,24 @@ void svgSkeleton::calculateAdjustedCrossSize() {
     crossSizeX = maxDistance * crossSizeScaleFactor;
     crossSizeY = maxDistance * crossSizeScaleFactor;
     
+}
+
+void svgSkeleton::calculateSvgMidpoint() {
+    if (equidistantPoints.empty()) return;
+
+    float minX = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::lowest();
+    float minY = std::numeric_limits<float>::max();
+    float maxY = std::numeric_limits<float>::lowest();
+
+    for (const auto& point : equidistantPoints) {
+        if (point.x < minX) minX = point.x;
+        if (point.x > maxX) maxX = point.x;
+        if (point.y < minY) minY = point.y;
+        if (point.y > maxY) maxY = point.y;
+    }
+
+    // Calculate the midpoint
+    svgMidpoint.x = (minX + maxX) / 2.0f;
+    svgMidpoint.y = (minY + maxY) / 2.0f;
 }

@@ -13,7 +13,7 @@ public:
     void rotateSvg(float angleDelta, bool loadingSvg); // Declaration
     void draw() const;
     
-    void updateSvgCentroid();
+//    void updateSvgCentroid();
     const ofPoint& getInitialCentroid() const;
     
     void autoFitToWindow(int windowWidth, int windowHeight);
@@ -49,14 +49,22 @@ public:
     
     void calculateAdjustedCrossSize();
     
+
+    // Function to calculate the midpoint of the SVG
+    void calculateSvgMidpoint();
+
+    ofPoint getSvgMidpoint() const { return svgMidpoint; }
+    
 private:
     ofxSVG svg;
     std::vector<glm::vec3> equidistantPoints;
     ofPoint svgCentroid;
+    ofPoint svgMidpoint; // To store the calculated midpoint
     std::string fileName; // Add this member to store the file name
     ofPoint translation;
+    ofPoint lastTranslation;
     float cumulativeScale;
-    ofPoint initialCentroid;
+    ofPoint referenceOrigin;
     float crossSizeScaleFactor;
     float maxDistanceX, maxDistanceY;
     float currentRotationAngle;

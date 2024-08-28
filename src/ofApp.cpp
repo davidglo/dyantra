@@ -34,14 +34,14 @@ void ofApp::setup() {
 //    string svgFile = "tara-crown-Chakra.svg";
 //    string svgFile = "tara-CHL-head.svg";
 //    string svgFile = "tara-CHL-heart.svg";
-    string svgFile = "tara-CHL-lotus.svg";
+//    string svgFile = "tara-CHL-lotus.svg";
 //    string svgFile = "cir_seasonal-US.svg";
 //    string svgFile = "tara-face.svg";
 //    string svgFile = "tara-face-ii.svg";
 //    string svgFile = "circle.svg";
 //    string svgFile = "line.svg";
 //    string svgFile = "2lines.svg";
-//    string svgFile = "triangle.svg";
+    string svgFile = "triangle.svg";
 
     numPoints = 2000; // Set the desired number of points
     timestep = 0.003;
@@ -187,10 +187,10 @@ void ofApp::update() {
     if (!isPlaying && numPoints != numPointsInput) {
         numPoints = numPointsInput;
         svgSkeleton.generateEquidistantPoints(numPoints);
-        svgSkeleton.updateSvgCentroid();
+        svgSkeleton.calculateSvgCentroid();
         particleEnsemble.initialize(svgSkeleton.getEquidistantPoints());
-        potentialFieldUpdated = true;
-        contourLinesUpdated = true;
+//        potentialFieldUpdated = true;
+//        contourLinesUpdated = true;
     }
     
     if (potentialFieldUpdated) {
@@ -503,7 +503,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
                  particleEnsemble.update(svgSkeleton.getEquidistantPoints());
              }
 
-             svgSkeleton.updateSvgCentroid();
+             svgSkeleton.calculateSvgCentroid();
              initialMousePos = mousePos; // Update initialMousePos with the current mouse position
          }
     }
@@ -1161,7 +1161,7 @@ void ofApp::loadSettings(const std::string& filename) {
                     
                     // Apply the translation
                     svgSkeleton.translateSvg(translation);
-                    svgSkeleton.updateSvgCentroid();
+                    svgSkeleton.calculateSvgCentroid();
                     particleEnsemble.update(svgSkeleton.getEquidistantPoints());
                 }
             }
@@ -1266,7 +1266,6 @@ void ofApp::onLoadSettingsButtonPressed() {
 void ofApp::onPasteLoadFilenameButtonPressed() {
     // Get the text from the clipboard
     std::string clipboardText = ofGetClipboardString();
-
     // Set the clipboard text to the loadFileNameInput field
     loadFileNameInput = clipboardText;
 }
@@ -1274,7 +1273,6 @@ void ofApp::onPasteLoadFilenameButtonPressed() {
 void ofApp::onPasteSaveFilenameButtonPressed() {
     // Get the text from the clipboard
     std::string clipboardText = ofGetClipboardString();
-
     // Set the clipboard text to the saveFileNameInput field
     saveFileNameInput = clipboardText;
 }

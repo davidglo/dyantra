@@ -1,27 +1,46 @@
 <?xml version="1.0"?>
-<group>
-	<Window_Size>1470x920</Window_Size>
-	<FPS>60.00</FPS>
-	<Play_Pause>Play</Play_Pause>
-	<Number_of_Points>19961</Number_of_Points>
-	<Time_Direction>FORWARD</Time_Direction>
-	<Elapsed_Steps>1543</Elapsed_Steps>
-	<Show_Potential_Field>1</Show_Potential_Field>
-	<Show_Attractor_Circles>0</Show_Attractor_Circles>
-	<Show_Contour_Lines>0</Show_Contour_Lines>
-	<Contour_Threshold>10000</Contour_Threshold>
-	<Downscale_Factor>3</Downscale_Factor>
-	<svgFile_>taraYantra2.svg</svgFile_>
-	<Show_SVG_Points>0</Show_SVG_Points>
-	<svgCentroid>733.665, 459.206</svgCentroid>
-	<svgScale>0.726634</svgScale>
-	<Potential_Field_Color>128, 128, 128, 255</Potential_Field_Color>
-	<svg_Points_Color>64, 89, 104, 255</svg_Points_Color>
+<Settings />
+<gui>
+	<group>
+		<Window_Size>1634x1143</Window_Size>
+		<FPS>60.00</FPS>
+		<Play_Pause>Play</Play_Pause>
+		<Number_of_Points>3959</Number_of_Points>
+		<Time_Direction>FORWARD</Time_Direction>
+		<timestep__0_0002-0_01_></timestep__0_0002-0_01_>
+		<Edit_timestep>0.003</Edit_timestep>
+		<Elapsed_Steps>2592</Elapsed_Steps>
+		<Time_Reversal_Active>0</Time_Reversal_Active>
+		<Time_Reversal_Step>2000</Time_Reversal_Step>
+		<Show_Potential_Field>1</Show_Potential_Field>
+		<Flip_Potential_Field>0</Flip_Potential_Field>
+		<Show_Attractor_Circles>0</Show_Attractor_Circles>
+		<Show_Contour_Lines>0</Show_Contour_Lines>
+		<Contour_Threshold>10000</Contour_Threshold>
+		<Downscale_Factor>3</Downscale_Factor>
+		<Show_Grid>0</Show_Grid>
+		<Enable_Snapping>0</Enable_Snapping>
+		<Potential_Field_Color>80, 80, 80, 255</Potential_Field_Color>
+	</group>
+	<numPointsInput>4000</numPointsInput>
+</gui>
+<svgInfoGui>
+		<svgFile_>tara-crown-Chakra.svg</svgFile_>
+		<Show_SVG_Points>0</Show_SVG_Points>
+		<svgMidpoint>817.124, 571.079</svgMidpoint>
+		<svgScale>0.246769</svgScale>
+		<SVG_rot__deg_>0.0</SVG_rot__deg_>
+		<SVG_Points_Color>178, 178, 178, 255</SVG_Points_Color>
+</svgInfoGui>
+<attractorGui>
 	<Attractor_0>
-		<Center>734.197, 460.319</Center>
+		<Center>958.421, 429.579</Center>
+		<Radius>140.761</Radius>
+		<Amplitude>50000</Amplitude>
 	</Attractor_0>
-	<timestep__0_0002-0_01_ />
-	<Edit_timestep>0.001</Edit_timestep>
-	<Show_Grid>0</Show_Grid>
-	<SVG_Points_Color>120, 120, 120, 255</SVG_Points_Color>
-</group>
+	<Attractor_1>
+		<Center>675.579, 712.421</Center>
+		<Radius>141.061</Radius>
+		<Amplitude>50000</Amplitude>
+	</Attractor_1>
+</attractorGui>

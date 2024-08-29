@@ -10,12 +10,10 @@ void svgSkeleton::loadSvg(const std::string& filename) {
         ofSystemAlertDialog("Error: SVG file not found.\nPlease make sure the file exists and the path is correct.");
         return;
     }
-    
     fileName = filename; // Store the file name
     svg.load(filename);
     translation.set(0, 0);
     cumulativeScale = 1.0f;
-    referenceOrigin.set(0, 0);
     svgMidpoint.set(0, 0);
     crossSizeScaleFactor = 1.05f;
     currentRotationAngle = 0.0f; // 45 degrees counterclockwise from vertical
@@ -114,7 +112,6 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     
     // Step 5: Add the midpoint to equidistantPoints
     equidistantPoints.insert(equidistantPoints.begin(), midpoint); // Ensure midpoint is the first point
-    
 
     // Apply the stored translation and scale to the newly generated points
     for (auto& point : equidistantPoints) {
@@ -125,7 +122,6 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
 void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
     float svgWidth = svg.getWidth();
     float svgHeight = svg.getHeight();
-    referenceOrigin = ofPoint(svg.getWidth()/2, svg.getHeight()/2);
     float scaleX = static_cast<float>(windowWidth) / svgWidth;
     float scaleY = static_cast<float>(windowHeight) / svgHeight;
     float scale = std::min(scaleX, scaleY) * 0.9f; // Scale down slightly to fit within window
@@ -154,7 +150,6 @@ void svgSkeleton::calculateSvgMidpoint() {
         if (point.y < minY) minY = point.y;
         if (point.y > maxY) maxY = point.y;
     }
-
     // Calculate the midpoint
     svgMidpoint.x = (minX + maxX) / 2.0f;
     svgMidpoint.y = (minY + maxY) / 2.0f;
@@ -166,7 +161,6 @@ void svgSkeleton::translateSvg(const ofPoint& offset) {
         point += offset;
     }
     svgMidpoint += offset;
-//    referenceOrigin += offset; // Ensure the referenceOrigin is also updated
 }
 
 void svgSkeleton::resizeSvg(float scaleFactor, bool loadingSvg) {
@@ -270,10 +264,6 @@ const ofPoint& svgSkeleton::getSvgCentroid() const {
     return svgMidpoint;
 }
 
-const ofPoint& svgSkeleton::getInitialCentroid() const {
-    return referenceOrigin;
-}
-
 bool svgSkeleton::isNearCentroid(const ofPoint& point, float threshold) const {
     return point.distance(svgMidpoint) <= threshold;
 }
@@ -302,7 +292,6 @@ std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {
         ofPoint(svgMidpoint.x, svgMidpoint.y + crossSizeY),  // Bottom
         ofPoint(svgMidpoint.x, svgMidpoint.y - crossSizeY)   // Top
     };
-
     return handles;
 }
 
@@ -315,7 +304,6 @@ ofPoint svgSkeleton::getRotationalHandlePosition() const {
         svgMidpoint.x + crossDims * cos(angle),
         svgMidpoint.y + crossDims * sin(angle)
     );
-
     return rotationHandle;
 }
 
@@ -356,9 +344,7 @@ void svgSkeleton::calculateAdjustedCrossSize() {
             maxDistance = distance;
         }
     }
-    
     crossSizeX = maxDistance * crossSizeScaleFactor;
     crossSizeY = maxDistance * crossSizeScaleFactor;
-    
 }
 

@@ -7,18 +7,12 @@ class svgSkeleton {
 public:
     void loadSvg(const std::string& filename);
     void generateEquidistantPoints(int numDesiredPoints);
-    void calculateSvgMidpoint();        // Note that this function is currently the midpoint code... works better than midpoint
-    
-//    void calculateSvgMidpoint();      // Function to calculate the midpoint of the SVG
-    
+    void calculateSvgMidpoint();       
     void translateSvg(const ofPoint& offset);
     void resizeSvg(float scale, bool loadingSvg);
     void rotateSvg(float angleDelta, bool loadingSvg); // Declaration
     void draw() const;
-    
-//    void updateSvgCentroid();
-    const ofPoint& getInitialCentroid() const;
-    
+        
     void autoFitToWindow(int windowWidth, int windowHeight);
     
     const std::vector<glm::vec3>& getEquidistantPoints() const;
@@ -51,14 +45,11 @@ public:
     void drawDottedCircle(const ofPoint& center, float radius, float dotLength, float gapLength) const;
     
     void calculateAdjustedCrossSize();
-
-//    ofPoint getSvgMidpoint() const { return svgMidpoint; }
     
 private:
     ofxSVG svg;
     std::vector<glm::vec3> equidistantPoints;
     ofPoint svgMidpoint;   // currently holding svgMidpoint information
-//    ofPoint svgMidpoint; // To store the calculated midpoint
     std::string fileName; // Add this member to store the file name
     ofPoint translation;
     ofPoint lastTranslation;

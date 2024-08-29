@@ -6,7 +6,7 @@ particleEnsemble::particleEnsemble() {
 }
 
 void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions) {
-    // Exclude the first element (centroid) and copy the rest of the positions
+    // Exclude the first element (midpoint) and copy the rest of the positions
     positions.assign(initialPositions.begin() + 1, initialPositions.end());
     last_positions.assign(initialPositions.begin() + 1, initialPositions.end());
     
@@ -18,7 +18,7 @@ void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
 }
 
 void particleEnsemble::reinitialize(const std::vector<glm::vec3>& initialPositions) {
-    // Exclude the first element (centroid) and copy the rest of the positions
+    // Exclude the first element (midpoint) and copy the rest of the positions
     positions.assign(initialPositions.begin() + 1, initialPositions.end());
     last_positions.assign(initialPositions.begin() + 1, initialPositions.end());
 
@@ -28,7 +28,7 @@ void particleEnsemble::reinitialize(const std::vector<glm::vec3>& initialPositio
 }
 
 void particleEnsemble::update(const std::vector<glm::vec3>& initialPositions) {
-    // Exclude the first element (centroid) and copy the rest of the positions
+    // Exclude the first element (midpoint) and copy the rest of the positions
     positions.assign(initialPositions.begin() + 1, initialPositions.end());
     last_positions.assign(initialPositions.begin() + 1, initialPositions.end());
 }
@@ -40,11 +40,11 @@ void particleEnsemble::draw() const {
     }
 }
 
-void particleEnsemble::radial_update(float dt, float angularVelocity, const glm::vec3& centroid) {
+void particleEnsemble::radial_update(float dt, float angularVelocity, const glm::vec3& midpoint) {
     for (auto& pos : positions) {
         float angle = angularVelocity * dt;
-        float newX = cos(angle) * (pos.x - centroid.x) - sin(angle) * (pos.y - centroid.y) + centroid.x;
-        float newY = sin(angle) * (pos.x - centroid.x) + cos(angle) * (pos.y - centroid.y) + centroid.y;
+        float newX = cos(angle) * (pos.x - midpoint.x) - sin(angle) * (pos.y - midpoint.y) + midpoint.x;
+        float newY = sin(angle) * (pos.x - midpoint.x) + cos(angle) * (pos.y - midpoint.y) + midpoint.y;
         pos.x = newX;
         pos.y = newY;
     }

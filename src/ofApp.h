@@ -84,7 +84,7 @@ private:
     // New parameters for additional information
     ofParameter<string> windowSize;
     ofParameter<string> svgFileName;
-    ofParameter<ofVec2f> svgCentroid;
+    ofParameter<ofVec2f> svgMidpoint;
     ofParameter<float> svgScale;
     ofParameter<float> svgRotationAngle;
     

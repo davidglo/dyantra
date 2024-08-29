@@ -15,7 +15,7 @@ public:
         }
     };
 
-    void radial_update(float dt, float angularVelocity, const glm::vec3& centroid); // New update function
+    void radial_update(float dt, float angularVelocity, const glm::vec3& midpoint); // New update function
     void vv_propagatePositionsVelocities(const std::vector<attractor>& attractorVec, float dt); // Velocity Verlet update function
     
     void reinitialize(const std::vector<glm::vec3>& initialPositions);

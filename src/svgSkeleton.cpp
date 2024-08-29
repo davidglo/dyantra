@@ -16,7 +16,7 @@ void svgSkeleton::loadSvg(const std::string& filename) {
     translation.set(0, 0);
     cumulativeScale = 1.0f;
     referenceOrigin.set(0, 0);
-    svgCentroid.set(0, 0);
+    svgMidpoint.set(0, 0);
     crossSizeScaleFactor = 1.05f;
     currentRotationAngle = 0.0f; // 45 degrees counterclockwise from vertical
 }
@@ -66,21 +66,21 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     vertices.erase(std::unique(vertices.begin(), vertices.end()), vertices.end());
     
     size_t numVertices = vertices.size(); // Use size_t for numVertices
-    int remainingPoints = numDesiredPoints - static_cast<int>(numVertices) + 1;  // add 1 for the centroid
+    int remainingPoints = numDesiredPoints - static_cast<int>(numVertices) + 1;  // add 1 for the midpoint
     
     equidistantPoints.clear();  // Clear points vector before generating
-    equidistantPoints.reserve(numDesiredPoints + 1); // Reserve space for the total number of points + centroid
+    equidistantPoints.reserve(numDesiredPoints + 1); // Reserve space for the total number of points + midpoint
     
     // Step 2: Add vertices to equidistantPoints
     equidistantPoints.insert(equidistantPoints.end(), vertices.begin(), vertices.end());
     
     if (remainingPoints <= 0) {
-        // Step 4: Calculate the centroid
-        calculateSvgCentroid();
-        glm::vec3 centroid(svgCentroid.x, svgCentroid.y, svgCentroid.z);
+        // Step 4: Calculate the midpoint
+        calculateSvgMidpoint();
+        glm::vec3 midpoint(svgMidpoint.x, svgMidpoint.y, svgMidpoint.z);
         
-        // Step 5: Add the centroid to equidistantPoints
-        equidistantPoints.insert(equidistantPoints.begin(), centroid); // Ensure centroid is the first point
+        // Step 5: Add the midpoint to equidistantPoints
+        equidistantPoints.insert(equidistantPoints.begin(), midpoint); // Ensure midpoint is the first point
         
         return;
     }
@@ -108,17 +108,17 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
         }
     }
         
-    // Step 4: Calculate the centroid
-    calculateSvgCentroid();
-    glm::vec3 centroid(svgCentroid.x, svgCentroid.y, svgCentroid.z);
+    // Step 4: Calculate the midpoint
+    calculateSvgMidpoint();
+    glm::vec3 midpoint(svgMidpoint.x, svgMidpoint.y, svgMidpoint.z);
     
-    // Step 5: Add the centroid to equidistantPoints
-    equidistantPoints.insert(equidistantPoints.begin(), centroid); // Ensure centroid is the first point
+    // Step 5: Add the midpoint to equidistantPoints
+    equidistantPoints.insert(equidistantPoints.begin(), midpoint); // Ensure midpoint is the first point
     
 
     // Apply the stored translation and scale to the newly generated points
     for (auto& point : equidistantPoints) {
-        point = svgCentroid + (point - svgCentroid) * cumulativeScale + translation;
+        point = svgMidpoint + (point - svgMidpoint) * cumulativeScale + translation;
     }
 }
 
@@ -132,22 +132,14 @@ void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
 
     // Center the SVG
     ofPoint newCentroid = ofPoint(windowWidth / 2, windowHeight / 2);
-    ofPoint offset = newCentroid - svgCentroid;
+    ofPoint offset = newCentroid - svgMidpoint;
     translateSvg(offset);
     resizeSvg(scale,false);
 
-    calculateSvgCentroid();
+    calculateSvgMidpoint();
 }
 
-void svgSkeleton::calculateSvgCentroid() {
-    /*
-    if (equidistantPoints.empty()) return;
-    ofPoint sum(0, 0);
-    for (const auto& point : equidistantPoints) {
-        sum += point;
-    }
-    svgCentroid = sum / equidistantPoints.size();
-     */
+void svgSkeleton::calculateSvgMidpoint() {
     
     if (equidistantPoints.empty()) return;
 
@@ -164,10 +156,8 @@ void svgSkeleton::calculateSvgCentroid() {
     }
 
     // Calculate the midpoint
-//    svgMidpoint.x = (minX + maxX) / 2.0f;
-//    svgMidpoint.y = (minY + maxY) / 2.0f;
-    svgCentroid.x = (minX + maxX) / 2.0f;
-    svgCentroid.y = (minY + maxY) / 2.0f;
+    svgMidpoint.x = (minX + maxX) / 2.0f;
+    svgMidpoint.y = (minY + maxY) / 2.0f;
 }
 
 void svgSkeleton::translateSvg(const ofPoint& offset) {
@@ -175,7 +165,7 @@ void svgSkeleton::translateSvg(const ofPoint& offset) {
     for (auto& point : equidistantPoints) {
         point += offset;
     }
-    svgCentroid += offset;
+    svgMidpoint += offset;
 //    referenceOrigin += offset; // Ensure the referenceOrigin is also updated
 }
 
@@ -185,33 +175,33 @@ void svgSkeleton::resizeSvg(float scaleFactor, bool loadingSvg) {
     else{cumulativeScale *= scaleFactor;}
 
     for (auto& point : equidistantPoints) {
-        point = svgCentroid + (point - svgCentroid) * scaleFactor;
+        point = svgMidpoint + (point - svgMidpoint) * scaleFactor;
     }
-    // After resizing, recalculate the centroid
-    calculateSvgCentroid();
+    // After resizing, recalculate the midpoint
+    calculateSvgMidpoint();
     // Adjust the cross size dynamically after resizing
     calculateAdjustedCrossSize();
 }
 
 void svgSkeleton::rotateSvg(float angleDelta, bool loadingSvg) {
-    ofPoint centroid = getSvgCentroid();
+    ofPoint midpoint = getSvgCentroid();
 
-    // Rotate each point around the centroid by angleDelta
+    // Rotate each point around the midpoint by angleDelta
     for (auto& point : equidistantPoints) {
         float s = sin(angleDelta);
         float c = cos(angleDelta);
 
-        // Translate point to origin (centroid)
-        point.x -= centroid.x;
-        point.y -= centroid.y;
+        // Translate point to origin (midpoint)
+        point.x -= midpoint.x;
+        point.y -= midpoint.y;
 
         // Rotate point
         float newX = point.x * c - point.y * s;
         float newY = point.x * s + point.y * c;
 
         // Translate point back
-        point.x = newX + centroid.x;
-        point.y = newY + centroid.y;
+        point.x = newX + midpoint.x;
+        point.y = newY + midpoint.y;
     }
     
     if(loadingSvg){currentRotationAngle = angleDelta;}
@@ -234,16 +224,16 @@ void svgSkeleton::draw() const {
         float dashLength = 5.0f; // Length of each dash
         float gapLength = 3.0f;  // Length of the gap between dashes
         
-        const auto& centroid = equidistantPoints[0];
+        const auto& midpoint = equidistantPoints[0];
         
         // Draw horizontal dashed line
-        for (float x = centroid.x - crossSizeX; x < centroid.x + crossSizeX; x += dashLength + gapLength) {
-            ofDrawLine(x, centroid.y, std::min(x + dashLength, centroid.x + crossSizeX), centroid.y);
+        for (float x = midpoint.x - crossSizeX; x < midpoint.x + crossSizeX; x += dashLength + gapLength) {
+            ofDrawLine(x, midpoint.y, std::min(x + dashLength, midpoint.x + crossSizeX), midpoint.y);
         }
 
         // Draw vertical dashed line
-        for (float y = centroid.y - crossSizeY; y < centroid.y + crossSizeY; y += dashLength + gapLength) {
-            ofDrawLine(centroid.x, y, centroid.x, std::min(y + dashLength, centroid.y + crossSizeY));
+        for (float y = midpoint.y - crossSizeY; y < midpoint.y + crossSizeY; y += dashLength + gapLength) {
+            ofDrawLine(midpoint.x, y, midpoint.x, std::min(y + dashLength, midpoint.y + crossSizeY));
         }
         
         // Draw the scaling handles as circles
@@ -254,7 +244,7 @@ void svgSkeleton::draw() const {
 
         // Draw the rotational handle as a dashed line
         ofPoint rotationHandle = getRotationalHandlePosition();
-        ofPoint rotationLineStart = svgCentroid;
+        ofPoint rotationLineStart = svgMidpoint;
 
         float rotationLineLength = rotationHandle.distance(rotationLineStart);
 
@@ -277,7 +267,7 @@ const std::vector<glm::vec3>& svgSkeleton::getEquidistantPoints() const {
 }
 
 const ofPoint& svgSkeleton::getSvgCentroid() const {
-    return svgCentroid;
+    return svgMidpoint;
 }
 
 const ofPoint& svgSkeleton::getInitialCentroid() const {
@@ -285,15 +275,15 @@ const ofPoint& svgSkeleton::getInitialCentroid() const {
 }
 
 bool svgSkeleton::isNearCentroid(const ofPoint& point, float threshold) const {
-    return point.distance(svgCentroid) <= threshold;
+    return point.distance(svgMidpoint) <= threshold;
 }
 
 bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
 
-    ofPoint endPoint1(svgCentroid.x - crossSizeX, svgCentroid.y);
-    ofPoint endPoint2(svgCentroid.x + crossSizeX, svgCentroid.y);
-    ofPoint endPoint3(svgCentroid.x, svgCentroid.y - crossSizeY);
-    ofPoint endPoint4(svgCentroid.x, svgCentroid.y + crossSizeY);
+    ofPoint endPoint1(svgMidpoint.x - crossSizeX, svgMidpoint.y);
+    ofPoint endPoint2(svgMidpoint.x + crossSizeX, svgMidpoint.y);
+    ofPoint endPoint3(svgMidpoint.x, svgMidpoint.y - crossSizeY);
+    ofPoint endPoint4(svgMidpoint.x, svgMidpoint.y + crossSizeY);
 
     float threshold = 10.0f;  // Define the distance threshold for snapping
 
@@ -307,10 +297,10 @@ bool svgSkeleton::isNearCrossEndPoints(const ofPoint& point) const {
 std::vector<ofPoint> svgSkeleton::getScalingHandlePositions() const {
 
     std::vector<ofPoint> handles = {
-        ofPoint(svgCentroid.x + crossSizeX, svgCentroid.y),  // Right
-        ofPoint(svgCentroid.x - crossSizeX, svgCentroid.y),  // Left
-        ofPoint(svgCentroid.x, svgCentroid.y + crossSizeY),  // Bottom
-        ofPoint(svgCentroid.x, svgCentroid.y - crossSizeY)   // Top
+        ofPoint(svgMidpoint.x + crossSizeX, svgMidpoint.y),  // Right
+        ofPoint(svgMidpoint.x - crossSizeX, svgMidpoint.y),  // Left
+        ofPoint(svgMidpoint.x, svgMidpoint.y + crossSizeY),  // Bottom
+        ofPoint(svgMidpoint.x, svgMidpoint.y - crossSizeY)   // Top
     };
 
     return handles;
@@ -322,8 +312,8 @@ ofPoint svgSkeleton::getRotationalHandlePosition() const {
     float angle = currentRotationAngle;
 
     ofPoint rotationHandle(
-        svgCentroid.x + crossDims * cos(angle),
-        svgCentroid.y + crossDims * sin(angle)
+        svgMidpoint.x + crossDims * cos(angle),
+        svgMidpoint.y + crossDims * sin(angle)
     );
 
     return rotationHandle;
@@ -358,10 +348,10 @@ void svgSkeleton::calculateAdjustedCrossSize() {
     if (equidistantPoints.empty()) return;
     
     float maxDistance = 0.0f;
-    const auto& centroid = getSvgCentroid();
+    const auto& midpoint = getSvgCentroid();
     
     for (const auto& point : equidistantPoints) {
-        float distance = centroid.distance(point);
+        float distance = midpoint.distance(point);
         if (distance > maxDistance) {
             maxDistance = distance;
         }
@@ -371,24 +361,4 @@ void svgSkeleton::calculateAdjustedCrossSize() {
     crossSizeY = maxDistance * crossSizeScaleFactor;
     
 }
-/* This code is currently in the calcuateSvgCentroid routine, pending some reorganization
-void svgSkeleton::calculateSvgMidpoint() {
-    if (equidistantPoints.empty()) return;
 
-    float minX = std::numeric_limits<float>::max();
-    float maxX = std::numeric_limits<float>::lowest();
-    float minY = std::numeric_limits<float>::max();
-    float maxY = std::numeric_limits<float>::lowest();
-
-    for (const auto& point : equidistantPoints) {
-        if (point.x < minX) minX = point.x;
-        if (point.x > maxX) maxX = point.x;
-        if (point.y < minY) minY = point.y;
-        if (point.y > maxY) maxY = point.y;
-    }
-
-    // Calculate the midpoint
-    svgMidpoint.x = (minX + maxX) / 2.0f;
-    svgMidpoint.y = (minY + maxY) / 2.0f;
-}
-*/

@@ -30,8 +30,8 @@ void ofApp::setup() {
     
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
-    string svgFile = "tara-crown-heart-lotus.svg";
-//    string svgFile = "tara-crown-Chakra.svg";
+//    string svgFile = "tara-crown-heart-lotus.svg";
+    string svgFile = "tara-crown-Chakra.svg";
 //    string svgFile = "tara-CHL-head.svg";
 //    string svgFile = "tara-CHL-heart.svg";
 //    string svgFile = "tara-CHL-lotus.svg";
@@ -137,7 +137,7 @@ void ofApp::setup() {
     svgInfoGui.setPosition(gui.getPosition().x + gui.getWidth() + 10, gui.getPosition().y);
     svgInfoGui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
     svgInfoGui.add(showSvgPoints.setup("Show SVG Points", true));  // Initialize the new toggle
-    svgInfoGui.add(svgCentroid.set("svgCentroid", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
+    svgInfoGui.add(svgMidpoint.set("svgMidpoint", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
     svgInfoGui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
     svgInfoGui.add(svgRotationAngle.set("SVG rot (deg)", ofRadToDeg(svgSkeleton.getCurrentRotationAngle())));
     ofColor initialSvgPointsColor(178, 178, 178); // 70% intensity of white color
@@ -187,7 +187,7 @@ void ofApp::update() {
     if (!isPlaying && numPoints != numPointsInput) {
         numPoints = numPointsInput;
         svgSkeleton.generateEquidistantPoints(numPoints);
-        svgSkeleton.calculateSvgCentroid();
+        svgSkeleton.calculateSvgMidpoint();
         particleEnsemble.initialize(svgSkeleton.getEquidistantPoints());
     }
     
@@ -214,8 +214,8 @@ void ofApp::update() {
     // Update play/pause status
     playPauseStatus = isPlaying ? "Play" : "Pause";
     
-    // Update SVG centroid display
-    svgCentroid = ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y);
+    // Update SVG midpoint display
+    svgMidpoint = ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y);
     
     // Update SVG scale display
     svgScale = svgSkeleton.getCumulativeScale();
@@ -292,7 +292,7 @@ void ofApp::draw() {
 
     ofSetColor(svgPointsColor);  // Set color to white for drawing
 
-    // unlike the particleEnsemble, the svgSkeleton points include the centroid
+    // unlike the particleEnsemble, the svgSkeleton points include the midpoint
     // we only draw the svgSkeleton points if explicitly indicated
     particleEnsemble.draw();
     if (showSvgPoints) {svgSkeleton.draw();}
@@ -321,7 +321,30 @@ void ofApp::mousePressed(int x, int y, int button) {
     ofPoint mousePos(x, y);
     
     if (button == OF_MOUSE_BUTTON_LEFT) {
-                
+        
+        // Check if we are clicking near the midpoint to start translating
+        if (svgSkeleton.isNearCentroid(mousePos, 10)) {
+            initialMousePos = mousePos;
+            translatingSvg = true;
+            return;
+        }
+        
+        // Check if we are clicking on a handle to start rotating
+        if (svgSkeleton.isNearRotationalHandle(mousePos)) {
+            initialMousePos = mousePos;
+            rotatingSvg = true;
+            initialAngle = atan2(mousePos.y - svgSkeleton.getSvgCentroid().y, mousePos.x - svgSkeleton.getSvgCentroid().x);
+            return;
+        }
+        
+        // Check if we are clicking on an SVG handle to start resizing
+        if (svgSkeleton.isNearCrossEndPoints(mousePos)) {
+            initialMousePos = mousePos;
+            initialSvgScale = 1.0f;
+            resizingSvg = true;
+            return;
+        }
+        
         // Check if we are clicking near an attractor's center
         for (size_t i = 0; i < attractorField.getAttractors().size(); ++i) {
             if (attractorField.getAttractors()[i].isPointNear(mousePos, 10)) {
@@ -340,29 +363,6 @@ void ofApp::mousePressed(int x, int y, int button) {
             }
         }
         
-        // Check if we are clicking near the centroid to start translating
-        if (svgSkeleton.isNearCentroid(mousePos, 10)) {
-            initialMousePos = mousePos;
-            translatingSvg = true;
-            return;
-        }
-        
-        // Check if we are clicking on a handle to start rotating
-        if (svgSkeleton.isNearRotationalHandle(mousePos)) {
-            initialMousePos = mousePos;
-            rotatingSvg = true;
-            initialAngle = atan2(mousePos.y - svgSkeleton.getSvgCentroid().y, mousePos.x - svgSkeleton.getSvgCentroid().x);
-            return;
-        }
-        
-        // Check if we are clicking on an SVG point to start resizing
-        if (svgSkeleton.isNearCrossEndPoints(mousePos)) {
-            initialMousePos = mousePos;
-            initialSvgScale = 1.0f;
-            resizingSvg = true;
-            return;
-        }
-
         // Otherwise, we are drawing a new attractor
         tempAttractor = attractor(mousePos, 20);
         drawingAttractor = true;
@@ -384,7 +384,7 @@ void ofApp::mousePressed(int x, int y, int button) {
 void ofApp::mouseDragged(int x, int y, int button) {
     ofPoint mousePos(x, y);
     if(rotatingSvg){
-        // Calculate the angle between the initial mouse position and the current mouse position relative to the centroid
+        // Calculate the angle between the initial mouse position and the current mouse position relative to the midpoint
         float currentAngle = atan2(mousePos.y - svgSkeleton.getSvgCentroid().y, mousePos.x - svgSkeleton.getSvgCentroid().x);
         float angleDelta = currentAngle - initialAngle;
 
@@ -396,7 +396,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
             svgSkeleton.calculateAdjustedCrossSize();
             ofPoint rotationHandlePos = svgSkeleton.getRotationalHandlePosition();
 
-            // Calculate the angle of the rotational handle relative to the centroid
+            // Calculate the angle of the rotational handle relative to the midpoint
             float handleAngle = atan2(rotationHandlePos.y - svgSkeleton.getSvgCentroid().y, rotationHandlePos.x - svgSkeleton.getSvgCentroid().x);
 
             // Find the nearest grid intersection in terms of angle
@@ -480,10 +480,10 @@ void ofApp::mouseDragged(int x, int y, int button) {
     else if (translatingSvg) {
          ofPoint offset(mousePos.x - initialMousePos.x, mousePos.y - initialMousePos.y);
 
-         // Calculate the new potential centroid position
+         // Calculate the new potential midpoint position
          ofPoint newCenter = svgSkeleton.getSvgCentroid() + offset;
 
-         // Enforce boundaries to keep the centroid within the window
+         // Enforce boundaries to keep the midpoint within the window
          if (mousePos.x > 10 && mousePos.x < (ofGetWidth()-10) && mousePos.y > 10 && mousePos.y < (ofGetHeight()-10)){
              if (enableSnapping) {
                  float minDistance;
@@ -501,7 +501,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
                  particleEnsemble.update(svgSkeleton.getEquidistantPoints());
              }
 
-             svgSkeleton.calculateSvgCentroid();
+             svgSkeleton.calculateSvgMidpoint();
              initialMousePos = mousePos; // Update initialMousePos with the current mouse position
          }
     }
@@ -1071,7 +1071,7 @@ void ofApp::saveSettings() {
     ofXml svgInfoXml = settings.appendChild("svgInfoGui");
     svgInfoXml.appendChild("svgFile_").set(svgFileName.get());
     svgInfoXml.appendChild("Show_SVG_Points").set((bool)showSvgPoints);
-    svgInfoXml.appendChild("svgCentroid").set(svgCentroid.get());
+    svgInfoXml.appendChild("svgMidpoint").set(svgMidpoint.get());
     svgInfoXml.appendChild("svgScale").set(svgScale.get());
     svgInfoXml.appendChild("SVG_rot__deg_").set(svgRotationAngle.get());
     svgInfoXml.appendChild("SVG_Points_Color").set(svgPointsColor.get());
@@ -1137,11 +1137,11 @@ void ofApp::loadSettings(const std::string& filename) {
                 particleEnsemble.initialize(svgSkeleton.getEquidistantPoints()); // initialize the particleEnsemble
             }
             
-            // Update the SVG position to match the loaded centroid
-            ofXml centroidNode = svgInfoXml.findFirst("svgCentroid");
-            if (centroidNode) {
-                std::string centroidStr = centroidNode.getValue();
-                std::vector<std::string> tokens = ofSplitString(centroidStr, ",");
+            // Update the SVG position to match the loaded midpoint
+            ofXml midpointNode = svgInfoXml.findFirst("svgMidpoint");
+            if (midpointNode) {
+                std::string midpointStr = midpointNode.getValue();
+                std::vector<std::string> tokens = ofSplitString(midpointStr, ",");
                 if (tokens.size() == 2) {
 
                     ofPoint relativeCentroid;
@@ -1153,13 +1153,13 @@ void ofApp::loadSettings(const std::string& filename) {
                     newCentroid.x = relativeCentroid.x * ofGetWidth();
                     newCentroid.y = relativeCentroid.y * ofGetHeight();
 
-                    // Calculate the translation needed to move the SVG to the new centroid
+                    // Calculate the translation needed to move the SVG to the new midpoint
                     ofPoint currentCentroid = svgSkeleton.getSvgCentroid();
                     ofPoint translation = newCentroid - currentCentroid;
                     
                     // Apply the translation
                     svgSkeleton.translateSvg(translation);
-                    svgSkeleton.calculateSvgCentroid();
+                    svgSkeleton.calculateSvgMidpoint();
                     particleEnsemble.update(svgSkeleton.getEquidistantPoints());
                 }
             }

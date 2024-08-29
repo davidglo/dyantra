@@ -7,7 +7,7 @@ class svgSkeleton {
 public:
     void loadSvg(const std::string& filename);
     void generateEquidistantPoints(int numDesiredPoints);
-    void calculateSvgCentroid();        // Note that this function is currently the midpoint code... works better than centroid
+    void calculateSvgMidpoint();        // Note that this function is currently the midpoint code... works better than midpoint
     
 //    void calculateSvgMidpoint();      // Function to calculate the midpoint of the SVG
     
@@ -29,7 +29,7 @@ public:
     
     float getCurrentRotationAngle() const{return currentRotationAngle;}
     
-    // Check if a point is near the SVG centroid
+    // Check if a point is near the SVG midpoint
     bool isNearCentroid(const ofPoint& point, float threshold) const;
 
     // Check if a point is near the endpoints of the cross
@@ -57,7 +57,7 @@ public:
 private:
     ofxSVG svg;
     std::vector<glm::vec3> equidistantPoints;
-    ofPoint svgCentroid;   // currently holding svgMidpoint information
+    ofPoint svgMidpoint;   // currently holding svgMidpoint information
 //    ofPoint svgMidpoint; // To store the calculated midpoint
     std::string fileName; // Add this member to store the file name
     ofPoint translation;

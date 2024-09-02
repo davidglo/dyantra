@@ -27,7 +27,8 @@ void ofApp::setup() {
     
     ofSetVerticalSync(true);
     ofSetFrameRate(60);
-    
+  
+//      string svgFile = "test-nonConnected.svg";
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-crown-heart-lotus.svg";
@@ -45,7 +46,7 @@ void ofApp::setup() {
 
     numPoints = 2000; // Set the desired number of points
     timestep = 0.003;
-    gridSpacing = 100; // Set grid spacing
+    gridSpacing = 50; // Set grid spacing
     numSpokes = 16;
     last_timeStep = timestep;
     
@@ -624,12 +625,12 @@ void ofApp::keyPressed(int key) {
         showAttractorCircles.set(showAttractorCircles);
     }
     if (key == 'g' || key == 'G') {
-        showGrid = !showGrid;  // Toggle the flag
+        showGrid = !showGrid;     // Toggle the flag
         showGrid.set(showGrid);
         if(!showGrid){enableSnapping = false;}
     }
     if (key == 'w' || key == 'W') {
-        writeParticlePositionsToSvg(); // Write particle positions to SVG
+        svgSkeleton.writeSvg();   // Assuming svgSkeleton is an instance of your svgSkeleton class
     }
 }
 

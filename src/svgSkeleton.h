@@ -46,6 +46,8 @@ public:
     
     void calculateAdjustedCrossSize();
     
+    void writeSvg();
+    
 private:
     ofxSVG svg;
     std::vector<glm::vec3> equidistantPoints;
@@ -59,6 +61,10 @@ private:
     float maxDistanceX, maxDistanceY;
     float currentRotationAngle;
     float crossSizeX,crossSizeY;
+    
+    std::vector<std::pair<std::string, std::vector<glm::vec3>>> pointsByPath;  // Points separated by path ID
+    std::vector<std::string> polyLineLabels;  // Labels (IDs) for each path
+    std::vector<std::string> pathIDMembership;
     
     void calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const;
     

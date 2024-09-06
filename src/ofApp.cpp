@@ -28,7 +28,7 @@ void ofApp::setup() {
     ofSetVerticalSync(true);
     ofSetFrameRate(60);
   
-//      string svgFile = "test-nonConnected.svg";
+//    string svgFile = "test-nonConnected.svg";
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-crown-heart-lotus.svg";
@@ -38,7 +38,6 @@ void ofApp::setup() {
 //    string svgFile = "tara-CHL-lotus.svg";
 //    string svgFile = "cir_seasonal-US.svg";
 //    string svgFile = "tara-face.svg";
-//    string svgFile = "tara-face-ii.svg";
 //    string svgFile = "circle.svg";
 //    string svgFile = "line.svg";
 //    string svgFile = "2lines.svg";
@@ -630,7 +629,7 @@ void ofApp::keyPressed(int key) {
         if(!showGrid){enableSnapping = false;}
     }
     if (key == 'w' || key == 'W') {
-        svgSkeleton.writeSvg();   // Assuming svgSkeleton is an instance of your svgSkeleton class
+        svgSkeleton.writeSvg(particleEnsemble.getPositions());   // Assuming svgSkeleton is an instance of your svgSkeleton class
     }
 }
 

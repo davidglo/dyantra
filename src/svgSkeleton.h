@@ -46,7 +46,7 @@ public:
     
     void calculateAdjustedCrossSize();
     
-    void writeSvg();
+    void writeSvg(const std::vector<glm::vec3>& particlePositions);
     
 private:
     ofxSVG svg;
@@ -62,9 +62,12 @@ private:
     float currentRotationAngle;
     float crossSizeX,crossSizeY;
     
-    std::vector<std::pair<std::string, std::vector<glm::vec3>>> pointsByPath;  // Points separated by path ID
+//    std::vector<std::pair<std::string, std::vector<glm::vec3>>> pointsByPath;  // Points separated by path ID
     std::vector<std::string> polyLineLabels;  // Labels (IDs) for each path
     std::vector<std::string> pathIDMembership;
+    std::vector<std::string> equidistantPointsPathIDs;  // path IDs for equidistantPoints entries
+    
+    std::vector<std::vector<glm::vec3>> pathVertices;  // Stores vertices per polyline
     
     void calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const;
     

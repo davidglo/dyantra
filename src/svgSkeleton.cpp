@@ -21,11 +21,19 @@ void svgSkeleton::loadSvg(const std::string& filename) {
         // Ensure we navigate to the <svg> element
         auto svgElement = xml.findFirst("//svg");
         if (svgElement) {
-            // Find all <path> elements within the SVG
-            auto pathElements = svgElement.find("//path");
-            for (auto& path : pathElements) {
-                std::string id = path.getAttribute("id").getValue();
-                polyLineLabels.push_back(id);
+            // Find all elements within the SVG that have an 'id' attribute
+            auto allElementsWithId = svgElement.find("//*[@id]");  // Select any element with an 'id' attribute
+            for (auto& element : allElementsWithId) {
+                // Check if this element is part of a commented block
+                std::string elementContent = element.toString();
+                if (elementContent.find("<!--") == std::string::npos && elementContent.find("-->") == std::string::npos) {
+                    std::string id = element.getAttribute("id").getValue();
+
+                    // Only store IDs that contain the substring 'path'
+                    if (id.find("path") != std::string::npos) {
+                        polyLineLabels.push_back(id);  // Store the ID in the polyLineLabels vector
+                    }
+                }
             }
         } else {
             ofLogError() << "No <svg> element found in the file: " << filename;
@@ -45,12 +53,15 @@ void svgSkeleton::loadSvg(const std::string& filename) {
 void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     float totalPathLength = 0;
     std::vector<std::pair<ofPolyline, float>> polylinesWithLengths;
+    std::vector<glm::vec3> vertices;
+
+    equidistantPoints.clear();  // Clear previous points
+    equidistantPointsPathIDs.clear();  // Clear previous path IDs
+    pathVertices.clear();  // Clear previous path vertices data
+//    pointsByPath.clear();  // Clear any existing pointsByPath data
 
     // Step 1: Calculate the total length of all paths and identify vertices
-    std::vector<glm::vec3> vertices;
     int numPaths = svg.getNumPath();
-    pointsByPath.clear();  // Clear any existing pointsByPath data
-
     for (int i = 0; i < numPaths; i++) {
         ofPath path = svg.getPathAt(i);
         path.setPolyWindingMode(OF_POLY_WINDING_ODD);  // Ensure proper winding mode
@@ -60,15 +71,19 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
             float pathLength = polyline.getPerimeter();
             totalPathLength += pathLength;
             polylinesWithLengths.emplace_back(polyline, pathLength);
+            
+            // Prepare a vector to store vertices for the current polyline
+            std::vector<glm::vec3> currentPathVertices;
 
-            // Identify vertices
-            std::vector<glm::vec3> pathVertices;
+            // Identify vertices and order points
             auto points = polyline.getVertices();
             for (size_t j = 0; j < points.size(); ++j) {
                 glm::vec3 vertex(points[j].x, points[j].y, points[j].z);
+
                 // First and last points are always vertices
                 if (j == 0 || j == points.size() - 1) {
                     vertices.push_back(vertex);
+                    currentPathVertices.push_back(vertex);
                 } else {
                     // Calculate the angle between adjacent segments
                     glm::vec3 prev(points[j - 1].x - points[j].x, points[j - 1].y - points[j].y, points[j - 1].z - points[j].z);
@@ -78,83 +93,99 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
                     // If angle is sharp, consider it a vertex
                     if (angle < glm::radians(170.0f)) {  // Threshold angle can be adjusted
                         vertices.push_back(vertex);
+                        currentPathVertices.push_back(vertex);
                     }
                 }
-                pathVertices.push_back(vertex);
             }
-
-            // Add the vertices for this path to pointsByPath
-            pointsByPath.emplace_back(polyLineLabels[i], pathVertices);
-            cout << "hello" << endl;
+            // if the polyline is a closed path, ensure that the last vertex is identical to the first one
+            size_t lastIdx = currentPathVertices.size() - 1;
+            if(polyline.isClosed() && (currentPathVertices[lastIdx] != currentPathVertices[0])){
+                currentPathVertices.push_back(currentPathVertices[0]);
+            }
+            pathVertices.push_back(currentPathVertices); // Store vertices of the current polyline in pathVertices
         }
     }
 
-    // Ensure unique vertices
-    std::sort(vertices.begin(), vertices.end(), [](const glm::vec3& a, const glm::vec3& b) {
-        return a.x == b.x ? a.y < b.y : a.x < b.x;
-    });
-    vertices.erase(std::unique(vertices.begin(), vertices.end()), vertices.end());
-
-    size_t numVertices = vertices.size();  // Use size_t for numVertices
-    int remainingPoints = numDesiredPoints - static_cast<int>(numVertices) + 1;  // add 1 for the midpoint
-
-    equidistantPoints.clear();  // Clear points vector before generating
-    equidistantPoints.reserve(numDesiredPoints + 1);  // Reserve space for the total number of points + midpoint
-
-    // Step 2: Add vertices to equidistantPoints
-    equidistantPoints.insert(equidistantPoints.end(), vertices.begin(), vertices.end());
-
+    // Calculate the remaining points needed after vertices are accounted for
+    int remainingPoints = numDesiredPoints - static_cast<int>(vertices.size()) - 1; // -1 to avoid counting centroid
     if (remainingPoints <= 0) {
-        // Step 4: Calculate the midpoint
-        calculateSvgMidpoint();
-        glm::vec3 midpoint(svgMidpoint.x, svgMidpoint.y, svgMidpoint.z);
-
-        // Step 5: Add the midpoint to equidistantPoints
-        equidistantPoints.insert(equidistantPoints.begin(), midpoint);  // Ensure midpoint is the first point
-
-        return;
-    }
-
-    float segmentLength = totalPathLength / remainingPoints;
-
-    // Step 3: Distribute remaining points evenly along the polylines
-    for (size_t i = 0; i < polylinesWithLengths.size(); ++i) {
-        ofPolyline& polyline = polylinesWithLengths[i].first;
-        float pathLength = polylinesWithLengths[i].second;
-
-        // Determine the number of points for this path segment
-        int numPointsForPath = std::round(pathLength / segmentLength);
-
-        // Ensure points are distributed approximately equidistantly
-        float lengthStep = pathLength / numPointsForPath;
-        std::vector<glm::vec3> pathPoints;
-        for (int j = 0; j <= numPointsForPath; j++) {
-            float lengthAlongPath = j * lengthStep;
-            glm::vec3 point = polyline.getPointAtLength(lengthAlongPath);
-
-            // Check if the point is already in equidistantPoints
-            if (std::find(equidistantPoints.begin(), equidistantPoints.end(), point) == equidistantPoints.end()) {
-                equidistantPoints.push_back(point);
-                pathPoints.push_back(point);
-            }
+        // If remaining points are zero or less, just return the vertices
+        equidistantPoints.insert(equidistantPoints.end(), vertices.begin(), vertices.end());
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            equidistantPointsPathIDs.push_back(polyLineLabels[0]);  // Assuming all vertices belong to the first path, adjust as needed
         }
-
-        // Store the equidistant points for this path in pointsByPath
-        pointsByPath.emplace_back(polyLineLabels[i], pathPoints);
     }
-
-    // Step 4: Calculate the midpoint
+    else{
+        
+        float segmentLength = totalPathLength / remainingPoints;
+        
+        for (size_t i = 0; i < polylinesWithLengths.size(); ++i) {
+            ofPolyline& polyline = polylinesWithLengths[i].first;
+            auto& polylineVertices = pathVertices[i]; // get vertices from the pathVertices
+            
+            float lengthAlongPath(0.0);
+            float lengthStep;
+            
+            for(size_t ii=0; ii< (polylineVertices.size() - 1); ++ii){
+                
+                glm::vec3 startVertex = polylineVertices[ii];
+                
+                if (ii > 0){
+                    size_t maxIdx = equidistantPoints.size() - 1;
+                    lengthAlongPath = lengthAlongPath + glm::distance(startVertex,equidistantPoints[maxIdx]);
+                }
+                
+                equidistantPoints.push_back(startVertex);
+                equidistantPointsPathIDs.push_back(polyLineLabels[i]);
+//                size_t idx = equidistantPoints.size()-1;
+//                cout << "vertex-x: "  << equidistantPoints[idx].x << " vertex-y: "  << equidistantPoints[idx].y << endl;
+                float pathLength;
+                
+                if(polylineVertices[ii] != polylineVertices[ii+1]){
+                    pathLength = glm::distance(polylineVertices[ii], polylineVertices[ii+1]);
+                }else{
+                    pathLength = polyline.getPerimeter();
+                }
+                
+                // Determine the number of points for this path segment
+                int numPointsForPath = std::round(pathLength / segmentLength);
+                
+                // Ensure points are distributed approximately equidistantly
+                lengthStep = pathLength / (numPointsForPath + 1); // add 1 cuz number of segments is numPointsForPath+1
+                
+                // now loop over the points between vertices
+                for (int j = 1; j <= numPointsForPath; j++) {
+                    lengthAlongPath = lengthAlongPath + lengthStep;
+                    glm::vec3 point = polyline.getPointAtLength(lengthAlongPath);
+                    equidistantPoints.push_back(point);
+                    equidistantPointsPathIDs.push_back(polyLineLabels[i]);
+//                    idx = equidistantPoints.size()-1;
+//                    cout << "point-x: "  << equidistantPoints[idx].x << " point-y: "  << equidistantPoints[idx].y << endl;
+                }
+            }
+            
+            glm::vec3 endVertex = polylineVertices[polylineVertices.size() - 1];
+            equidistantPoints.push_back(endVertex);
+            equidistantPointsPathIDs.push_back(polyLineLabels[i]);
+//            size_t idx = equidistantPoints.size()-1;
+//            cout << "vertex-x: "  << equidistantPoints[idx].x << " vertex-y: "  << equidistantPoints[idx].y << endl;
+            size_t lastIdx = equidistantPoints.size()-1;
+            float distFirstToLast = glm::distance(equidistantPoints[lastIdx], equidistantPoints[0]);
+                        
+        }
+    }
+    
+    // Apply the stored translation and scale to the newly generated points
     calculateSvgMidpoint();
     glm::vec3 midpoint(svgMidpoint.x, svgMidpoint.y, svgMidpoint.z);
+    
+    // add the midpoint as the final element in equidistantPoints
+    equidistantPoints.insert(equidistantPoints.begin(), midpoint);
+    equidistantPointsPathIDs.insert(equidistantPointsPathIDs.begin(), "midpoint");
 
-    // Step 5: Add the midpoint to equidistantPoints
-    equidistantPoints.insert(equidistantPoints.begin(), midpoint);  // Ensure midpoint is the first point
-
-    // Apply the stored translation and scale to the newly generated points
     for (auto& point : equidistantPoints) {
         point = svgMidpoint + (point - svgMidpoint) * cumulativeScale + translation;
     }
-    
 }
 
 void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
@@ -386,8 +417,9 @@ void svgSkeleton::calculateAdjustedCrossSize() {
     crossSizeY = maxDistance * crossSizeScaleFactor;
 }
 
-void svgSkeleton::writeSvg() {
-    if (equidistantPoints.empty() || pointsByPath.empty()) return;
+void svgSkeleton::writeSvg(const std::vector<glm::vec3>& particlePositions) {
+    // Ensure the vectors are valid and particlePositions has one less element than equidistantPoints
+    if (particlePositions.empty() || equidistantPoints.size() <= 1 || equidistantPointsPathIDs.size() <= 1) return;
 
     // Get the current timestamp for the filename
     std::string timestamp = ofGetTimestampString("%Y-%m-%d_%H-%M-%S");
@@ -401,6 +433,15 @@ void svgSkeleton::writeSvg() {
         svgFile << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n";
         svgFile << "<!-- Created with custom OpenFrameworks app -->\n";
         svgFile << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n";
+
+        // Map to store path points by path ID
+        std::map<std::string, std::vector<glm::vec3>> pointsByPath;
+
+        // Group the particle positions by their path ID, starting from index 1
+        for (size_t i = 0; i < particlePositions.size(); ++i) {
+            const std::string& pathID = equidistantPointsPathIDs[i + 1];  // Skip the midpoint (index 0)
+            pointsByPath[pathID].push_back(particlePositions[i]);
+        }
 
         // Write each path's points
         for (const auto& pathPair : pointsByPath) {
@@ -424,7 +465,7 @@ void svgSkeleton::writeSvg() {
         // Write the SVG footer
         svgFile << "</svg>\n";
         svgFile.close();
-        ofLogNotice() << "Equidistant points written to " << filename;
+        ofLogNotice() << "Particle positions written to " << filename;
     } else {
         ofLogError() << "Unable to open file for writing: " << filename;
     }

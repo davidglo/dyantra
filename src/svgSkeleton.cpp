@@ -74,16 +74,19 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
             
             // Prepare a vector to store vertices for the current polyline
             std::vector<glm::vec3> currentPathVertices;
+            std::vector<int> currentPathVerticesIndices;
 
             // Identify vertices and order points
             auto points = polyline.getVertices();
             for (size_t j = 0; j < points.size(); ++j) {
                 glm::vec3 vertex(points[j].x, points[j].y, points[j].z);
+//                cout << "points[j].x : "  << points[j].x << " points[j].y "  << points[j].y << endl;
 
                 // First and last points are always vertices
                 if (j == 0 || j == points.size() - 1) {
                     vertices.push_back(vertex);
                     currentPathVertices.push_back(vertex);
+                    currentPathVerticesIndices.push_back(j);
                 } else {
                     // Calculate the angle between adjacent segments
                     glm::vec3 prev(points[j - 1].x - points[j].x, points[j - 1].y - points[j].y, points[j - 1].z - points[j].z);
@@ -94,6 +97,7 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
                     if (angle < glm::radians(170.0f)) {  // Threshold angle can be adjusted
                         vertices.push_back(vertex);
                         currentPathVertices.push_back(vertex);
+                        currentPathVerticesIndices.push_back(j);
                     }
                 }
             }
@@ -103,6 +107,7 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
                 currentPathVertices.push_back(currentPathVertices[0]);
             }
             pathVertices.push_back(currentPathVertices); // Store vertices of the current polyline in pathVertices
+            pathVerticesIndices.push_back(currentPathVerticesIndices);
         }
     }
 
@@ -125,6 +130,7 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
             
             float lengthAlongPath(0.0);
             float lengthStep;
+            std::vector<int> currentPathVerticesIndices = pathVerticesIndices[i];
             
             for(size_t ii=0; ii< (polylineVertices.size() - 1); ++ii){
                 
@@ -142,7 +148,12 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
                 float pathLength;
                 
                 if(polylineVertices[ii] != polylineVertices[ii+1]){
-                    pathLength = glm::distance(polylineVertices[ii], polylineVertices[ii+1]);
+//                    pathLength = glm::distance(polylineVertices[ii], polylineVertices[ii+1]);
+                    int idx1 = currentPathVerticesIndices[ii];
+                    int idx2 = currentPathVerticesIndices[ii+1];
+                    float lengthAtIndex1 = polyline.getLengthAtIndex(idx1);
+                    float lengthAtIndex2 = polyline.getLengthAtIndex(idx2);
+                    pathLength = abs(lengthAtIndex2 - lengthAtIndex1);
                 }else{
                     pathLength = polyline.getPerimeter();
                 }
@@ -160,7 +171,7 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
                     equidistantPoints.push_back(point);
                     equidistantPointsPathIDs.push_back(polyLineLabels[i]);
 //                    idx = equidistantPoints.size()-1;
-//                    cout << "point-x: "  << equidistantPoints[idx].x << " point-y: "  << equidistantPoints[idx].y << endl;
+//                    cout << " j " << j << " point-x: "  << equidistantPoints[idx].x << " point-y: "  << equidistantPoints[idx].y << endl;
                 }
             }
             
@@ -448,7 +459,7 @@ void svgSkeleton::writeSvg(const std::vector<glm::vec3>& particlePositions) {
             const std::string& pathId = pathPair.first;
             const std::vector<glm::vec3>& pathPoints = pathPair.second;
 
-            svgFile << "<path id=\"" << pathId << "\" style=\"fill:none;stroke:#030303;stroke-width:1.2\" d=\"";
+            svgFile << "<path id=\"" << pathId << "\" style=\"fill:none;stroke:#030303;stroke-width:0.3\" d=\"";
             svgFile << "M ";
 
             for (size_t i = 0; i < pathPoints.size(); ++i) {

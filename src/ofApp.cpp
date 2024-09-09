@@ -32,18 +32,18 @@ void ofApp::setup() {
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-crown-heart-lotus.svg";
-    string svgFile = "tara-crown-Chakra.svg";
+//    string svgFile = "tara-crown-Chakra.svg";
 //    string svgFile = "tara-CHL-head.svg";
 //    string svgFile = "tara-CHL-heart.svg";
 //    string svgFile = "tara-CHL-lotus.svg";
 //    string svgFile = "cir_seasonal-US.svg";
-//    string svgFile = "tara-face.svg";
+    string svgFile = "tara-face.svg";
 //    string svgFile = "circle.svg";
 //    string svgFile = "line.svg";
 //    string svgFile = "2lines.svg";
 //    string svgFile = "triangle.svg";
 
-    numPoints = 2000; // Set the desired number of points
+    numPoints = 300; // Set the desired number of points
     timestep = 0.003;
     gridSpacing = 50; // Set grid spacing
     numSpokes = 16;

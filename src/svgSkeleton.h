@@ -68,6 +68,7 @@ private:
     std::vector<std::string> equidistantPointsPathIDs;  // path IDs for equidistantPoints entries
     
     std::vector<std::vector<glm::vec3>> pathVertices;  // Stores vertices per polyline
+    std::vector<std::vector<int>>pathVerticesIndices;  // stores the indices of the vertices per polyline
     
     void calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const;
     

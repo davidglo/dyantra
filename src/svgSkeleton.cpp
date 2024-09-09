@@ -58,7 +58,7 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     equidistantPoints.clear();  // Clear previous points
     equidistantPointsPathIDs.clear();  // Clear previous path IDs
     pathVertices.clear();  // Clear previous path vertices data
-//    pointsByPath.clear();  // Clear any existing pointsByPath data
+    pathVerticesIndices.clear();
 
     // Step 1: Calculate the total length of all paths and identify vertices
     int numPaths = svg.getNumPath();

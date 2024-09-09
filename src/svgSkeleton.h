@@ -62,13 +62,12 @@ private:
     float currentRotationAngle;
     float crossSizeX,crossSizeY;
     
-//    std::vector<std::pair<std::string, std::vector<glm::vec3>>> pointsByPath;  // Points separated by path ID
     std::vector<std::string> polyLineLabels;  // Labels (IDs) for each path
     std::vector<std::string> pathIDMembership;
     std::vector<std::string> equidistantPointsPathIDs;  // path IDs for equidistantPoints entries
     
-    std::vector<std::vector<glm::vec3>> pathVertices;  // Stores vertices per polyline
-    std::vector<std::vector<int>>pathVerticesIndices;  // stores the indices of the vertices per polyline
+    std::vector<std::vector<glm::vec3>> pathVertices;  // Stores the xyz coordinates of each polyline'x vertices
+    std::vector<std::vector<int>>pathVerticesIndices;  // Stores the indices of each polyline's vertices
     
     void calculateMaxDistances(float& maxDistanceX, float& maxDistanceY) const;
     

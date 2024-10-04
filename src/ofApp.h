@@ -57,6 +57,8 @@ private:
     bool potentialFieldUpdated;
     bool showPotentialField; // Flag to control potential field visualization
     bool contourLinesUpdated; // Flag to control contour line update
+    bool drawMenus;
+    bool drawFileMenu;
 
     // Downscale factor
     int downscaleFactor = 3; // Downscale factor for lower resolution calculations

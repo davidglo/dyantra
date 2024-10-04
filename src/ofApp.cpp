@@ -31,10 +31,10 @@ void ofApp::setup() {
 //    string svgFile = "test-nonConnected.svg";
 //    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
-    string svgFile = "tara-crown-heart-lotus.svg";
+//    string svgFile = "tara-crown-heart-lotus.svg";
 //    string svgFile = "tara-crown-Chakra.svg";
 //    string svgFile = "tara-CHL-head.svg";
-//    string svgFile = "tara-CHL-heart.svg";
+    string svgFile = "tara-CHL-heart.svg";
 //    string svgFile = "tara-CHL-lotus.svg";
 //    string svgFile = "cir_seasonal-US.svg";
 //    string svgFile = "tara-face.svg";
@@ -43,7 +43,7 @@ void ofApp::setup() {
 //    string svgFile = "2lines.svg";
 //    string svgFile = "triangle.svg";
 
-    numPoints = 300; // Set the desired number of points
+    numPoints = 2000; // Set the desired number of points
     timestep = 0.003;
     gridSpacing = 50; // Set grid spacing
     numSpokes = 16;
@@ -72,6 +72,8 @@ void ofApp::setup() {
     showPotentialField = true; // Initialize the flag to show the potential field
     contourLinesUpdated = true; // Initialize the flag to update contour lines
     showGrid = true;
+    drawMenus = true;
+    drawFileMenu = true;
 
     svgSkeleton.loadSvg(svgFile);
     svgSkeleton.generateEquidistantPoints(numPoints); // Call with the data member
@@ -279,7 +281,7 @@ void ofApp::draw() {
         ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
         potentialField.draw(0, 0, ofGetWidth(), ofGetHeight()); // Upscale when drawing
     }
-
+    
     if (showGrid) {
         drawGrid();  // Draw grid
     }
@@ -289,21 +291,21 @@ void ofApp::draw() {
         ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
         attractorField.drawContours();
     }
-
+    
     ofSetColor(svgPointsColor);  // Set color to white for drawing
-
+    
     // unlike the particleEnsemble, the svgSkeleton points include the midpoint
     // we only draw the svgSkeleton points if explicitly indicated
     particleEnsemble.draw();
     if (showSvgPoints) {svgSkeleton.draw();}
-
+    
     
     // Draw established attractors if the flag is set
     if (showAttractorCircles) {
         ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
         attractorField.draw();
     }
-
+    
     // Draw the temporary attractor being adjusted
     if (drawingAttractor) {
         ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
@@ -311,10 +313,14 @@ void ofApp::draw() {
     }
     
     // Draw GUI
-    gui.draw();
-    attractorGui.draw(); // Draw the attractor information panel
-    svgInfoGui.draw(); // Draw the SVG information panel
-    fileGui.draw();
+    if(drawMenus){
+        gui.draw();
+        attractorGui.draw(); // Draw the attractor information panel
+        svgInfoGui.draw(); // Draw the SVG information panel
+    }
+    if (drawFileMenu){
+        fileGui.draw();
+    }
 }
 
 void ofApp::mousePressed(int x, int y, int button) {
@@ -630,6 +636,12 @@ void ofApp::keyPressed(int key) {
     }
     if (key == 'w' || key == 'W') {
         svgSkeleton.writeSvg(particleEnsemble.getPositions());   // Assuming svgSkeleton is an instance of your svgSkeleton class
+    }
+    if (key == 'm' || key == 'M') {
+        drawMenus = !drawMenus; // Toggle the flag
+    }
+    if(key == 'f' || key == 'F'){
+        drawFileMenu = !drawFileMenu;
     }
 }
 

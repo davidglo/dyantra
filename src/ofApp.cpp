@@ -953,39 +953,7 @@ float ofApp::gentlyReverseTimeWithCos() {
     last_timeStep = new_timeStep;
     return new_timeStep;
 }
-/*
-// write particle positions as small circles
-void ofApp::writeParticlePositionsToSvg() {
-    if (!isPlaying) {  // Only write if the simulation is paused
-        // Get the current time for timestamp
-        auto t = std::time(nullptr);
-        auto tm = *std::localtime(&t);
-        std::ostringstream oss;
-        oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
-        std::string filename = "particle_positions_" + oss.str() + ".svg";
 
-        std::ofstream svgFile;
-        svgFile.open(ofToDataPath(filename));
-
-        if (svgFile.is_open()) {
-            // Write the SVG header
-            svgFile << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n";
-
-            // Write particle positions as circles
-            for (const auto& position : particleEnsemble.getPositions()) {
-                svgFile << "<circle cx=\"" << position.x << "\" cy=\"" << position.y << "\" r=\"1\" fill=\"black\" />\n";
-            }
-
-            // Write the SVG footer
-            svgFile << "</svg>\n";
-            svgFile.close();
-            ofLogNotice() << "Particle positions written to " << filename;
-        } else {
-            ofLogError() << "Unable to open file for writing: " << filename;
-        }
-    }
-}
-*/
 // write particle positions as points along polyline
 void ofApp::writeParticlePositionsToSvg() {
     if (!isPlaying) {  // Only write if the simulation is paused
@@ -1107,6 +1075,11 @@ void ofApp::saveSettings() {
 
 void ofApp::loadSettings(const std::string& filename) {
     // Load the XML file
+    
+    float scaleForCurrentGraphicsWindow;
+    ofPoint oldSvgCentroid;
+    ofPoint newSvgCentroid;
+    
     ofXml settings;
     if (settings.load(filename)) {
         ofLogNotice() << "Settings loaded from " << filename;
@@ -1133,6 +1106,8 @@ void ofApp::loadSettings(const std::string& filename) {
             }
         }
         
+        scaleForCurrentGraphicsWindow = min(ofGetWidth()/originalWindowSize.x,ofGetHeight()/originalWindowSize.y);
+        
         // Load the SVG info GUI
         ofXml svgInfoXml = settings.getChild("svgInfoGui");
         if (svgInfoXml && originalWindowSize.x > 0 && originalWindowSize.y > 0) {
@@ -1157,22 +1132,25 @@ void ofApp::loadSettings(const std::string& filename) {
                 if (tokens.size() == 2) {
 
                     ofPoint relativeCentroid;
-                    relativeCentroid.x = ofToFloat(tokens[0]) / originalWindowSize.x;
-                    relativeCentroid.y = ofToFloat(tokens[1]) / originalWindowSize.y;
+                    oldSvgCentroid.x = ofToFloat(tokens[0]);
+                    oldSvgCentroid.y = ofToFloat(tokens[1]);
+                    relativeCentroid.x = oldSvgCentroid.x / originalWindowSize.x;
+                    relativeCentroid.y = oldSvgCentroid.y / originalWindowSize.y;
 
                     // Calculate the new absolute position based on the current window size
-                    ofPoint newCentroid;
-                    newCentroid.x = relativeCentroid.x * ofGetWidth();
-                    newCentroid.y = relativeCentroid.y * ofGetHeight();
+//                    ofPoint newCentroid;
+                    newSvgCentroid.x = relativeCentroid.x * ofGetWidth();
+                    newSvgCentroid.y = relativeCentroid.y * ofGetHeight();
 
                     // Calculate the translation needed to move the SVG to the new midpoint
                     ofPoint currentCentroid = svgSkeleton.getSvgCentroid();
-                    ofPoint translation = newCentroid - currentCentroid;
+                    ofPoint translation = newSvgCentroid - currentCentroid;
                     
                     // Apply the translation
                     svgSkeleton.translateSvg(translation);
                     svgSkeleton.calculateSvgMidpoint();
                     particleEnsemble.update(svgSkeleton.getEquidistantPoints());
+                    particleEnsemble.reinitialize(svgSkeleton.getEquidistantPoints());
                 }
             }
 
@@ -1180,6 +1158,7 @@ void ofApp::loadSettings(const std::string& filename) {
             ofXml scaleNode = svgInfoXml.findFirst("svgScale");
             if (scaleNode) {
                 float scale = scaleNode.getFloatValue();
+                scale = scale * scaleForCurrentGraphicsWindow; //apply scale for current graphics window size
                 svgSkeleton.resizeSvg(scale, true);
                 particleEnsemble.update(svgSkeleton.getEquidistantPoints());
             }
@@ -1217,6 +1196,9 @@ void ofApp::loadSettings(const std::string& filename) {
         }
         
         ofXml attractorXml = settings.getChild("attractorGui");
+        
+        ofPoint oldAttCentroid;
+        ofPoint newAttCentroid;
 
         if (attractorXml && originalWindowSize.x > 0 && originalWindowSize.y > 0) {
             attractorCenters.clear();
@@ -1234,12 +1216,13 @@ void ofApp::loadSettings(const std::string& filename) {
                         std::string centerStr = attractorNode.getChild("Center").getValue();
                         std::vector<std::string> tokens = ofSplitString(centerStr, ",");
                         if (tokens.size() == 2) {
-                            relativeCenter.x = ofToFloat(tokens[0]) / originalWindowSize.x;
-                            relativeCenter.y = ofToFloat(tokens[1]) / originalWindowSize.y;
+                            
+                            oldAttCentroid.x = ofToFloat(tokens[0]);
+                            oldAttCentroid.y = ofToFloat(tokens[1]);
 
-                            // Calculate the new absolute position based on the current window size
-                            center.x = relativeCenter.x * ofGetWidth();
-                            center.y = relativeCenter.y * ofGetHeight();
+                            // place the attractor centers so they are correctly scaled relative to the SVG centroid
+                            // note: this assumes the attractor positions are correct relative to the svg centroid
+                            center = newSvgCentroid + scaleForCurrentGraphicsWindow * (oldAttCentroid - oldSvgCentroid);
                         }
                     }
 
@@ -1247,6 +1230,7 @@ void ofApp::loadSettings(const std::string& filename) {
                     float radius = 0;
                     if (attractorNode.getChild("Radius")) {
                         radius = attractorNode.getChild("Radius").getFloatValue();
+                        radius = radius * scaleForCurrentGraphicsWindow; // scaling for current graphics window
                     }
 
                     // Load amplitude

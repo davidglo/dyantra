@@ -75,6 +75,14 @@ void ofApp::setup() {
     drawMenus = true;
     drawFileMenu = true;
 
+    // Initialize sequence control variables
+    isSequenceRunning = false;
+    currentSequenceIndex = 0;
+    sequenceStartTime = 0;
+    sequenceDuration = 0;
+    sequenceFileLoaded = false;
+    elapsedSequenceSteps = 0;
+    
     svgSkeleton.loadSvg(svgFile);
     svgSkeleton.generateEquidistantPoints(numPoints); // Call with the data member
     svgSkeleton.autoFitToWindow(ofGetWidth(), ofGetHeight());
@@ -128,6 +136,9 @@ void ofApp::setup() {
     
     // Setup GUI for snapping
     gui.add(enableSnapping.set("Enable Snapping", true));
+    
+    // button for running the sequence
+    gui.add(runSequenceToggle.setup("Run Sequence", false));
 
 //    ofColor initialPotentialFieldColor(128, 128, 128); // 50% intensity of white color
     ofColor initialPotentialFieldColor(80, 80, 80);
@@ -230,7 +241,7 @@ void ofApp::update() {
         timeReversalValueChanged = false;
     }
 
-    // Update GUI elements for attractors
+    // Update GUI elements for attractors       
     for (size_t i = 0; i < attractorField.getAttractors().size(); ++i) {
         updateAttractorGui(i, attractorField.getAttractors()[i]);
     }
@@ -270,6 +281,11 @@ void ofApp::update() {
             elapsedTimesteps--;  // Decrement elapsed timesteps
         }
         elapsedTimestepsDisplay = ofToString(elapsedTimesteps);  // Update GUI display
+    }
+    
+    // Check and run the sequence if the toggle is active
+    if (runSequenceToggle) {
+        runSequence();
     }
 }
 
@@ -1269,4 +1285,61 @@ void ofApp::onPasteSaveFilenameButtonPressed() {
     std::string clipboardText = ofGetClipboardString();
     // Set the clipboard text to the saveFileNameInput field
     saveFileNameInput = clipboardText;
+}
+
+void ofApp::loadSequenceFiles() {
+    ofDirectory dir("sequence");
+    dir.allowExt("xml");
+    dir.listDir();
+    sequenceFiles.clear();
+    
+    for (auto& file : dir) {
+        sequenceFiles.push_back(file.getAbsolutePath());
+    }
+    
+    // Sort sequenceFiles alphabetically by filename
+    std::sort(sequenceFiles.begin(), sequenceFiles.end());
+    
+    currentSequenceIndex = 0;
+}
+
+void ofApp::runSequence() {
+    
+    // Check if "Run Sequence" toggle is enabled
+    if (!runSequenceToggle) {
+        isSequenceRunning = false;
+        return;
+    }
+
+    // Start sequence if not already running
+    if (!isSequenceRunning) {
+        loadSequenceFiles();  // Load sequence files
+        isSequenceRunning = true;
+        currentSequenceIndex = 0;
+    }
+
+    // Check if we've finished all files
+    if (currentSequenceIndex >= sequenceFiles.size()) {
+        isSequenceRunning = false;
+        runSequenceToggle = false;  // Turn off the toggle
+        return;
+    }
+
+    // Check the time elapsed for the current file
+    float elapsedTime = elapsedTimesteps;
+    if (elapsedTime == 0 && !sequenceFileLoaded) {
+        // Load the next file if duration for the current file is complete
+        const std::string& filename = sequenceFiles[currentSequenceIndex];
+        loadSettings(filename);
+        resetSimulation();
+        sequenceFileLoaded = true;
+        
+        sequenceDuration = 2 * (timeReversalTimestep + nTimeReversalSteps);
+
+        sequenceStartTime = ofGetElapsedTimef();  // Reset start time for the new file
+        currentSequenceIndex++;                   // Move to the next file
+    }
+    else if (elapsedTime != 0 && sequenceFileLoaded){
+        sequenceFileLoaded = false;
+    }
 }

@@ -82,6 +82,7 @@ private:
     ofParameter<bool> showContourLines; // Add checkbox for contour lines
     ofxFloatSlider contourThresholdSlider;  // New slider for contour threshold
     ofParameter<int> downscaleFactorGui; // Add slider for downscale factor
+    ofxToggle runSequenceToggle;
     
     // New parameters for additional information
     ofParameter<string> windowSize;
@@ -195,4 +196,15 @@ private:
     void onPasteLoadFilenameButtonPressed();
     void onPasteSaveFilenameButtonPressed();
     
+    // Sequence control variables
+    std::vector<std::string> sequenceFiles;  // Stores XML file names in "sequence" folder
+    int currentSequenceIndex;                // Current index in sequence
+    bool isSequenceRunning;                  // Status of sequence running
+    float sequenceStartTime;                 // Start time of the current XML file
+    float sequenceDuration;                  // Duration to run current XML file
+    bool sequenceFileLoaded;
+    int elapsedSequenceSteps;
+    
+    void loadSequenceFiles();
+    void runSequence();
 };

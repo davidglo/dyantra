@@ -200,11 +200,15 @@ private:
     std::vector<std::string> sequenceFiles;  // Stores XML file names in "sequence" folder
     int currentSequenceIndex;                // Current index in sequence
     bool isSequenceRunning;                  // Status of sequence running
-    float sequenceStartTime;                 // Start time of the current XML file
-    float sequenceDuration;                  // Duration to run current XML file
-    bool sequenceFileLoaded;
-    int elapsedSequenceSteps;
+    int sequenceDuration;                    // Duration to run current XML file
+    bool sequenceFileNeedsLoading;
+    int callsToRunSequence;
+    int numStepsSequenceFileRun;
+    bool isIndividualFileRunning;
+    bool isFileFinishedRunning;
+    int nPauseSteps;
     
     void loadSequenceFiles();
     void runSequence();
+    
 };

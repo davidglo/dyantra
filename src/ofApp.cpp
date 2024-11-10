@@ -78,10 +78,13 @@ void ofApp::setup() {
     // Initialize sequence control variables
     isSequenceRunning = false;
     currentSequenceIndex = 0;
-    sequenceStartTime = 0;
     sequenceDuration = 0;
-    sequenceFileLoaded = false;
-    elapsedSequenceSteps = 0;
+    sequenceFileNeedsLoading = true;
+    callsToRunSequence = 0;
+    isIndividualFileRunning = false;
+    isFileFinishedRunning = false;
+    nPauseSteps = 300;
+    numStepsSequenceFileRun = 0;
     
     svgSkeleton.loadSvg(svgFile);
     svgSkeleton.generateEquidistantPoints(numPoints); // Call with the data member
@@ -1305,41 +1308,63 @@ void ofApp::loadSequenceFiles() {
 
 void ofApp::runSequence() {
     
-    // Check if "Run Sequence" toggle is enabled
-    if (!runSequenceToggle) {
+    if (!runSequenceToggle) {    // Check if "Run Sequence" toggle is enabled
         isSequenceRunning = false;
         return;
     }
 
-    // Start sequence if not already running
-    if (!isSequenceRunning) {
-        loadSequenceFiles();  // Load sequence files
+    if (!isSequenceRunning) {    // Start sequence if not already running
+        loadSequenceFiles();     // Load sequence files
         isSequenceRunning = true;
         currentSequenceIndex = 0;
+        sequenceFileNeedsLoading = true;
+        isIndividualFileRunning = false;
     }
 
-    // Check if we've finished all files
-    if (currentSequenceIndex >= sequenceFiles.size()) {
+    if (currentSequenceIndex > sequenceFiles.size()) {     // Check if we've finished all files
         isSequenceRunning = false;
         runSequenceToggle = false;  // Turn off the toggle
         return;
     }
-
-    // Check the time elapsed for the current file
-    float elapsedTime = elapsedTimesteps;
-    if (elapsedTime == 0 && !sequenceFileLoaded) {
-        // Load the next file if duration for the current file is complete
+        
+    // Load the next file if duration for the current file is complete
+    if (numStepsSequenceFileRun==0 && sequenceFileNeedsLoading) {
         const std::string& filename = sequenceFiles[currentSequenceIndex];
         loadSettings(filename);
         resetSimulation();
-        sequenceFileLoaded = true;
-        
+        sequenceFileNeedsLoading = false;
+        timeReversalActive = true;                // set time Reversal to active
+        callsToRunSequence = 0;
         sequenceDuration = 2 * (timeReversalTimestep + nTimeReversalSteps);
-
-        sequenceStartTime = ofGetElapsedTimef();  // Reset start time for the new file
-        currentSequenceIndex++;                   // Move to the next file
+        ++currentSequenceIndex;                   // Move to the next file
     }
-    else if (elapsedTime != 0 && sequenceFileLoaded){
-        sequenceFileLoaded = false;
+    else if (!isIndividualFileRunning && callsToRunSequence < nPauseSteps && !isFileFinishedRunning){
+        ++callsToRunSequence;
+    }
+    else if (callsToRunSequence == nPauseSteps && !isFileFinishedRunning){
+        isPlaying = true;
+        showSvgPoints = false;
+        isIndividualFileRunning = true;
+        callsToRunSequence = 0;
+    }
+    else if (isIndividualFileRunning && numStepsSequenceFileRun < sequenceDuration && !isFileFinishedRunning){
+        ++numStepsSequenceFileRun;
+    }
+    else if (numStepsSequenceFileRun == sequenceDuration && !isFileFinishedRunning){
+        isFileFinishedRunning = true;
+        isPlaying = false;
+        showSvgPoints = true;
+        isIndividualFileRunning = false;
+        callsToRunSequence = 0;
+        numStepsSequenceFileRun = 0;
+    }
+    else if (isFileFinishedRunning && callsToRunSequence < nPauseSteps){
+        ++callsToRunSequence;
+    }
+    else if (isFileFinishedRunning && callsToRunSequence == nPauseSteps){
+        sequenceFileNeedsLoading = true;
+        numStepsSequenceFileRun = 0;
+        callsToRunSequence = 0;
+        isFileFinishedRunning = false;
     }
 }

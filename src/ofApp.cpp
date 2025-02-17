@@ -1339,6 +1339,7 @@ void ofApp::runSequence() {
         ++currentSequenceIndex;                   // Move to the next file
     }
     else if (!isIndividualFileRunning && callsToRunSequence < nPauseSteps && !isFileFinishedRunning){
+//        cout << callsToRunSequence << " playPauseStatus " << playPauseStatus << endl;
         ++callsToRunSequence;
     }
     else if (callsToRunSequence == nPauseSteps && !isFileFinishedRunning){
@@ -1348,7 +1349,10 @@ void ofApp::runSequence() {
         callsToRunSequence = 0;
     }
     else if (isIndividualFileRunning && numStepsSequenceFileRun < sequenceDuration && !isFileFinishedRunning){
-        ++numStepsSequenceFileRun;
+        if (isPlaying){  // increment the step counter if we're not paused
+//            cout << numStepsSequenceFileRun << " playPauseStatus " << playPauseStatus << endl;
+            ++numStepsSequenceFileRun;
+        }
     }
     else if (numStepsSequenceFileRun == sequenceDuration && !isFileFinishedRunning){
         isFileFinishedRunning = true;
@@ -1359,6 +1363,7 @@ void ofApp::runSequence() {
         numStepsSequenceFileRun = 0;
     }
     else if (isFileFinishedRunning && callsToRunSequence < nPauseSteps){
+//        cout << callsToRunSequence << " playPauseStatus " << playPauseStatus << endl;
         ++callsToRunSequence;
     }
     else if (isFileFinishedRunning && callsToRunSequence == nPauseSteps){

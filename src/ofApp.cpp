@@ -29,12 +29,12 @@ void ofApp::setup() {
     ofSetFrameRate(60);
   
 //    string svgFile = "test-nonConnected.svg";
-//    string svgFile = "taraYantra.svg";
+    string svgFile = "taraYantra.svg";
 //    string svgFile = "taraYantra2.svg";
 //    string svgFile = "tara-crown-heart-lotus.svg";
 //    string svgFile = "tara-crown-Chakra.svg";
 //    string svgFile = "tara-CHL-head.svg";
-    string svgFile = "tara-CHL-heart.svg";
+//    string svgFile = "tara-CHL-heart.svg";
 //    string svgFile = "tara-CHL-lotus.svg";
 //    string svgFile = "cir_seasonal-US.svg";
 //    string svgFile = "tara-face.svg";
@@ -1323,7 +1323,7 @@ void ofApp::runSequence() {
 
     if (currentSequenceIndex > sequenceFiles.size()) {     // Check if we've finished all files
         isSequenceRunning = false;
-        runSequenceToggle = false;  // Turn off the toggle
+//        runSequenceToggle = false;  // Turn off the toggle
         return;
     }
         

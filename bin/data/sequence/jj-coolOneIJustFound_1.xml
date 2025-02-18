@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<Settings />
+<gui>
+	<group>
+		<Window_Size>1024x768</Window_Size>
+		<FPS>37.25</FPS>
+		<Play_Pause>Pause</Play_Pause>
+		<Number_of_Points>30025</Number_of_Points>
+		<Time_Direction>BACKWARD</Time_Direction>
+		<timestep__0_0002-0_01_></timestep__0_0002-0_01_>
+		<Edit_timestep>0.003</Edit_timestep>
+		<Elapsed_Steps>0</Elapsed_Steps>
+		<Time_Reversal_Active>1</Time_Reversal_Active>
+		<Time_Reversal_Step>6000</Time_Reversal_Step>
+		<Show_Potential_Field>1</Show_Potential_Field>
+		<Flip_Potential_Field>0</Flip_Potential_Field>
+		<Show_Attractor_Circles>1</Show_Attractor_Circles>
+		<Show_Contour_Lines>0</Show_Contour_Lines>
+		<Contour_Threshold>10000</Contour_Threshold>
+		<Downscale_Factor>3</Downscale_Factor>
+		<Show_Grid>0</Show_Grid>
+		<Enable_Snapping>0</Enable_Snapping>
+		<Run_Sequence>0</Run_Sequence>
+		<Potential_Field_Color>80, 80, 80, 255</Potential_Field_Color>
+	</group>
+	<numPointsInput>30000</numPointsInput>
+</gui>
+<svgInfoGui>
+	<svgFile_>tara-CHL-heart.svg</svgFile_>
+	<Show_SVG_Points>1</Show_SVG_Points>
+	<svgMidpoint>512, 384</svgMidpoint>
+	<svgScale>0.10737</svgScale>
+	<SVG_rot__deg_>0</SVG_rot__deg_>
+	<SVG_Points_Color>178, 178, 178, 255</SVG_Points_Color>
+</svgInfoGui>
+<attractorGui>
+	<Attractor_0>
+		<Center>512, 384</Center>
+		<Radius>132.189</Radius>
+		<Amplitude>50000</Amplitude>
+	</Attractor_0>
+</attractorGui>

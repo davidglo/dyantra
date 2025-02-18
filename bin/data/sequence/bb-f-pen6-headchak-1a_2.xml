@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<Settings />
+<gui>
+	<group>
+		<Window_Size>1920x1200</Window_Size>
+		<FPS>32.29</FPS>
+		<Play_Pause>Pause</Play_Pause>
+		<Number_of_Points>34471</Number_of_Points>
+		<Time_Direction>BACKWARD</Time_Direction>
+		<timestep__0_0002-0_01_></timestep__0_0002-0_01_>
+		<Edit_timestep>0.005</Edit_timestep>
+		<Elapsed_Steps>0</Elapsed_Steps>
+		<Time_Reversal_Active>1</Time_Reversal_Active>
+		<Time_Reversal_Step>10000</Time_Reversal_Step>
+		<Show_Potential_Field>1</Show_Potential_Field>
+		<Flip_Potential_Field>0</Flip_Potential_Field>
+		<Show_Attractor_Circles>0</Show_Attractor_Circles>
+		<Show_Contour_Lines>0</Show_Contour_Lines>
+		<Contour_Threshold>10000</Contour_Threshold>
+		<Downscale_Factor>3</Downscale_Factor>
+		<Show_Grid>0</Show_Grid>
+		<Enable_Snapping>0</Enable_Snapping>
+		<Potential_Field_Color>75, 45, 111, 255</Potential_Field_Color>
+	</group>
+	<numPointsInput>33000</numPointsInput>
+</gui>
+<svgInfoGui>
+	<svgFile_>tara-crown-Chakra.svg</svgFile_>
+	<Show_SVG_Points>1</Show_SVG_Points>
+	<svgMidpoint>960.265, 600.155</svgMidpoint>
+	<svgScale>0.343007</svgScale>
+	<SVG_rot__deg_>0</SVG_rot__deg_>
+	<SVG_Points_Color>151, 66, 183, 255</SVG_Points_Color>
+</svgInfoGui>
+<attractorGui>
+	<Attractor_0>
+		<Center>960, 600</Center>
+		<Radius>360.013</Radius>
+		<Amplitude>50000</Amplitude>
+	</Attractor_0>
+</attractorGui>

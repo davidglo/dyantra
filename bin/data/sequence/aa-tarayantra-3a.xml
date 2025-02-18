@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<Settings />
+<gui>
+	<group>
+		<Window_Size>1470x920</Window_Size>
+		<FPS>60.00</FPS>
+		<Play_Pause>Play</Play_Pause>
+		<Number_of_Points>25952</Number_of_Points>
+		<Time_Direction>FORWARD</Time_Direction>
+		<timestep__0_0002-0_01_></timestep__0_0002-0_01_>
+		<Edit_timestep>0.003</Edit_timestep>
+		<Elapsed_Steps>1511</Elapsed_Steps>
+		<Time_Reversal_Active>1</Time_Reversal_Active>
+		<Time_Reversal_Step>8000</Time_Reversal_Step>
+		<Show_Potential_Field>1</Show_Potential_Field>
+		<Flip_Potential_Field>0</Flip_Potential_Field>
+		<Show_Attractor_Circles>0</Show_Attractor_Circles>
+		<Show_Contour_Lines>0</Show_Contour_Lines>
+		<Contour_Threshold>10000</Contour_Threshold>
+		<Downscale_Factor>3</Downscale_Factor>
+		<Show_Grid>0</Show_Grid>
+		<Enable_Snapping>1</Enable_Snapping>
+		<Potential_Field_Color>39, 36, 80, 255</Potential_Field_Color>
+	</group>
+	<numPointsInput>26000</numPointsInput>
+</gui>
+<svgInfoGui>
+	<svgFile_>taraYantra.svg</svgFile_>
+	<Show_SVG_Points>0</Show_SVG_Points>
+	<svgMidpoint>734.684, 459.255</svgMidpoint>
+	<svgScale>0.657034</svgScale>
+	<SVG_rot__deg_>0.000</SVG_rot__deg_>
+	<SVG_Points_Color>33, 78, 89, 255</SVG_Points_Color>
+</svgInfoGui>
+<attractorGui>
+	<Attractor_0>
+		<Center>837.264, 404.61</Center>
+		<Radius>119</Radius>
+		<Amplitude>50000</Amplitude>
+	</Attractor_0>
+	<Attractor_1>
+		<Center>632.828, 403.858</Center>
+		<Radius>119</Radius>
+		<Amplitude>50000</Amplitude>
+	</Attractor_1>
+	<Attractor_2>
+		<Center>734.885, 575.028</Center>
+		<Radius>105.225</Radius>
+		<Amplitude>50000</Amplitude>
+	</Attractor_2>
+</attractorGui>

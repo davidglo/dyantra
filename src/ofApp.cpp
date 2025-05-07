@@ -133,6 +133,7 @@ void ofApp::setup() {
     
     gui.add(showAttractorCircles.set("Show Attractor Circles", true)); // Add checkbox for attractor circles
     gui.add(showContourLines.set("Show Contour Lines", true)); // Add checkbox for contour lines
+    gui.add(showContourLines.set("Show Contour Lines", true)); // Add checkbox for contour lines
     gui.add(contourThresholdSlider.setup("Contour Threshold", 10000, 0.0, 50000.0));  // Initialize the contour threshold slider
     gui.add(downscaleFactorGui.set("Downscale Factor", 3, 1, 10)); // Add slider for downscale factor
 
@@ -317,7 +318,7 @@ void ofApp::draw() {
     
     // unlike the particleEnsemble, the svgSkeleton points include the midpoint
     // we only draw the svgSkeleton points if explicitly indicated
-    particleEnsemble.draw();
+    particleEnsemble.drawVBO();
     if (showSvgPoints) {svgSkeleton.draw();}
     
     

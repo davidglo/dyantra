@@ -142,8 +142,11 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
                 }
                 
                 equidistantPoints.push_back(startVertex);
-                equidistantPointsPathIDs.push_back(polyLineLabels[i]);
-//                size_t idx = equidistantPoints.size()-1;
+
+				if (polyLineLabels.size() > i) {
+					equidistantPointsPathIDs.push_back(polyLineLabels[i]);
+				}
+				//                size_t idx = equidistantPoints.size()-1;
 //                cout << "vertex-x: "  << equidistantPoints[idx].x << " vertex-y: "  << equidistantPoints[idx].y << endl;
                 float pathLength;
                 
@@ -169,16 +172,20 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
                     lengthAlongPath = lengthAlongPath + lengthStep;
                     glm::vec3 point = polyline.getPointAtLength(lengthAlongPath);
                     equidistantPoints.push_back(point);
-                    equidistantPointsPathIDs.push_back(polyLineLabels[i]);
-//                    idx = equidistantPoints.size()-1;
+					if (polyLineLabels.size() > i) {
+						equidistantPointsPathIDs.push_back(polyLineLabels[i]);
+					}
+					//                    idx = equidistantPoints.size()-1;
 //                    cout << " j " << j << " point-x: "  << equidistantPoints[idx].x << " point-y: "  << equidistantPoints[idx].y << endl;
                 }
             }
             
             glm::vec3 endVertex = polylineVertices[polylineVertices.size() - 1];
             equidistantPoints.push_back(endVertex);
-            equidistantPointsPathIDs.push_back(polyLineLabels[i]);
-//            size_t idx = equidistantPoints.size()-1;
+			if (polyLineLabels.size() > i) {
+				equidistantPointsPathIDs.push_back(polyLineLabels[i]);
+			}
+			//            size_t idx = equidistantPoints.size()-1;
 //            cout << "vertex-x: "  << equidistantPoints[idx].x << " vertex-y: "  << equidistantPoints[idx].y << endl;
             size_t lastIdx = equidistantPoints.size()-1;
             float distFirstToLast = glm::distance(equidistantPoints[lastIdx], equidistantPoints[0]);

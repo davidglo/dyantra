@@ -34,10 +34,14 @@ void particleEnsemble::update(const std::vector<glm::vec3>& initialPositions) {
 }
 
 void particleEnsemble::draw() const {
+	ofSetCircleResolution(5);
+	ofPushMatrix();
     ofFill();
     for (size_t i = 0; i < positions.size(); ++i) {
         ofDrawCircle(positions[i], radii[i]);
+		//ofdraw
     }
+	ofPopMatrix();
 }
 
 void particleEnsemble::radial_update(float dt, float angularVelocity, const glm::vec3& midpoint) {

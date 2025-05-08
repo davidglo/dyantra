@@ -23,6 +23,8 @@ ofPoint ofApp::getNearestSvgVertex(const ofPoint& point, float& minDistance) {
     return nearestVertex;
 }
 
+
+
 void ofApp::setup() {
     
     ofSetVerticalSync(true);
@@ -1125,7 +1127,7 @@ void ofApp::loadSettings(const std::string& filename) {
             }
         }
         
-        scaleForCurrentGraphicsWindow = min(ofGetWidth()/originalWindowSize.x,ofGetHeight()/originalWindowSize.y);
+        scaleForCurrentGraphicsWindow = ofMin(ofGetWidth()/originalWindowSize.x,ofGetHeight()/originalWindowSize.y);
         
         // Load the SVG info GUI
         ofXml svgInfoXml = settings.getChild("svgInfoGui");

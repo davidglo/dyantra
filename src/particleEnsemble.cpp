@@ -6,6 +6,9 @@ particleEnsemble::particleEnsemble() {
 }
 
 void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions) {
+	ofDisableArbTex();
+	ofEnableNormalizedTexCoords();
+
     // Exclude the first element (midpoint) and copy the rest of the positions
     positions.assign(initialPositions.begin() + 1, initialPositions.end());
     last_positions.assign(initialPositions.begin() + 1, initialPositions.end());
@@ -17,12 +20,12 @@ void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
     masses.resize(positions.size(), 1.0f); // Example mass initialization
 
     // Load the particle texture    
-	bool textureLoaded = texture.load("textures/particle.png");
+	bool textureLoaded = texture.load("textures/particle2.png");
 	if (!textureLoaded) {
 		ofLogError("particleEnsemble") << "Failed to load particle texture!";
 	}
 
-    bool shaderLoaded = shader.load("shaders/particle.vert", "shaders/particle.frag");
+    bool shaderLoaded = shader.load("shaders/particle");
     if (!shaderLoaded) {
         ofLogError("particleEnsemble") << "Failed to load particle shaders!";
 	}
@@ -63,8 +66,6 @@ void particleEnsemble::drawVBO() {
 	vbo.clear();
 	vbo.setVertexData(&positions[0].x, 3, positions.size(), GL_DYNAMIC_DRAW);
 
-    ofFill();
-
     ofEnableBlendMode(OF_BLENDMODE_ADD);
 
     //shaders for point sprite rendering
@@ -78,12 +79,12 @@ void particleEnsemble::drawVBO() {
         1.0f,
         1.0f);
 
-    shader.setUniform1f("size", 1.0f);
+    shader.setUniform1f("size", 2.0f);
 
     // draw all particles in a single call
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_POINT_SPRITE);
-    glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+    //glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 
     vbo.draw(GL_POINTS, 0, positions.size());
 

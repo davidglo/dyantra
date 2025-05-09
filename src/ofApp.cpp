@@ -104,7 +104,7 @@ void ofApp::setup() {
     gui.add(numPointsDisplay.set("Number of Points", "")); // Add number of points display
     
     // New input field for number of points
-    gui.add(numPointsInput.setup("Edit points:", numPoints, 2, 50000));
+    gui.add(numPointsInput.setup("Edit points:", numPoints, 2, 600000));
     
     gui.add(timeDirectionDisplay.set("Time Direction", "FORWARD"));        // Add time direction to the GUI
 
@@ -1125,7 +1125,7 @@ void ofApp::loadSettings(const std::string& filename) {
             }
         }
         
-        scaleForCurrentGraphicsWindow = min(ofGetWidth()/originalWindowSize.x,ofGetHeight()/originalWindowSize.y);
+        scaleForCurrentGraphicsWindow = ofMin(ofGetWidth()/originalWindowSize.x,ofGetHeight()/originalWindowSize.y);
         
         // Load the SVG info GUI
         ofXml svgInfoXml = settings.getChild("svgInfoGui");

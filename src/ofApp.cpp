@@ -137,7 +137,7 @@ void ofApp::setup() {
     gui.add(downscaleFactorGui.set("Downscale Factor", 3, 1, 10)); // Add slider for downscale factor
 
     gui.add(showGrid.set("Show Grid", true));  // Add the checkbox for the grid
-	gui.add(vboParticles.set("VBO Particles", false));
+    gui.add(vboParticles.set("VBO Particles", false));
     regenerateGridIntersections();  // Generate initial grid intersections
     
     // Setup GUI for snapping
@@ -186,7 +186,10 @@ void ofApp::setup() {
     // Add listeners for the buttons
     buttonToPasteLoadFilenameFromClipboard.addListener(this, &ofApp::onPasteLoadFilenameButtonPressed);
     buttonToPasteSaveFilenameFromClipboard.addListener(this, &ofApp::onPasteSaveFilenameButtonPressed);
-    
+
+    // allocate the screenshot buffer and image
+    ssFbo.allocate(ofGetWidth() * SS_HD_SCALE, ofGetHeight() * SS_HD_SCALE, GL_RGBA);
+    ssImg.allocate(ofGetWidth() * SS_HD_SCALE, ofGetHeight() * SS_HD_SCALE, ofImageType::OF_IMAGE_COLOR_ALPHA);
 }
 
 void ofApp::update() {
@@ -296,6 +299,14 @@ void ofApp::update() {
 }
 
 void ofApp::draw() {
+
+    // when saving HD screenshot, render all at upscaled size
+    if (shouldSaveHDScreenshot) {
+        ssFbo.begin();
+        ofPushMatrix();
+        ofScale(SS_HD_SCALE, SS_HD_SCALE);
+    }
+
     ofBackground(0);  // Set background to black
     
     // Draw the potential field if the flag is set
@@ -318,13 +329,14 @@ void ofApp::draw() {
     
     // unlike the particleEnsemble, the svgSkeleton points include the midpoint
     // we only draw the svgSkeleton points if explicitly indicated
-	if (vboParticles) {
-		particleEnsemble.drawVBO();
-	} else {
-		particleEnsemble.draw();
-	}
+    if (vboParticles) {
+        // when HD screenshoting, tell the vbo drawing to use a high scaled particles
+        particleEnsemble.drawVBO(shouldSaveHDScreenshot ? SS_HD_SCALE : 1.0f);
+    } else {
+        particleEnsemble.draw();
+    }
     if (showSvgPoints) {svgSkeleton.draw();}
-    
+
     
     // Draw established attractors if the flag is set
     if (showAttractorCircles) {
@@ -337,7 +349,23 @@ void ofApp::draw() {
         ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
         tempAttractor.draw();
     }
-    
+
+    // finish the HD screenshot process
+    if (shouldSaveHDScreenshot) {
+        ofPopMatrix();
+        ssFbo.end();
+        ssFbo.readToPixels(ssImg.getPixels());
+        string screenshotFilename = "dyantra_screenshot_" + ofGetTimestampString() + "_hd.png";
+        ofSaveImage(ssImg, screenshotFilename, OF_IMAGE_QUALITY_BEST);
+        shouldSaveHDScreenshot = false;
+    }
+
+    if (shouldSaveScreenshot) {
+        string screenshotFilename = "dyantra_screenshot_" + ofGetTimestampString() + ".png";
+        ofSaveScreen(screenshotFilename);
+		shouldSaveScreenshot = false;
+    }
+
     // Draw GUI
     if(drawMenus){
         gui.draw();
@@ -668,6 +696,14 @@ void ofApp::keyPressed(int key) {
     }
     if(key == 'f' || key == 'F'){
         drawFileMenu = !drawFileMenu;
+    }
+    if (key == 's') {
+        // Save a screenshot of the current frame, regular size
+        shouldSaveScreenshot = true;
+    }
+    if (key == 'S') {
+        // save a screenshot of the current frame, HD size
+        shouldSaveHDScreenshot = true;
     }
 }
 

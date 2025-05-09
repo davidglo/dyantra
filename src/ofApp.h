@@ -177,6 +177,13 @@ private:
     // Other variables
     int timeReversalTimestep;  // Variable to store the user-defined timestep for reversal
     bool timeReversalValueChanged;
+
+	// screenshot variables
+	bool shouldSaveHDScreenshot = false;
+	bool shouldSaveScreenshot   = false;
+	ofFbo ssFbo;
+	ofImage ssImg;
+	const float SS_HD_SCALE = 2.0f;
     
     ofxPanel fileGui;
     

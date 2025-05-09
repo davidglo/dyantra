@@ -7,7 +7,7 @@ particleEnsemble::particleEnsemble() {
 
 void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions) {
 	ofDisableArbTex();
-	ofEnableNormalizedTexCoords();
+	//ofEnableNormalizedTexCoords();
 
     // Exclude the first element (midpoint) and copy the rest of the positions
     positions.assign(initialPositions.begin() + 1, initialPositions.end());
@@ -20,7 +20,7 @@ void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
     masses.resize(positions.size(), 1.0f); // Example mass initialization
 
     // Load the particle texture    
-	bool textureLoaded = texture.load("textures/particle.png");
+	bool textureLoaded = texture.load("textures/particle3.png");
 	if (!textureLoaded) {
 		ofLogError("particleEnsemble") << "Failed to load particle texture!";
 	}
@@ -56,13 +56,15 @@ void particleEnsemble::draw() const {
     ofFill();
     for (size_t i = 0; i < positions.size(); ++i) {
         ofDrawCircle(positions[i], radii[i]);
-		//ofdraw
     }
 	ofPopMatrix();
 }
 
-
 void particleEnsemble::drawVBO() {
+	drawVBO(1.0f);
+}
+
+void particleEnsemble::drawVBO(float scale) {
 	int total = (int) positions.size();
 	vbo.setVertexData(&positions[0], total, GL_DYNAMIC_DRAW);
 
@@ -73,7 +75,7 @@ void particleEnsemble::drawVBO() {
     shader.begin();
 
     shader.setUniform4f("color", ofGetStyle().color);
-    shader.setUniform1f("size", 5.0f);
+	shader.setUniform1f("size", 5.0f * scale);
 
     vbo.draw(GL_POINTS, 0, positions.size());
 

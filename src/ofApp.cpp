@@ -23,6 +23,8 @@ ofPoint ofApp::getNearestSvgVertex(const ofPoint& point, float& minDistance) {
     return nearestVertex;
 }
 
+
+
 void ofApp::setup() {
     
     ofSetVerticalSync(true);

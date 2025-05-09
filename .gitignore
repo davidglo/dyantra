@@ -17,3 +17,6 @@ dyantra.xcodeproj/project.xcworkspace/xcuserdata/
 dyantra.xcodeproj/xcuserdata
 bin/data/tara-head-components/
 
+/obj
+/.vs/dyantra
+/dll/x64

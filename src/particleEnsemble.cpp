@@ -20,7 +20,7 @@ void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
     masses.resize(positions.size(), 1.0f); // Example mass initialization
 
     // Load the particle texture    
-	bool textureLoaded = texture.load("textures/particle2.png");
+	bool textureLoaded = texture.load("textures/particle.png");
 	if (!textureLoaded) {
 		ofLogError("particleEnsemble") << "Failed to load particle texture!";
 	}
@@ -72,7 +72,7 @@ void particleEnsemble::drawVBO() {
     texture.bind();
     shader.begin();
 
-    shader.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+    shader.setUniform4f("color", ofGetStyle().color);
     shader.setUniform1f("size", 5.0f);
 
     vbo.draw(GL_POINTS, 0, positions.size());

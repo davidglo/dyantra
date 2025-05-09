@@ -317,7 +317,7 @@ void ofApp::draw() {
     
     // unlike the particleEnsemble, the svgSkeleton points include the midpoint
     // we only draw the svgSkeleton points if explicitly indicated
-    particleEnsemble.drawVBO();
+	particleEnsemble.drawVBO();
     if (showSvgPoints) {svgSkeleton.draw();}
     
     

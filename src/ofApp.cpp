@@ -137,6 +137,7 @@ void ofApp::setup() {
     gui.add(downscaleFactorGui.set("Downscale Factor", 3, 1, 10)); // Add slider for downscale factor
 
     gui.add(showGrid.set("Show Grid", true));  // Add the checkbox for the grid
+	gui.add(vboParticles.set("VBO Particles", false));
     regenerateGridIntersections();  // Generate initial grid intersections
     
     // Setup GUI for snapping
@@ -317,7 +318,11 @@ void ofApp::draw() {
     
     // unlike the particleEnsemble, the svgSkeleton points include the midpoint
     // we only draw the svgSkeleton points if explicitly indicated
-    particleEnsemble.draw();
+	if (vboParticles) {
+		particleEnsemble.drawVBO();
+	} else {
+		particleEnsemble.draw();
+	}
     if (showSvgPoints) {svgSkeleton.draw();}
     
     

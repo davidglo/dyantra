@@ -134,7 +134,9 @@ private:
     void onContourThresholdChanged(float & value); // Add this function
     
     void resetSimulation();
-    
+
+	ofParameter<bool> vboParticles;
+
     std::vector<ofPoint> gridIntersections;  // Store the grid intersection points
     ofParameter<bool> showGrid; // Declare showGrid as private
     void drawGrid(); // Function to draw the grid

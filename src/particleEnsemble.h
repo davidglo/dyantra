@@ -8,6 +8,7 @@ public:
     particleEnsemble(); // Constructor
 
     void draw() const;
+    void drawVBO();
     void initialize(const std::vector<glm::vec3>& initialPositions); // Initialization function
     void ZeroForces() {  // Zero forces function
         for (auto& force : f) {
@@ -37,5 +38,8 @@ public:
 private:
     glm::vec3 calculateGaussianForce(const attractor& attractorObject, const glm::vec3& particlePosition) const; // Helper function
     
+    ofImage texture;
+    ofVbo vbo;
+    ofShader shader;
 };
 

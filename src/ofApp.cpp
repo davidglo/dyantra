@@ -27,8 +27,8 @@ ofPoint ofApp::getNearestSvgVertex(const ofPoint& point, float& minDistance) {
 
 void ofApp::setup() {
     
-    ofSetVerticalSync(true);
-    ofSetFrameRate(60);
+    ofSetVerticalSync(false);
+//    ofSetFrameRate(60);
   
 //    string svgFile = "test-nonConnected.svg";
     string svgFile = "taraYantra.svg";

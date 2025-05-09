@@ -7,7 +7,6 @@ particleEnsemble::particleEnsemble() {
 
 void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions) {
 	ofDisableArbTex();
-	ofEnableNormalizedTexCoords();
 
     // Exclude the first element (midpoint) and copy the rest of the positions
     positions.assign(initialPositions.begin() + 1, initialPositions.end());

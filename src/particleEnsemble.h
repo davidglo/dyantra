@@ -41,5 +41,6 @@ private:
     ofImage texture;
     ofVbo vbo;
     ofShader shader;
+	ofEasyCam cam;
 };
 

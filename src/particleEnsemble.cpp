@@ -63,38 +63,24 @@ void particleEnsemble::draw() const {
 
 
 void particleEnsemble::drawVBO() {
-	vbo.clear();
-	vbo.setVertexData(&positions[0].x, 3, positions.size(), GL_DYNAMIC_DRAW);
+	int total = (int) positions.size();
+	vbo.setVertexData(&positions[0], total, GL_DYNAMIC_DRAW);
 
     ofEnableBlendMode(OF_BLENDMODE_ADD);
+	ofEnablePointSprites();
 
-    //shaders for point sprite rendering
     texture.bind();
     shader.begin();
 
-    // set uniforms
-    shader.setUniform4f("color",
-        1.0f,
-        1.0f,
-        1.0f,
-        1.0f);
-
-    shader.setUniform1f("size", 2.0f);
-
-    // draw all particles in a single call
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glEnable(GL_POINT_SPRITE);
-    //glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+    shader.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+    shader.setUniform1f("size", 5.0f);
 
     vbo.draw(GL_POINTS, 0, positions.size());
-
-    glDisable(GL_POINT_SPRITE);
-    glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     shader.end();
     texture.unbind();
 
-    // reset blend mode
+	ofDisablePointSprites();
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 }
 

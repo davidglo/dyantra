@@ -2,7 +2,16 @@
 #include "ofApp.h"
 
 int main() {
-    ofSetupOpenGL(1024, 768, OF_WINDOW);  // Setup the OpenGL context
-    ofRunApp(new ofApp());  // Run the ofApp instance
+	//Use ofGLFWWindowSettings for more options like multi-monitor fullscreen
+	ofGLWindowSettings settings;
+	settings.setSize(1024, 768);
+	settings.windowMode = OF_WINDOW; //can also be OF_FULLSCREEN
+	//settings.setGLVersion(2, 1); // Fixed pipeline
+	settings.setGLVersion(3, 2);  // Programmable pipeline
+
+	auto window = ofCreateWindow(settings);
+
+	ofRunApp(window, std::make_shared<ofApp>());
+	ofRunMainLoop();
 }
 

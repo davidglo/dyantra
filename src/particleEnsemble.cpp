@@ -18,19 +18,10 @@ void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
     radii.resize(positions.size(), 1.0f); // Example radius initialization
     masses.resize(positions.size(), 1.0f); // Example mass initialization
 
-    // Load the particle texture    
-	bool textureLoaded = texture.load("textures/particle.png");
-	if (!textureLoaded) {
-		ofLogError("particleEnsemble") << "Failed to load particle texture!";
-	}
-
-    bool shaderLoaded = shader.load("shaders/particle");
-    if (!shaderLoaded) {
-        ofLogError("particleEnsemble") << "Failed to load particle shaders!";
-	}
-
     // allocate memory for particle data
 	positions.reserve(initialPositions.size());
+
+	vboRenderer.load();
 }
 
 void particleEnsemble::reinitialize(const std::vector<glm::vec3>& initialPositions) {
@@ -62,25 +53,11 @@ void particleEnsemble::draw() const {
 
 
 void particleEnsemble::drawVBO() {
-	int total = (int) positions.size();
-	vbo.setVertexData(&positions[0], total, GL_DYNAMIC_DRAW);
-
-    ofEnableBlendMode(OF_BLENDMODE_ADD);
-	ofEnablePointSprites();
-
-    texture.bind();
-    shader.begin();
-
-    shader.setUniform4f("color", ofGetStyle().color);
-    shader.setUniform1f("size", 5.0f);
-
-    vbo.draw(GL_POINTS, 0, positions.size());
-
-    shader.end();
-    texture.unbind();
-
-	ofDisablePointSprites();
-    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+	ofPushStyle();
+	ofSetPointSize(5.0);
+	vboRenderer.update(positions);
+	vboRenderer.draw();
+	ofPopStyle();
 }
 
 void particleEnsemble::radial_update(float dt, float angularVelocity, const glm::vec3& midpoint) {

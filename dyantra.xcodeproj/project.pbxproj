@@ -12,6 +12,7 @@
 		"55FC49B6-3790-41B0-B192-C931EEDEB713" /* ofxBaseGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "59717CF4-BC1F-4B1B-AF2B-C19D37C168EE" /* ofxBaseGui.cpp */; };
 		"71DFA362-D83C-410A-B91F-7ABC2DB5982C" /* ofxXmlSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "381762B7-E99C-445C-A2BC-C171460F21F8" /* ofxXmlSettings.cpp */; };
 		"7AA6BE47-49D5-4579-8518-B82D388001D3" /* svgSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "958728BB-37D3-439E-8AD8-F811C5308181" /* svgSkeleton.cpp */; };
+		9246A8782DD24F6900BA279E /* particleRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9246A8762DD24F6900BA279E /* particleRenderer.cpp */; };
 		"96C02B57-6A01-4D3D-9A39-A61B678A9B8E" /* ofxButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "F0350B24-0830-49AA-9A82-F2B48B64FE99" /* ofxButton.cpp */; };
 		"96D6AE66-B247-4792-B338-732BEE493C9F" /* ofxPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "9236E919-FE8B-4B79-AE55-B6B7E5E6DBED" /* ofxPanel.cpp */; };
 		"A4E86CFE-77E7-4B66-B541-86F30C39015A" /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "BACFF631-F413-4A34-B246-2894BC54A570" /* tinyxmlparser.cpp */; };
@@ -123,6 +124,8 @@
 		"9045605C-BC1B-4F17-AD08-3F7329A86CF6" /* HTMLtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HTMLtree.h; sourceTree = "<group>"; };
 		"9087B27A-44E0-4BEF-9EA9-6990BB899FB0" /* ofxLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ofxLabel.h; sourceTree = "<group>"; };
 		"9236E919-FE8B-4B79-AE55-B6B7E5E6DBED" /* ofxPanel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxPanel.cpp; sourceTree = "<group>"; };
+		9246A8762DD24F6900BA279E /* particleRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = particleRenderer.cpp; sourceTree = "<group>"; };
+		9246A8772DD24F6900BA279E /* particleRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = particleRenderer.h; sourceTree = "<group>"; };
 		"9316B4BC-F360-4FB4-8316-A91DDE9F9826" /* xpointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = xpointer.h; sourceTree = "<group>"; };
 		"93790A06-EABF-4B51-AAD6-374BF6CA4CCB" /* encoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = encoding.h; sourceTree = "<group>"; };
 		"9518B66F-1454-4EE9-B8DA-8AA63D65E508" /* xmlmodule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = xmlmodule.h; sourceTree = "<group>"; };
@@ -533,6 +536,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				9246A8762DD24F6900BA279E /* particleRenderer.cpp */,
+				9246A8772DD24F6900BA279E /* particleRenderer.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
@@ -681,6 +686,7 @@
 				"EAA8F1C1-24C5-4D41-96D5-A473E8099E8A" /* tinyxml.cpp in Sources */,
 				"A5C4E971-D144-471E-9706-C5642E0E78D8" /* tinyxmlerror.cpp in Sources */,
 				"A4E86CFE-77E7-4B66-B541-86F30C39015A" /* tinyxmlparser.cpp in Sources */,
+				9246A8782DD24F6900BA279E /* particleRenderer.cpp in Sources */,
 				"71DFA362-D83C-410A-B91F-7ABC2DB5982C" /* ofxXmlSettings.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

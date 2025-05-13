@@ -76,7 +76,9 @@ private:
     ofxPanel gui;
     ofParameter<bool> showPotentialFieldGui;
     ofParameter<ofColor> potentialFieldColor; // Add color wheel
-    ofParameter<ofColor> svgPointsColor; // New parameter for SVG points color
+	ofParameter<ofColor> svgPointsColor; // New parameter for SVG points color
+	ofColor dimSvgPointsColor; // proxy color dimming the brightness
+	ofParameter<ofColor> backgroundColor; // New parameter for SVG points color
     ofParameter<string> fpsDisplay; // Add FPS display
     ofParameter<bool> showAttractorCircles; // Add checkbox for attractor circles
     ofParameter<bool> showContourLines; // Add checkbox for contour lines
@@ -219,5 +221,6 @@ private:
     
     void loadSequenceFiles();
     void runSequence();
-    
+
+	void onSvgPointsColorChanged(ofColor &color);
 };

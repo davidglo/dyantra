@@ -19,7 +19,7 @@ void particleEnsemble::initialize(const std::vector<glm::vec3>& initialPositions
     masses.resize(positions.size(), 1.0f); // Example mass initialization
 
     // Load the particle texture    
-	bool textureLoaded = texture.load("textures/particle3.png");
+	bool textureLoaded = texture.load("textures/particle.png");
 	if (!textureLoaded) {
 		ofLogError("particleEnsemble") << "Failed to load particle texture!";
 	}

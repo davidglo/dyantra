@@ -311,71 +311,75 @@ void ofApp::update() {
 
 void ofApp::draw() {
 
-    // when saving HD screenshot, render all at upscaled size
-    if (shouldSaveHDScreenshot) {
-        ssFbo.begin();
-        ofPushMatrix();
-        ofScale(SS_HD_SCALE, SS_HD_SCALE);
-    }
+	// when saving HD screenshot, render all at upscaled size
+	if (shouldSaveHDScreenshot) {
+		ssFbo.begin();
+		ofPushMatrix();
+		ofScale(SS_HD_SCALE, SS_HD_SCALE);
+	}
 
     ofBackground(backgroundColor); // Set background to black
-    
-    // Draw the potential field if the flag is set
-    if (showPotentialField) {
-        ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
-        potentialField.draw(0, 0, ofGetWidth(), ofGetHeight()); // Upscale when drawing
-    }
-    
-    if (showGrid) {
-        drawGrid();  // Draw grid
-    }
-    
-    // Draw contour lines if the flag is set
-    if (showContourLines) {
-        ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
-        attractorField.drawContours();
-    }
+
+	if (!(shouldSaveHDScreenshot || shouldSaveScreenshot)) {
+
+		if (showGrid) {
+			drawGrid(); // Draw grid
+		}
+
+		// Draw contour lines if the flag is set
+		if (showContourLines) {
+			ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
+			attractorField.drawContours();
+		}
+
+		// Draw the temporary attractor being adjusted
+		if (drawingAttractor) {
+			ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
+			tempAttractor.draw();
+		}
+
+		// Draw established attractors if the flag is set
+		if (showAttractorCircles) {
+			ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
+			attractorField.draw();
+		}
+	}
+
+	// Draw the potential field if the flag is set
+	if (showPotentialField) {
+		ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
+		potentialField.draw(0, 0, ofGetWidth(), ofGetHeight()); // Upscale when drawing
+	}
 
     ofSetColor(dimSvgPointsColor); // Set color for drawing
-    
-    // unlike the particleEnsemble, the svgSkeleton points include the midpoint
-    // we only draw the svgSkeleton points if explicitly indicated
-    if (vboParticles) {
-        // when HD screenshoting, tell the vbo drawing to use a high scaled particles
-        particleEnsemble.drawVBO(shouldSaveHDScreenshot ? SS_HD_SCALE : 1.0f);
-    } else {
-        particleEnsemble.draw();
-    }
-    if (showSvgPoints) {svgSkeleton.draw();}
 
-    
-    // Draw established attractors if the flag is set
-    if (showAttractorCircles) {
-        ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
-        attractorField.draw();
-    }
-    
-    // Draw the temporary attractor being adjusted
-    if (drawingAttractor) {
-        ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
-        tempAttractor.draw();
-    }
+	// unlike the particleEnsemble, the svgSkeleton points include the midpoint
+	// we only draw the svgSkeleton points if explicitly indicated
+	if (vboParticles) {
+		// when HD screenshoting, tell the vbo drawing to use a high scaled particles
+		particleEnsemble.drawVBO(shouldSaveHDScreenshot ? SS_HD_SCALE : 1.0f);
+	} else {
+		particleEnsemble.draw();
+	}
+	if (showSvgPoints) {
+		svgSkeleton.draw();
+	}
 
     // finish the HD screenshot process
-    if (shouldSaveHDScreenshot) {
-        ofPopMatrix();
-        ssFbo.end();
-        ssFbo.readToPixels(ssImg.getPixels());
-        string screenshotFilename = "dyantra_screenshot_" + ofGetTimestampString() + "_hd.png";
-        ofSaveImage(ssImg, screenshotFilename, OF_IMAGE_QUALITY_BEST);
-        shouldSaveHDScreenshot = false;
-    }
-
-    if (shouldSaveScreenshot) {
-        string screenshotFilename = "dyantra_screenshot_" + ofGetTimestampString() + ".png";
-        ofSaveScreen(screenshotFilename);
-        shouldSaveScreenshot = false;
-    }
+	if (shouldSaveHDScreenshot) {
+		ofPopMatrix();
+		ssFbo.end();
+		ssFbo.readToPixels(ssImg.getPixels());
+		string screenshotFilename = SS_PREFIX + ofGetTimestampString() + "_HD_" + SS_SUFIX;
+		ofSaveImage(ssImg, screenshotFilename, OF_IMAGE_QUALITY_BEST);
+		shouldSaveHDScreenshot = false;
+	}
+	else
+	if (shouldSaveScreenshot) {
+		string screenshotFilename = SS_PREFIX + ofGetTimestampString() + SS_SUFIX;
+		ofSaveScreen(screenshotFilename);
+		shouldSaveScreenshot = false;
+	}
 
     // Draw GUI
     if(drawMenus){

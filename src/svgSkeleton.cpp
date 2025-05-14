@@ -204,6 +204,9 @@ void svgSkeleton::generateEquidistantPoints(int numDesiredPoints) {
     for (auto& point : equidistantPoints) {
         point = svgMidpoint + (point - svgMidpoint) * cumulativeScale + translation;
     }
+
+	vboRenderer.load();
+	vboRenderer.update(equidistantPoints);
 }
 
 void svgSkeleton::autoFitToWindow(int windowWidth, int windowHeight) {
@@ -295,13 +298,19 @@ void svgSkeleton::rotateSvg(float angleDelta, bool loadingSvg) {
     }
 }
 
-void svgSkeleton::draw() const {
+void svgSkeleton::draw() {
     if (!equidistantPoints.empty()) {
         // Draw the SVG points as circles with the default SVG points color
-        for (size_t i = 1; i < equidistantPoints.size(); ++i) {
-            ofDrawCircle(equidistantPoints[i], 1); // Draw small circles at each point
-        }
-        
+        //for (size_t i = 1; i < equidistantPoints.size(); ++i) {
+        //    ofDrawCircle(equidistantPoints[i], 1); // Draw small circles at each point
+        //}
+
+		ofPushStyle();
+		ofSetPointSize(5.0);
+		vboRenderer.update(equidistantPoints);
+		vboRenderer.draw();
+		ofPopStyle();
+
         float dashLength = 5.0f; // Length of each dash
         float gapLength = 3.0f;  // Length of the gap between dashes
         

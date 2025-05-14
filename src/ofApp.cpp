@@ -27,8 +27,8 @@ ofPoint ofApp::getNearestSvgVertex(const ofPoint& point, float& minDistance) {
 
 void ofApp::setup() {
     
-    ofSetVerticalSync(false);
-//    ofSetFrameRate(60);
+    ofSetVerticalSync(true);
+    ofSetFrameRate(60);
   
 //    string svgFile = "test-nonConnected.svg";
     string svgFile = "taraYantra.svg";
@@ -45,7 +45,7 @@ void ofApp::setup() {
 //    string svgFile = "2lines.svg";
 //    string svgFile = "triangle.svg";
 
-    numPoints = 2000; // Set the desired number of points
+    numPoints = 20000; // Set the desired number of points
     timestep = 0.003;
     gridSpacing = 50; // Set grid spacing
     numSpokes = 16;
@@ -69,7 +69,7 @@ void ofApp::setup() {
 
     int width = ofGetWidth() / downscaleFactor;
     int height = ofGetHeight() / downscaleFactor;
-    potentialField.allocate(width, height, OF_IMAGE_GRAYSCALE);
+    potentialField.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
     potentialFieldUpdated = true;
     showPotentialField = true; // Initialize the flag to show the potential field
     contourLinesUpdated = true; // Initialize the flag to update contour lines
@@ -137,7 +137,7 @@ void ofApp::setup() {
     gui.add(downscaleFactorGui.set("Downscale Factor", 3, 1, 10)); // Add slider for downscale factor
 
     gui.add(showGrid.set("Show Grid", true));  // Add the checkbox for the grid
-	gui.add(vboParticles.set("VBO Particles", false));
+    gui.add(vboParticles.set("VBO Particles", true));
     regenerateGridIntersections();  // Generate initial grid intersections
     
     // Setup GUI for snapping
@@ -155,13 +155,17 @@ void ofApp::setup() {
     svgInfoGui.setup();
     svgInfoGui.setPosition(gui.getPosition().x + gui.getWidth() + 10, gui.getPosition().y);
     svgInfoGui.add(svgFileName.set("svgFile ", svgSkeleton.getFileName())); // Use getFileName method
-    svgInfoGui.add(showSvgPoints.setup("Show SVG Points", true));  // Initialize the new toggle
+    svgInfoGui.add(showSvgPoints.setup("Show SVG Points", false));  // Initialize the new toggle
     svgInfoGui.add(svgMidpoint.set("svgMidpoint", ofVec2f(svgSkeleton.getSvgCentroid().x, svgSkeleton.getSvgCentroid().y)));
     svgInfoGui.add(svgScale.set("svgScale", 1.0f)); // Initial scale is 1.0
     svgInfoGui.add(svgRotationAngle.set("SVG rot (deg)", ofRadToDeg(svgSkeleton.getCurrentRotationAngle())));
     ofColor initialSvgPointsColor(178, 178, 178); // 70% intensity of white color
     svgInfoGui.add(svgPointsColor.set("SVG Points Color", initialSvgPointsColor, ofColor(0, 0), ofColor(255, 255))); // Add color wheel for SVG points
-    
+    svgInfoGui.add(backgroundColor.set("Background Color", ofColor(0, 0))); // Add color wheel for SVG points
+
+    // listen when svg color changes from the UI to update the proxy dimSvgPointsColor
+	svgPointsColor.addListener(this, &ofApp::onSvgPointsColorChanged, 1);
+
     contourThresholdSlider.addListener(this, &ofApp::onContourThresholdChanged);  // Add listener to the slider
     
     // Setup and position the attractor information panel
@@ -186,7 +190,17 @@ void ofApp::setup() {
     // Add listeners for the buttons
     buttonToPasteLoadFilenameFromClipboard.addListener(this, &ofApp::onPasteLoadFilenameButtonPressed);
     buttonToPasteSaveFilenameFromClipboard.addListener(this, &ofApp::onPasteSaveFilenameButtonPressed);
-    
+
+    // allocate the screenshot buffer and image
+    ssFbo.allocate(ofGetWidth() * SS_HD_SCALE, ofGetHeight() * SS_HD_SCALE, GL_RGBA);
+    ssImg.allocate(ofGetWidth() * SS_HD_SCALE, ofGetHeight() * SS_HD_SCALE, ofImageType::OF_IMAGE_COLOR_ALPHA);
+}
+
+// listener for svg color change
+void ofApp::onSvgPointsColorChanged(ofColor &color) {
+	dimSvgPointsColor.setHsb(svgPointsColor.get().getHue(),
+		svgPointsColor.get().getSaturation(),
+		svgPointsColor.get().getBrightness() / 4); // reduce the brightness to 25%
 }
 
 void ofApp::update() {
@@ -197,7 +211,7 @@ void ofApp::update() {
     // Update downscale factor
     if (downscaleFactor != downscaleFactorGui) {
         downscaleFactor = downscaleFactorGui;
-        potentialField.allocate(ofGetWidth() / downscaleFactor, ofGetHeight() / downscaleFactor, OF_IMAGE_GRAYSCALE);
+        potentialField.allocate(ofGetWidth() / downscaleFactor, ofGetHeight() / downscaleFactor, OF_IMAGE_COLOR_ALPHA);
         potentialFieldUpdated = true;
         contourLinesUpdated = true;
     }
@@ -296,48 +310,77 @@ void ofApp::update() {
 }
 
 void ofApp::draw() {
-    ofBackground(0);  // Set background to black
-    
-    // Draw the potential field if the flag is set
-    if (showPotentialField) {
-        ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
-        potentialField.draw(0, 0, ofGetWidth(), ofGetHeight()); // Upscale when drawing
-    }
-    
-    if (showGrid) {
-        drawGrid();  // Draw grid
-    }
-    
-    // Draw contour lines if the flag is set
-    if (showContourLines) {
-        ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
-        attractorField.drawContours();
-    }
-    
-    ofSetColor(svgPointsColor);  // Set color to white for drawing
-    
-    // unlike the particleEnsemble, the svgSkeleton points include the midpoint
-    // we only draw the svgSkeleton points if explicitly indicated
+
+	// when saving HD screenshot, render all at upscaled size
+	if (shouldSaveHDScreenshot) {
+		ssFbo.begin();
+		ofPushMatrix();
+		ofScale(SS_HD_SCALE, SS_HD_SCALE);
+	}
+
+    ofBackground(backgroundColor); // Set background to black
+
+	if (!(shouldSaveHDScreenshot || shouldSaveScreenshot)) {
+
+		if (showGrid) {
+			drawGrid(); // Draw grid
+		}
+
+		// Draw contour lines if the flag is set
+		if (showContourLines) {
+			ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
+			attractorField.drawContours();
+		}
+
+		// Draw the temporary attractor being adjusted
+		if (drawingAttractor) {
+			ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
+			tempAttractor.draw();
+		}
+
+		// Draw established attractors if the flag is set
+		if (showAttractorCircles) {
+			ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
+			attractorField.draw();
+		}
+	}
+
+	// Draw the potential field if the flag is set
+	if (showPotentialField) {
+		ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
+		potentialField.draw(0, 0, ofGetWidth(), ofGetHeight()); // Upscale when drawing
+	}
+
+    ofSetColor(dimSvgPointsColor); // Set color for drawing
+
+	// unlike the particleEnsemble, the svgSkeleton points include the midpoint
+	// we only draw the svgSkeleton points if explicitly indicated
 	if (vboParticles) {
-		particleEnsemble.drawVBO();
+		// when HD screenshoting, tell the vbo drawing to use a high scaled particles
+		particleEnsemble.drawVBO(shouldSaveHDScreenshot ? SS_HD_SCALE : 1.0f);
 	} else {
 		particleEnsemble.draw();
 	}
-    if (showSvgPoints) {svgSkeleton.draw();}
-    
-    
-    // Draw established attractors if the flag is set
-    if (showAttractorCircles) {
-        ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
-        attractorField.draw();
-    }
-    
-    // Draw the temporary attractor being adjusted
-    if (drawingAttractor) {
-        ofSetColor(potentialFieldColor->r, potentialFieldColor->g, potentialFieldColor->b); // Apply color
-        tempAttractor.draw();
-    }
-    
+	if (showSvgPoints) {
+		svgSkeleton.draw();
+	}
+
+    // finish the HD screenshot process
+	if (shouldSaveHDScreenshot) {
+		ofPopMatrix();
+		ssFbo.end();
+		ssFbo.readToPixels(ssImg.getPixels());
+		string screenshotFilename = SS_PREFIX + ofGetTimestampString() + "_HD_" + SS_SUFIX;
+		ofSaveImage(ssImg, screenshotFilename, OF_IMAGE_QUALITY_BEST);
+		shouldSaveHDScreenshot = false;
+	}
+	else
+	if (shouldSaveScreenshot) {
+		string screenshotFilename = SS_PREFIX + ofGetTimestampString() + SS_SUFIX;
+		ofSaveScreen(screenshotFilename);
+		shouldSaveScreenshot = false;
+	}
+
     // Draw GUI
     if(drawMenus){
         gui.draw();
@@ -616,11 +659,13 @@ void ofApp::windowResized(int w, int h) {
     int width = w / downscaleFactor;
     int height = h / downscaleFactor;
     regenerateGridIntersections();  // Regenerate grid intersections when the window is resized
-    potentialField.allocate(width, height, OF_IMAGE_GRAYSCALE); // Reallocate the potential field image
+    potentialField.allocate(width, height, OF_IMAGE_COLOR_ALPHA); // Reallocate the potential field image
     potentialFieldUpdated = true; // Mark the potential field as needing an update
     contourLinesUpdated = true; // Mark contour lines for update
     attractorGui.setPosition(ofGetWidth() - 210, gui.getPosition().y); // Position to the right of the main panel
     fileGui.setPosition(gui.getPosition().x, ofGetHeight() - 140);
+    ssFbo.allocate(ofGetWidth() * SS_HD_SCALE, ofGetHeight() * SS_HD_SCALE, GL_RGBA);
+    ssImg.allocate(ofGetWidth() * SS_HD_SCALE, ofGetHeight() * SS_HD_SCALE, ofImageType::OF_IMAGE_COLOR_ALPHA);
 }
 
 void ofApp::keyPressed(int key) {
@@ -668,6 +713,14 @@ void ofApp::keyPressed(int key) {
     }
     if(key == 'f' || key == 'F'){
         drawFileMenu = !drawFileMenu;
+    }
+    if (key == 's') {
+        // Save a screenshot of the current frame, regular size
+        shouldSaveScreenshot = true;
+    }
+    if (key == 'S') {
+        // save a screenshot of the current frame, HD size
+        shouldSaveHDScreenshot = true;
     }
 }
 
@@ -758,7 +811,7 @@ void ofApp::resetSimulation() {
     // Pause the simulation
     isPlaying = false;
     playPauseStatus = "Pause";  // Update play/pause status
-    showSvgPoints = true;  // Show SVG points when resetting
+    showSvgPoints = false;  // Show SVG points when resetting
 
     // Reset particle positions to original positions along the SVG skeleton
     particleEnsemble.reinitialize(svgSkeleton.getEquidistantPoints());
@@ -1081,6 +1134,7 @@ void ofApp::saveSettings() {
     svgInfoXml.appendChild("svgScale").set(svgScale.get());
     svgInfoXml.appendChild("SVG_rot__deg_").set(svgRotationAngle.get());
     svgInfoXml.appendChild("SVG_Points_Color").set(svgPointsColor.get());
+    svgInfoXml.appendChild("Background_Color").set(backgroundColor.get());
 
     // Save the attractor GUI
     ofXml attractorXml = settings.appendChild("attractorGui");

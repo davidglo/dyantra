@@ -77,6 +77,8 @@ private:
     ofParameter<bool> showPotentialFieldGui;
     ofParameter<ofColor> potentialFieldColor; // Add color wheel
     ofParameter<ofColor> svgPointsColor; // New parameter for SVG points color
+    ofColor dimSvgPointsColor; // proxy color dimming the brightness
+    ofParameter<ofColor> backgroundColor; // New parameter for SVG points color
     ofParameter<string> fpsDisplay; // Add FPS display
     ofParameter<bool> showAttractorCircles; // Add checkbox for attractor circles
     ofParameter<bool> showContourLines; // Add checkbox for contour lines
@@ -135,7 +137,7 @@ private:
     
     void resetSimulation();
 
-	ofParameter<bool> vboParticles;
+    ofParameter<bool> vboParticles;
 
     std::vector<ofPoint> gridIntersections;  // Store the grid intersection points
     ofParameter<bool> showGrid; // Declare showGrid as private
@@ -177,6 +179,15 @@ private:
     // Other variables
     int timeReversalTimestep;  // Variable to store the user-defined timestep for reversal
     bool timeReversalValueChanged;
+
+    // screenshot variables
+    bool shouldSaveHDScreenshot = false;
+    bool shouldSaveScreenshot   = false;
+    ofFbo ssFbo;
+    ofImage ssImg;
+    const float SS_HD_SCALE = 2.0f;
+    const string SS_PREFIX = "screenshots/dyantra_";
+    const string SS_SUFIX = ".png";
     
     ofxPanel fileGui;
     
@@ -212,5 +223,6 @@ private:
     
     void loadSequenceFiles();
     void runSequence();
-    
+
+    void onSvgPointsColorChanged(ofColor &color);
 };

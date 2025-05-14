@@ -46,15 +46,13 @@ void particleEnsemble::draw() const {
     ofFill();
     for (size_t i = 0; i < positions.size(); ++i) {
         ofDrawCircle(positions[i], radii[i]);
-		//ofdraw
     }
 	ofPopMatrix();
 }
 
-
-void particleEnsemble::drawVBO() {
+void particleEnsemble::drawVBO(float scale = 1) {
 	ofPushStyle();
-	ofSetPointSize(5.0);
+	ofSetPointSize(5.0 * scale);
 	vboRenderer.update(positions);
 	vboRenderer.draw();
 	ofPopStyle();

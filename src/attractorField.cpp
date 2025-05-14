@@ -103,7 +103,7 @@ void attractorField::calculatePotentialField(ofImage& potentialField, float down
         }
     }
     */
-    
+
     // Apply linear scaling to the potential values
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
@@ -112,8 +112,14 @@ void attractorField::calculatePotentialField(ofImage& potentialField, float down
             float normalizedPotential = (potential) / (maxPotential);
             // Linear scaling
             float brightness = ofMap(normalizedPotential, 0, 1, 0, 255, true);
-            
-            potentialField.setColor(x, y, ofColor(brightness));
+            float transparency = ofMap(normalizedPotential, 0, 1, 0, 255, true);
+
+			//if (potential < 10) {
+			//	brightness = 0;
+			//	transparency = 0;
+			//}
+
+            potentialField.setColor(x, y, ofColor(brightness, transparency));
         }
     }
     

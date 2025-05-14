@@ -20,3 +20,5 @@ bin/data/tara-head-components/
 /obj
 /.vs/dyantra
 /dll/x64
+/bin/dyantra.exe
+/bin/dyantra.exp

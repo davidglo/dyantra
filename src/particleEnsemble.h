@@ -9,7 +9,7 @@ public:
     particleEnsemble(); // Constructor
 
     void draw() const;
-    void drawVBO();
+	void drawVBO(float scale);
     void initialize(const std::vector<glm::vec3>& initialPositions); // Initialization function
     void ZeroForces() {  // Zero forces function
         for (auto& force : f) {
